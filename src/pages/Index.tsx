@@ -1,13 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Helmet } from "react-helmet-async";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import BlogMedia from "@/components/BlogMedia";
+import ConsultAI from "@/components/ConsultAI";
+import Features from "@/components/Features";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <>
+      <Helmet>
+        <title>Embraix - Clean Energy, Electric Vehicles & Smart Technologies for Africa</title>
+        <meta 
+          name="description" 
+          content="Embraix is Africa's leading platform for clean energy, electric vehicles, and smart technology knowledge, innovation, and collaboration. Get free AI-powered consultations." 
+        />
+        <meta name="keywords" content="clean energy, electric vehicles, solar power, sustainable technology, Africa, EV charging, smart technology" />
+        <meta property="og:title" content="Embraix - Sustainable Technology Platform for Africa" />
+        <meta property="og:description" content="Your comprehensive platform for clean energy, EVs, and smart technologies. Empowering Africa and the world." />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://embraix.com" />
+      </Helmet>
+
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main>
+          <Hero />
+          <BlogMedia />
+          <ConsultAI />
+          <Features />
+        </main>
+        <Footer />
       </div>
-    </div>
+    </>
   );
 };
 
