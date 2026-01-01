@@ -62,11 +62,12 @@ const Admin = () => {
   const handleSubmit = async () => {
     if (!user) return;
     
-    let success: boolean | Article | null;
+    let success: boolean;
     if (editingArticle) {
       success = await updateArticle(editingArticle.id, formData);
     } else {
-      success = await createArticle(formData, user.id);
+      const result = await createArticle(formData, user.id);
+      success = result !== null;
     }
     
     if (success) {
