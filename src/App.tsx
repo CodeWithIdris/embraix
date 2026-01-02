@@ -9,6 +9,9 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Admin from "./pages/Admin";
+import Newsletter from "./pages/Newsletter";
+import Promotions from "./pages/Promotions";
+import MediaPage from "./pages/MediaPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +29,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/newsletter" element={<Newsletter />} />
+              <Route path="/promotions" element={<Promotions />} />
+              <Route path="/media/:category" element={<MediaPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

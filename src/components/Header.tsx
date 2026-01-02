@@ -1,16 +1,42 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Settings, MessageSquare } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Menu, 
+  X, 
+  LogOut, 
+  MessageSquare, 
+  ChevronDown,
+  Newspaper,
+  FileText,
+  BarChart3,
+  Star,
+  Wrench,
+  BookOpen,
+  Rocket,
+  Megaphone,
+  Mail,
+  User,
+  Settings,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.jpg";
 
-const navLinks = [
-  { label: "Blog & Media", href: "#blog" },
-  { label: "Consult", href: "#consult" },
-  { label: "Centre", href: "#features" },
-  { label: "Insight", href: "#features" },
-  { label: "Store", href: "#features" },
+const mediaItems = [
+  { icon: Newspaper, label: "News", href: "/media/news", description: "Latest industry updates" },
+  { icon: FileText, label: "Reports", href: "/media/reports", description: "In-depth market analysis" },
+  { icon: BarChart3, label: "Analysis", href: "/media/analysis", description: "Expert evaluations" },
+  { icon: Star, label: "Reviews", href: "/media/reviews", description: "Product assessments" },
+  { icon: Wrench, label: "DIY Guides", href: "/media/diy-guides", description: "Hands-on tutorials" },
+  { icon: BookOpen, label: "Tutorials", href: "/media/tutorials", description: "Educational resources" },
+  { icon: Rocket, label: "Projects", href: "/media/projects", description: "Case studies & showcases" },
 ];
 
 const Header = () => {
@@ -24,43 +50,105 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/40">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Embraix" className="h-8 md:h-10 w-auto" />
+            <img src={logo} alt="Embraix" className="h-8 md:h-9 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
-              >
-                {link.label}
-              </a>
-            ))}
+          <nav className="hidden lg:flex items-center gap-1">
+            {/* Media Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground">
+                  Media
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {mediaItems.map((item) => (
+                  <DropdownMenuItem 
+                    key={item.label}
+                    onClick={() => navigate(item.href)}
+                    className="cursor-pointer gap-3 py-2.5"
+                  >
+                    <item.icon className="w-4 h-4 text-primary" />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{item.label}</span>
+                      <span className="text-xs text-muted-foreground">{item.description}</span>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Promotions */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => navigate("/promotions")}
+            >
+              <Megaphone className="w-4 h-4 mr-1.5" />
+              Promotions
+            </Button>
+
+            {/* Newsletter */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => navigate("/newsletter")}
+            >
+              <Mail className="w-4 h-4 mr-1.5" />
+              Newsletter
+            </Button>
+
+            {/* AI Consult */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => navigate(user ? "/chat" : "/auth")}
+            >
+              <MessageSquare className="w-4 h-4 mr-1.5" />
+              AI Consult
+            </Button>
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Desktop Auth */}
+          <div className="hidden lg:flex items-center gap-2">
             {user ? (
-              <>
-                <Button variant="ghost" size="sm" onClick={() => navigate("/chat")}>
-                  <MessageSquare className="w-4 h-4 mr-2" />AI Chat
-                </Button>
-                {isWriter && (
-                  <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>
-                    <Settings className="w-4 h-4 mr-2" />Dashboard
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5" />
                   </Button>
-                )}
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" />Sign Out
-                </Button>
-              </>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/chat")} className="cursor-pointer gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    AI Chat
+                  </DropdownMenuItem>
+                  {isWriter && (
+                    <DropdownMenuItem onClick={() => navigate("/admin")} className="cursor-pointer gap-2">
+                      <Settings className="w-4 h-4" />
+                      Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer gap-2 text-destructive">
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
@@ -75,49 +163,105 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-foreground"
+            className="lg:hidden p-2 text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border/50 animate-fade-in">
-            <nav className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
-              <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
+          <div className="lg:hidden py-4 border-t border-border/40 animate-fade-in">
+            <nav className="flex flex-col gap-1">
+              {/* Media Section */}
+              <div className="py-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2 block">
+                  Media
+                </span>
+                {mediaItems.map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => { navigate(item.href); setIsMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+                  >
+                    <item.icon className="w-4 h-4 text-primary" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="h-px bg-border/40 my-2" />
+
+              {/* Standalone Items */}
+              <button
+                onClick={() => { navigate("/promotions"); setIsMenuOpen(false); }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                <Megaphone className="w-4 h-4 text-primary" />
+                Promotions
+              </button>
+              <button
+                onClick={() => { navigate("/newsletter"); setIsMenuOpen(false); }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                <Mail className="w-4 h-4 text-primary" />
+                Newsletter
+              </button>
+              <button
+                onClick={() => { navigate(user ? "/chat" : "/auth"); setIsMenuOpen(false); }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                <MessageSquare className="w-4 h-4 text-primary" />
+                AI Consult
+              </button>
+
+              <div className="h-px bg-border/40 my-2" />
+
+              {/* Auth */}
+              <div className="flex flex-col gap-2 pt-2">
                 {user ? (
                   <>
-                    <Button variant="ghost" size="sm" onClick={() => { navigate("/chat"); setIsMenuOpen(false); }}>
-                      <MessageSquare className="w-4 h-4 mr-2" />AI Chat
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="justify-start"
+                      onClick={() => { navigate("/chat"); setIsMenuOpen(false); }}
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      AI Chat
                     </Button>
                     {isWriter && (
-                      <Button variant="ghost" size="sm" onClick={() => { navigate("/admin"); setIsMenuOpen(false); }}>
-                        <Settings className="w-4 h-4 mr-2" />Dashboard
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="justify-start"
+                        onClick={() => { navigate("/admin"); setIsMenuOpen(false); }}
+                      >
+                        <Settings className="w-4 h-4 mr-2" />
+                        Dashboard
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={handleSignOut}>
-                      <LogOut className="w-4 h-4 mr-2" />Sign Out
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" size="sm" onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}
+                    >
                       Sign In
                     </Button>
-                    <Button variant="hero" size="sm" onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}>
+                    <Button 
+                      variant="hero" 
+                      size="sm"
+                      onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}
+                    >
                       Get Started
                     </Button>
                   </>
