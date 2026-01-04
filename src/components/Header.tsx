@@ -29,24 +29,45 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.jpg";
 
-const mediaItems = [
-  { icon: Newspaper, label: "News", href: "/media/news", description: "Latest industry updates" },
-  { icon: FileText, label: "Reports", href: "/media/reports", description: "In-depth market analysis" },
-  { icon: BarChart3, label: "Analysis", href: "/media/analysis", description: "Expert evaluations" },
-  { icon: Star, label: "Reviews", href: "/media/reviews", description: "Product assessments" },
-  { icon: Wrench, label: "DIY Guides", href: "/media/diy-guides", description: "Hands-on tutorials" },
-  { icon: BookOpen, label: "Tutorials", href: "/media/tutorials", description: "Educational resources" },
-  { icon: Rocket, label: "Projects", href: "/media/projects", description: "Case studies & showcases" },
+// Grouped navigation items
+const navGroups = [
+  {
+    label: "News & Reports",
+    items: [
+      { icon: Newspaper, label: "News", href: "/media/news", description: "Latest industry updates" },
+      { icon: FileText, label: "Reports", href: "/media/reports", description: "In-depth market analysis" },
+      { icon: BarChart3, label: "Analysis", href: "/media/analysis", description: "Expert evaluations" },
+    ]
+  },
+  {
+    label: "Reviews & Guides",
+    items: [
+      { icon: Star, label: "Reviews", href: "/media/reviews", description: "Product assessments" },
+      { icon: Wrench, label: "DIY Guides", href: "/media/diy-guides", description: "Hands-on tutorials" },
+      { icon: BookOpen, label: "Tutorials", href: "/media/tutorials", description: "Educational resources" },
+    ]
+  },
+  {
+    label: "Projects",
+    items: [
+      { icon: Rocket, label: "Projects", href: "/media/projects", description: "Case studies & showcases" },
+    ]
+  }
 ];
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const { user, isWriter, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const toggleGroup = (label: string) => {
+    setExpandedGroup(expandedGroup === label ? null : label);
   };
 
   return (
@@ -60,30 +81,32 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {/* Media Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground">
-                  Media
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                {mediaItems.map((item) => (
-                  <DropdownMenuItem 
-                    key={item.label}
-                    onClick={() => navigate(item.href)}
-                    className="cursor-pointer gap-3 py-2.5"
-                  >
-                    <item.icon className="w-4 h-4 text-primary" />
-                    <div className="flex flex-col">
-                      <span className="font-medium">{item.label}</span>
-                      <span className="text-xs text-muted-foreground">{item.description}</span>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Grouped Dropdowns */}
+            {navGroups.map((group) => (
+              <DropdownMenu key={group.label}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground">
+                    {group.label}
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56 bg-card border-border shadow-lg z-50">
+                  {group.items.map((item) => (
+                    <DropdownMenuItem 
+                      key={item.label}
+                      onClick={() => navigate(item.href)}
+                      className="cursor-pointer gap-3 py-2.5"
+                    >
+                      <item.icon className="w-4 h-4 text-primary" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">{item.label}</span>
+                        <span className="text-xs text-muted-foreground">{item.description}</span>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ))}
 
             {/* Promotions */}
             <Button 
@@ -131,7 +154,7 @@ const Header = () => {
                     <ChevronDown className="w-3.5 h-3.5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48 bg-card border-border shadow-lg z-50">
                   <DropdownMenuItem onClick={() => navigate("/chat")} className="cursor-pointer gap-2">
                     <MessageSquare className="w-4 h-4" />
                     AI Chat
@@ -175,22 +198,36 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t border-border/40 animate-fade-in">
             <nav className="flex flex-col gap-1">
-              {/* Media Section */}
-              <div className="py-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2 block">
-                  Media
-                </span>
-                {mediaItems.map((item) => (
+              {/* Grouped Sections */}
+              {navGroups.map((group) => (
+                <div key={group.label} className="py-1">
                   <button
-                    key={item.label}
-                    onClick={() => { navigate(item.href); setIsMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+                    onClick={() => toggleGroup(group.label)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
                   >
-                    <item.icon className="w-4 h-4 text-primary" />
-                    {item.label}
+                    <span>{group.label}</span>
+                    <ChevronDown 
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        expandedGroup === group.label ? 'rotate-180' : ''
+                      }`} 
+                    />
                   </button>
-                ))}
-              </div>
+                  {expandedGroup === group.label && (
+                    <div className="ml-3 mt-1 space-y-1 animate-fade-in">
+                      {group.items.map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={() => { navigate(item.href); setIsMenuOpen(false); }}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/30 rounded-lg transition-colors"
+                        >
+                          <item.icon className="w-4 h-4 text-primary" />
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
 
               <div className="h-px bg-border/40 my-2" />
 
