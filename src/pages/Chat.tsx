@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -236,14 +237,27 @@ const Chat = () => {
                           : "bg-secondary/50 rounded-tl-sm"
                       }`}
                     >
-                      <p className="text-sm text-foreground whitespace-pre-wrap">
-                        {message.content || (
+                      <div className="text-sm text-foreground">
+                        {message.content ? (
+                          <ReactMarkdown
+                            components={{
+                              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                              strong: ({ children }) => <span className="font-semibold">{children}</span>,
+                              em: ({ children }) => <span className="italic">{children}</span>,
+                              ul: ({ children }) => <ul className="list-disc list-inside mb-2">{children}</ul>,
+                              ol: ({ children }) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
+                              li: ({ children }) => <li className="mb-1">{children}</li>,
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        ) : (
                           <span className="flex items-center gap-2 text-muted-foreground">
                             <Loader2 className="w-4 h-4 animate-spin" />
                             Thinking...
                           </span>
                         )}
-                      </p>
+                      </div>
                     </div>
                     {message.role === "user" && (
                       <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
