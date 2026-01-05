@@ -10,6 +10,7 @@ import { useChat } from "@/hooks/useChat";
 import TypingIndicator from "@/components/chat/TypingIndicator";
 import FollowUpSuggestions from "@/components/chat/FollowUpSuggestions";
 import Header from "@/components/Header";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Bot,
   Send,
@@ -21,6 +22,7 @@ const Chat = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [input, setInput] = useState("");
+  const [hasTrackedFirstMessage, setHasTrackedFirstMessage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const {
@@ -40,10 +42,47 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Send welcome email on first AI consult message
+  const sendAIConsultWelcome = async () => {
+    if (!user || hasTrackedFirstMessage) return;
+    
+    try {
+      // Check if user already has an ai_consult subscription
+      const { data: existing } = await supabase
+        .from("newsletter_subscriptions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("source", "ai_consult")
+        .maybeSingle();
+      
+      if (!existing) {
+        await supabase.functions.invoke("send-welcome-email", {
+          body: {
+            email: user.email,
+            name: user.user_metadata?.full_name || "",
+            source: "ai_consult",
+            userId: user.id,
+          },
+        });
+        console.log("AI Consult welcome email sent");
+      }
+      
+      setHasTrackedFirstMessage(true);
+    } catch (err) {
+      console.error("Failed to send AI consult welcome:", err);
+    }
+  };
+
   const handleSend = async (message?: string) => {
     const text = message || input;
     if (!text.trim() || isStreaming) return;
     setInput("");
+    
+    // Send welcome email on first message
+    if (messages.length === 0) {
+      sendAIConsultWelcome();
+    }
+    
     await sendMessage(text);
   };
 

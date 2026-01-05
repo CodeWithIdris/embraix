@@ -12,12 +12,14 @@ import {
   TrendingUp, 
   BookOpen,
   Lock,
-  ArrowLeft
+  ArrowLeft,
+  Loader2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
 
 const benefits = [
   { icon: Zap, title: "Weekly Insights", description: "Curated updates on clean energy and EV trends" },
@@ -30,17 +32,49 @@ const Newsletter = () => {
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!user) {
       toast.info("Please sign in to subscribe to the newsletter");
       navigate("/auth");
       return;
     }
-    // TODO: Implement actual subscription logic
-    setIsSubscribed(true);
-    toast.success("Successfully subscribed to the newsletter!");
+
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Call the welcome email edge function
+      const { data, error } = await supabase.functions.invoke("send-welcome-email", {
+        body: {
+          email,
+          name: user.user_metadata?.full_name || "",
+          source: "newsletter",
+          userId: user.id,
+        },
+      });
+
+      if (error) {
+        console.error("Error sending welcome email:", error);
+        toast.error("Failed to subscribe. Please try again.");
+        return;
+      }
+
+      setIsSubscribed(true);
+      toast.success("Successfully subscribed to the newsletter!");
+    } catch (err) {
+      console.error("Subscription error:", err);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -117,7 +151,7 @@ const Newsletter = () => {
                           You're Subscribed!
                         </h3>
                         <p className="text-muted-foreground">
-                          Thank you for subscribing. Check your inbox for a confirmation email.
+                          Thank you for subscribing. Check your inbox for a welcome email.
                         </p>
                       </div>
                     ) : (
@@ -132,9 +166,23 @@ const Newsletter = () => {
                             className="bg-secondary/50 border-border/50"
                           />
                         </div>
-                        <Button type="submit" variant="hero" className="w-full">
-                          Subscribe Now
-                          <ArrowRight className="ml-2 w-4 h-4" />
+                        <Button 
+                          type="submit" 
+                          variant="hero" 
+                          className="w-full"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Subscribing...
+                            </>
+                          ) : (
+                            <>
+                              Subscribe Now
+                              <ArrowRight className="ml-2 w-4 h-4" />
+                            </>
+                          )}
                         </Button>
                         {!user && (
                           <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">

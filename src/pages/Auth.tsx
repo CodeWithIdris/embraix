@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Leaf, ArrowLeft, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -45,6 +46,21 @@ const Auth = () => {
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const sendWelcomeEmail = async (userEmail: string, userName: string) => {
+    try {
+      await supabase.functions.invoke("send-welcome-email", {
+        body: {
+          email: userEmail,
+          name: userName,
+          source: "signup",
+        },
+      });
+      console.log("Welcome email sent successfully");
+    } catch (err) {
+      console.error("Failed to send welcome email:", err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,9 +108,12 @@ const Auth = () => {
             });
           }
         } else {
+          // Send welcome email on successful signup
+          await sendWelcomeEmail(email, fullName);
+          
           toast({
             title: "Account created!",
-            description: "You can now log in with your credentials."
+            description: "Check your email for a welcome message."
           });
           setIsLogin(true);
         }
