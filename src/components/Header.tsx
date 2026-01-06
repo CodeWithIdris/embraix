@@ -108,6 +108,17 @@ const Header = () => {
               </DropdownMenu>
             ))}
 
+            {/* Blog */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => navigate("/blog")}
+            >
+              <BookOpen className="w-4 h-4 mr-1.5" />
+              Blog
+            </Button>
+
             {/* Promotions */}
             <Button 
               variant="ghost" 
@@ -155,6 +166,10 @@ const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 bg-card border-border shadow-lg z-50">
+                  <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2">
+                    <User className="w-4 h-4" />
+                    Profile
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/chat")} className="cursor-pointer gap-2">
                     <MessageSquare className="w-4 h-4" />
                     AI Chat
@@ -232,6 +247,13 @@ const Header = () => {
               <div className="h-px bg-border/40 my-2" />
 
               {/* Standalone Items */}
+              <button
+                onClick={() => { navigate("/blog"); setIsMenuOpen(false); }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                <BookOpen className="w-4 h-4 text-primary" />
+                Blog
+              </button>
               <button
                 onClick={() => { navigate("/promotions"); setIsMenuOpen(false); }}
                 className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"

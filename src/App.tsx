@@ -12,6 +12,9 @@ import Admin from "./pages/Admin";
 import Newsletter from "./pages/Newsletter";
 import Promotions from "./pages/Promotions";
 import MediaPage from "./pages/MediaPage";
+import Profile from "./pages/Profile";
+import Blog from "./pages/Blog";
+import BlogArticle from "./pages/BlogArticle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const App = () => (
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/promotions" element={<Promotions />} />
               <Route path="/media/:category" element={<MediaPage />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogArticle />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
