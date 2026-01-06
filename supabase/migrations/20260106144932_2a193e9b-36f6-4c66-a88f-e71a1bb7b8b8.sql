@@ -1,0 +1,2 @@
+-- Drop the overly permissive policy (service role bypasses RLS by default, so this policy is unnecessary and exposes data)
+DROP POLICY IF EXISTS "Service role can read all subscriptions" ON public.newsletter_subscriptions;
