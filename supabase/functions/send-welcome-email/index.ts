@@ -234,10 +234,14 @@ const handler = async (req: Request): Promise<Response> => {
     const { subject, html } = getEmailContent(name || "", source);
 
     const emailResponse = await resend.emails.send({
-      from: "Embraix <onboarding@resend.dev>",
+      from: "Embraix <hello@embraix.com>",
+      reply_to: "support@embraix.com",
       to: [email],
       subject,
       html,
+      headers: {
+        "X-Entity-Ref-ID": `${source}-${authenticatedUserId}-${Date.now()}`,
+      },
     });
 
     console.log("Welcome email sent successfully:", emailResponse);
