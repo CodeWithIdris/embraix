@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "dompurify";
 import { 
   Bold, 
   Italic, 
@@ -18,18 +19,43 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+// Configure DOMPurify to allow safe HTML tags for blog content
+const sanitizeConfig = {
+  ALLOWED_TAGS: [
+    'p', 'br', 'b', 'strong', 'i', 'em', 'u', 's', 'strike',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li',
+    'blockquote', 'pre', 'code',
+    'a', 'span', 'div'
+  ],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
+  ALLOW_DATA_ATTR: false,
+  ADD_ATTR: ['target'],
+  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
+  FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover', 'onfocus', 'onblur'],
+};
+
+const sanitizeHtml = (html: string): string => {
+  return DOMPurify.sanitize(html, sanitizeConfig);
+};
+
 const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value;
+    if (editorRef.current) {
+      const sanitizedValue = sanitizeHtml(value);
+      if (editorRef.current.innerHTML !== sanitizedValue) {
+        editorRef.current.innerHTML = sanitizedValue;
+      }
     }
   }, [value]);
 
   const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      // Sanitize content before passing to onChange
+      const sanitizedContent = sanitizeHtml(editorRef.current.innerHTML);
+      onChange(sanitizedContent);
     }
   };
 

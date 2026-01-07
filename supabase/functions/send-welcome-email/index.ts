@@ -16,6 +16,13 @@ interface WelcomeEmailRequest {
   userId?: string;
 }
 
+// Email validation regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const validateEmail = (email: string): boolean => {
+  return emailRegex.test(email) && email.length <= 255;
+};
+
 const getEmailContent = (name: string, source: string) => {
   const firstName = name || "there";
   
@@ -142,7 +149,85 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Validate Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.error("Missing or invalid Authorization header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - missing authentication" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Create Supabase client with the user's JWT
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the JWT and get user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error("JWT verification failed:", userError);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - invalid token" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const authenticatedUserId = user.id;
+    const authenticatedEmail = user.email;
+
+    console.log("Authenticated user:", authenticatedUserId, authenticatedEmail);
+
     const { email, name, source, userId }: WelcomeEmailRequest = await req.json();
+
+    // Validate required fields
+    if (!email || !source) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: email and source" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid email format" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate source
+    const validSources = ["newsletter", "ai_consult", "signup"];
+    if (!validSources.includes(source)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid source" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Security check: ensure the user can only send emails to themselves
+    // or if userId is provided, it must match the authenticated user
+    if (userId && userId !== authenticatedUserId) {
+      console.error("User ID mismatch:", userId, "vs", authenticatedUserId);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - user ID mismatch" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // For newsletter and ai_consult sources, verify the email belongs to the authenticated user
+    if ((source === "newsletter" || source === "ai_consult") && email !== authenticatedEmail) {
+      console.error("Email mismatch for", source, ":", email, "vs", authenticatedEmail);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - email mismatch" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     console.log(`Sending ${source} welcome email to:`, email);
 
@@ -157,18 +242,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Welcome email sent successfully:", emailResponse);
 
-    // Store subscription record in database if userId is provided
-    if (userId && source !== "signup") {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    // Store subscription record in database using service role for newsletter/ai_consult
+    if (source !== "signup") {
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       
-      if (supabaseUrl && supabaseKey) {
-        const supabase = createClient(supabaseUrl, supabaseKey);
+      if (supabaseUrl && serviceRoleKey) {
+        const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
         
-        const { error: insertError } = await supabase
+        const { error: insertError } = await adminSupabase
           .from("newsletter_subscriptions")
           .upsert({
-            user_id: userId,
+            user_id: authenticatedUserId,
             email,
             source,
             is_active: true,
