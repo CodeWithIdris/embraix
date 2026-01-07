@@ -80,7 +80,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation - Centered */}
-          <nav className="hidden lg:flex items-center justify-center gap-1 flex-1">
+          <nav className="hidden md:flex items-center justify-center gap-1 flex-1">
             {/* Grouped Dropdowns */}
             {navGroups.map((group) => (
               <DropdownMenu key={group.label}>
@@ -154,7 +154,7 @@ const Header = () => {
           </nav>
 
           {/* Desktop Auth */}
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -201,7 +201,7 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+            className="md:hidden p-2 text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -211,7 +211,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border/40 animate-fade-in">
+          <div className="md:hidden py-4 border-t border-border/40 animate-fade-in">
             <nav className="flex flex-col gap-1">
               {/* Grouped Sections */}
               {navGroups.map((group) => (
