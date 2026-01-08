@@ -15,6 +15,8 @@ import MediaPage from "./pages/MediaPage";
 import Profile from "./pages/Profile";
 import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
+import News from "./pages/News";
+import NewsPost from "./pages/NewsPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/news/:id" element={<NewsPost />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -233,14 +233,23 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { subject, html } = getEmailContent(name || "", source);
 
+    // Generate plain text version for better deliverability
+    const plainText = html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
     const emailResponse = await resend.emails.send({
       from: "Embraix <hello@embraix.com>",
       reply_to: "support@embraix.com",
       to: [email],
       subject,
       html,
+      text: plainText,
       headers: {
         "X-Entity-Ref-ID": `${source}-${authenticatedUserId}-${Date.now()}`,
+        "List-Unsubscribe": "<mailto:unsubscribe@embraix.com>",
       },
     });
 
