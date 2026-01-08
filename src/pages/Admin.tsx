@@ -8,24 +8,36 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useBlog, Article, ArticleFormData } from "@/hooks/useBlog";
+import { useNews, NewsPost } from "@/hooks/useNews";
+import { useConsultationTickets, ConsultationTicket } from "@/hooks/useConsultationTickets";
 import RichTextEditor from "@/components/blog/RichTextEditor";
+import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft, Plus, Edit, Trash2, Eye, FileText, Loader2, CheckCircle, Clock, Send
+  ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
+  X, Bell, Ticket, Newspaper, BookOpen, AlertCircle
 } from "lucide-react";
 
 const Admin = () => {
   const { user, loading: authLoading, isWriter, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { categories, tags, loading, loadArticles, createArticle, updateArticle, deleteArticle, generateSlug } = useBlog();
+  const { loadPendingPosts, approvePost, rejectPost } = useNews();
+  const { tickets, newTicketCount, loadTickets, updateTicketStatus, subscribeToNewTickets } = useConsultationTickets();
   
   const [articles, setArticles] = useState<Article[]>([]);
+  const [pendingPosts, setPendingPosts] = useState<NewsPost[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [formData, setFormData] = useState<ArticleFormData>({
     title: "", slug: "", excerpt: "", content: "", featured_image: "", category_id: "", tag_ids: [], status: "draft"
   });
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || !isWriter)) {
@@ -37,7 +49,25 @@ const Admin = () => {
     if (user && isWriter) {
       loadArticles(isAdmin ? {} : { authorId: user.id }).then(setArticles);
     }
+    if (user && isAdmin) {
+      loadPendingPosts().then(setPendingPosts);
+      loadTickets();
+    }
   }, [user, isWriter, isAdmin]);
+
+  // Real-time ticket notifications for admins
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const unsubscribe = subscribeToNewTickets((ticket) => {
+      toast({
+        title: "🔔 New Consultation Request",
+        description: `${ticket.user_name || ticket.user_email} needs expert help`,
+      });
+    });
+
+    return unsubscribe;
+  }, [isAdmin]);
 
   const resetForm = () => {
     setFormData({ title: "", slug: "", excerpt: "", content: "", featured_image: "", category_id: "", tag_ids: [], status: "draft" });
@@ -86,11 +116,46 @@ const Admin = () => {
     }
   };
 
+  const handleApprovePost = async (postId: string) => {
+    const success = await approvePost(postId);
+    if (success) {
+      setPendingPosts(pendingPosts.filter(p => p.id !== postId));
+    }
+  };
+
+  const handleRejectPost = async () => {
+    if (!selectedPostId) return;
+    const success = await rejectPost(selectedPostId, rejectReason);
+    if (success) {
+      setPendingPosts(pendingPosts.filter(p => p.id !== selectedPostId));
+      setRejectDialogOpen(false);
+      setRejectReason("");
+      setSelectedPostId(null);
+    }
+  };
+
+  const handleTicketStatusChange = async (ticketId: string, status: string) => {
+    const success = await updateTicketStatus(ticketId, status);
+    if (success) {
+      loadTickets();
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "published": return <Badge className="bg-primary/20 text-primary"><CheckCircle className="w-3 h-3 mr-1" />Published</Badge>;
       case "pending": return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       default: return <Badge variant="outline"><FileText className="w-3 h-3 mr-1" />Draft</Badge>;
+    }
+  };
+
+  const getTicketStatusBadge = (status: string) => {
+    switch (status) {
+      case "open": return <Badge className="bg-orange-500/20 text-orange-500"><AlertCircle className="w-3 h-3 mr-1" />Open</Badge>;
+      case "in_progress": return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />In Progress</Badge>;
+      case "resolved": return <Badge className="bg-primary/20 text-primary"><CheckCircle className="w-3 h-3 mr-1" />Resolved</Badge>;
+      case "closed": return <Badge variant="outline"><X className="w-3 h-3 mr-1" />Closed</Badge>;
+      default: return <Badge variant="outline">{status}</Badge>;
     }
   };
 
@@ -106,7 +171,7 @@ const Admin = () => {
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" onClick={() => navigate("/")}><ArrowLeft className="w-4 h-4 mr-2" />Back</Button>
-              <h1 className="font-display text-xl font-bold">Blog Dashboard</h1>
+              <h1 className="font-display text-xl font-bold">Admin Dashboard</h1>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
               <DialogTrigger asChild><Button variant="hero"><Plus className="w-4 h-4 mr-2" />New Article</Button></DialogTrigger>
@@ -164,33 +229,189 @@ const Admin = () => {
         </header>
 
         <main className="container mx-auto p-6">
-          {loading ? (
-            <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-          ) : articles.length === 0 ? (
-            <Card className="text-center py-12"><CardContent><FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" /><p className="text-muted-foreground">No articles yet. Create your first one!</p></CardContent></Card>
-          ) : (
-            <div className="grid gap-4">
-              {articles.map(article => (
-                <Card key={article.id} className="gradient-card border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg font-display">{article.title}</CardTitle>
-                      <div className="flex items-center gap-2 mt-2">
-                        {getStatusBadge(article.status)}
-                        {article.category && <Badge variant="secondary">{article.category.name}</Badge>}
-                        <span className="text-xs text-muted-foreground">{new Date(article.created_at).toLocaleDateString()}</span>
+          <Tabs defaultValue="articles" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="articles" className="gap-2">
+                <BookOpen className="w-4 h-4" />
+                Articles
+              </TabsTrigger>
+              {isAdmin && (
+                <>
+                  <TabsTrigger value="posts" className="gap-2">
+                    <Newspaper className="w-4 h-4" />
+                    Pending Posts
+                    {pendingPosts.length > 0 && (
+                      <Badge variant="destructive" className="ml-1">{pendingPosts.length}</Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="tickets" className="gap-2">
+                    <Ticket className="w-4 h-4" />
+                    Tickets
+                    {newTicketCount > 0 && (
+                      <Badge variant="destructive" className="ml-1">{newTicketCount}</Badge>
+                    )}
+                  </TabsTrigger>
+                </>
+              )}
+            </TabsList>
+
+            {/* Articles Tab */}
+            <TabsContent value="articles">
+              {loading ? (
+                <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+              ) : articles.length === 0 ? (
+                <Card className="text-center py-12"><CardContent><FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" /><p className="text-muted-foreground">No articles yet. Create your first one!</p></CardContent></Card>
+              ) : (
+                <div className="grid gap-4">
+                  {articles.map(article => (
+                    <Card key={article.id} className="gradient-card border-border/50">
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg font-display">{article.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-2">
+                            {getStatusBadge(article.status)}
+                            {article.category && <Badge variant="secondary">{article.category.name}</Badge>}
+                            <span className="text-xs text-muted-foreground">{new Date(article.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(article)}><Edit className="w-4 h-4" /></Button>
+                          {isAdmin && <Button variant="ghost" size="sm" onClick={() => handleDelete(article.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>}
+                        </div>
+                      </CardHeader>
+                      {article.excerpt && <CardContent><p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p></CardContent>}
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Pending Posts Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="posts">
+                {pendingPosts.length === 0 ? (
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <CheckCircle className="w-12 h-12 mx-auto text-primary mb-4" />
+                      <p className="text-muted-foreground">No pending posts to review!</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4">
+                    {pendingPosts.map(post => (
+                      <Card key={post.id} className="gradient-card border-border/50">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg font-display">{post.title}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                By {post.author?.full_name || post.author?.email || "Unknown"} • {new Date(post.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="hero" onClick={() => handleApprovePost(post.id)}>
+                                <CheckCircle className="w-4 h-4 mr-1" />Approve
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => { setSelectedPostId(post.id); setRejectDialogOpen(true); }}>
+                                <X className="w-4 h-4 mr-1" />Reject
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {post.excerpt && <p className="text-sm text-muted-foreground mb-2">{post.excerpt}</p>}
+                          <div className="text-sm text-foreground/80 line-clamp-4">{post.content}</div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Reject Dialog */}
+                <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Reject Post</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div>
+                        <label className="text-sm font-medium">Reason for rejection</label>
+                        <Textarea
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          placeholder="Please provide a reason..."
+                          className="mt-1"
+                        />
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleRejectPost}>Reject Post</Button>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(article)}><Edit className="w-4 h-4" /></Button>
-                      {isAdmin && <Button variant="ghost" size="sm" onClick={() => handleDelete(article.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>}
-                    </div>
-                  </CardHeader>
-                  {article.excerpt && <CardContent><p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p></CardContent>}
-                </Card>
-              ))}
-            </div>
-          )}
+                  </DialogContent>
+                </Dialog>
+              </TabsContent>
+            )}
+
+            {/* Tickets Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="tickets">
+                {tickets.length === 0 ? (
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <Ticket className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No consultation tickets yet</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4">
+                    {tickets.map(ticket => (
+                      <Card key={ticket.id} className="gradient-card border-border/50">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <CardTitle className="text-lg font-display">{ticket.subject}</CardTitle>
+                                {getTicketStatusBadge(ticket.status)}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {ticket.user_name || ticket.user_email} • {new Date(ticket.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Select value={ticket.status} onValueChange={(value) => handleTicketStatusChange(ticket.id, value)}>
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="open">Open</SelectItem>
+                                <SelectItem value="in_progress">In Progress</SelectItem>
+                                <SelectItem value="resolved">Resolved</SelectItem>
+                                <SelectItem value="closed">Closed</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <p className="text-sm text-foreground/80">{ticket.description}</p>
+                          {ticket.ai_context && (
+                            <div className="bg-secondary/30 p-3 rounded-lg">
+                              <p className="text-xs text-muted-foreground mb-1">AI Chat Context:</p>
+                              <p className="text-sm text-foreground/70">{ticket.ai_context}</p>
+                            </div>
+                          )}
+                          <div className="flex gap-2 text-xs text-muted-foreground">
+                            <span>📧 {ticket.user_email}</span>
+                            <span>•</span>
+                            <span>Priority: {ticket.priority}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            )}
+          </Tabs>
         </main>
       </div>
     </>
