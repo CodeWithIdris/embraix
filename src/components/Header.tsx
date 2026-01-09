@@ -32,9 +32,9 @@ import logo from "@/assets/logo.jpg";
 // Grouped navigation items
 const navGroups = [
   {
-    label: "News & Reports",
+    label: "News",
     items: [
-      { icon: Newspaper, label: "News", href: "/media/news", description: "Latest industry updates" },
+      { icon: Newspaper, label: "Community News", href: "/news", description: "Community submitted posts" },
       { icon: FileText, label: "Reports", href: "/media/reports", description: "In-depth market analysis" },
       { icon: BarChart3, label: "Analysis", href: "/media/analysis", description: "Expert evaluations" },
     ]

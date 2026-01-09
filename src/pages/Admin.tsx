@@ -15,9 +15,11 @@ import { useNews, NewsPost } from "@/hooks/useNews";
 import { useConsultationTickets, ConsultationTicket } from "@/hooks/useConsultationTickets";
 import RichTextEditor from "@/components/blog/RichTextEditor";
 import { useToast } from "@/hooks/use-toast";
+import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
+import { ProjectsManager } from "@/components/admin/ProjectsManager";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Bell, Ticket, Newspaper, BookOpen, AlertCircle
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket
 } from "lucide-react";
 
 const Admin = () => {
@@ -173,6 +175,8 @@ const Admin = () => {
               <Button variant="ghost" size="sm" onClick={() => navigate("/")}><ArrowLeft className="w-4 h-4 mr-2" />Back</Button>
               <h1 className="font-display text-xl font-bold">Admin Dashboard</h1>
             </div>
+            <div className="flex items-center gap-2">
+              <AdminNotificationBell />
             <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
               <DialogTrigger asChild><Button variant="hero"><Plus className="w-4 h-4 mr-2" />New Article</Button></DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -225,18 +229,23 @@ const Admin = () => {
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
         </header>
 
         <main className="container mx-auto p-6">
           <Tabs defaultValue="articles" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
               <TabsTrigger value="articles" className="gap-2">
                 <BookOpen className="w-4 h-4" />
                 Articles
               </TabsTrigger>
               {isAdmin && (
                 <>
+                  <TabsTrigger value="projects" className="gap-2">
+                    <Rocket className="w-4 h-4" />
+                    Projects
+                  </TabsTrigger>
                   <TabsTrigger value="posts" className="gap-2">
                     <Newspaper className="w-4 h-4" />
                     Pending Posts
@@ -285,6 +294,13 @@ const Admin = () => {
                 </div>
               )}
             </TabsContent>
+
+            {/* Projects Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="projects">
+                <ProjectsManager />
+              </TabsContent>
+            )}
 
             {/* Pending Posts Tab (Admin Only) */}
             {isAdmin && (
