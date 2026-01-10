@@ -34,10 +34,10 @@ const News = () => {
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [user?.id]);
 
   const loadPosts = async () => {
-    const data = await loadApprovedPosts();
+    const data = await loadApprovedPosts(user?.id);
     setPosts(data);
   };
 
@@ -64,8 +64,35 @@ const News = () => {
       return;
     }
 
-    await vote(postId, user.id, voteType);
-    loadPosts();
+    const success = await vote(postId, user.id, voteType);
+    if (success) {
+      // Optimistically update the UI
+      setPosts(posts.map(post => {
+        if (post.id !== postId) return post;
+        
+        const currentUserVote = post.user_vote || 0;
+        let newVoteCount = post.vote_count || 0;
+        let newUserVote: number = voteType;
+        
+        if (currentUserVote === voteType) {
+          // Toggling off the same vote
+          newVoteCount -= voteType;
+          newUserVote = 0;
+        } else if (currentUserVote !== 0) {
+          // Changing vote direction
+          newVoteCount += voteType * 2;
+        } else {
+          // New vote
+          newVoteCount += voteType;
+        }
+        
+        return {
+          ...post,
+          vote_count: newVoteCount,
+          user_vote: newUserVote
+        };
+      }));
+    }
   };
 
   const PostCard = ({ post }: { post: NewsPost }) => (

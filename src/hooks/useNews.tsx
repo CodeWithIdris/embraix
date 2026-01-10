@@ -20,7 +20,7 @@ export interface NewsPost {
     email: string | null;
   };
   vote_count?: number;
-  user_vote?: number;
+  user_vote?: number | null;
   comment_count?: number;
 }
 
@@ -49,7 +49,7 @@ export const useNews = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const loadApprovedPosts = async (): Promise<NewsPost[]> => {
+  const loadApprovedPosts = async (userId?: string): Promise<NewsPost[]> => {
     try {
       const { data: posts, error } = await supabase
         .from("news_posts")
@@ -59,7 +59,7 @@ export const useNews = () => {
 
       if (error) throw error;
 
-      // Fetch author details and vote counts
+      // Fetch author details, vote counts, and user votes
       const enrichedPosts = await Promise.all(
         (posts || []).map(async (post) => {
           // Get author
@@ -77,6 +77,18 @@ export const useNews = () => {
 
           const voteCount = (votes || []).reduce((sum, v) => sum + v.vote_type, 0);
 
+          // Get user's vote if logged in
+          let userVote = 0;
+          if (userId) {
+            const { data: userVoteData } = await supabase
+              .from("post_votes")
+              .select("vote_type")
+              .eq("post_id", post.id)
+              .eq("user_id", userId)
+              .maybeSingle();
+            userVote = userVoteData?.vote_type || 0;
+          }
+
           // Get comment count
           const { count: commentCount } = await supabase
             .from("post_comments")
@@ -87,6 +99,7 @@ export const useNews = () => {
             ...post,
             author: author || undefined,
             vote_count: voteCount,
+            user_vote: userVote,
             comment_count: commentCount || 0,
           };
         })
