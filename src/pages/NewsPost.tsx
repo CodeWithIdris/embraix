@@ -49,14 +49,33 @@ const NewsPost = () => {
   };
 
   const handleVote = async (voteType: 1 | -1) => {
-    if (!user || !id) {
+    if (!user || !id || !post) {
       navigate("/auth");
       return;
     }
 
-    await vote(id, user.id, voteType);
-    const updated = await loadPost(id, user.id);
-    if (updated) setPost(updated);
+    const success = await vote(id, user.id, voteType);
+    if (success) {
+      // Optimistically update the UI
+      const currentUserVote = post.user_vote || 0;
+      let newVoteCount = post.vote_count || 0;
+      let newUserVote: number = voteType;
+      
+      if (currentUserVote === voteType) {
+        newVoteCount -= voteType;
+        newUserVote = 0;
+      } else if (currentUserVote !== 0) {
+        newVoteCount += voteType * 2;
+      } else {
+        newVoteCount += voteType;
+      }
+      
+      setPost({
+        ...post,
+        vote_count: newVoteCount,
+        user_vote: newUserVote
+      });
+    }
   };
 
   const handleSubmitComment = async () => {
