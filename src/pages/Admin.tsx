@@ -17,6 +17,7 @@ import RichTextEditor from "@/components/blog/RichTextEditor";
 import { useToast } from "@/hooks/use-toast";
 import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
 import { ProjectsManager } from "@/components/admin/ProjectsManager";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
   X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket
@@ -119,17 +120,60 @@ const Admin = () => {
   };
 
   const handleApprovePost = async (postId: string) => {
+    const postToApprove = pendingPosts.find(p => p.id === postId);
     const success = await approvePost(postId);
     if (success) {
       setPendingPosts(pendingPosts.filter(p => p.id !== postId));
+      
+      // Send approval email notification
+      if (postToApprove?.author?.email) {
+        try {
+          await supabase.functions.invoke("send-notification-email", {
+            body: {
+              type: "post_approved",
+              recipientEmail: postToApprove.author.email,
+              recipientName: postToApprove.author.full_name,
+              data: {
+                postTitle: postToApprove.title,
+                postUrl: `${window.location.origin}/news/${postId}`,
+              },
+            },
+          });
+          console.log("Approval email sent");
+        } catch (err) {
+          console.error("Failed to send approval email:", err);
+        }
+      }
     }
   };
 
   const handleRejectPost = async () => {
     if (!selectedPostId) return;
+    const postToReject = pendingPosts.find(p => p.id === selectedPostId);
     const success = await rejectPost(selectedPostId, rejectReason);
     if (success) {
       setPendingPosts(pendingPosts.filter(p => p.id !== selectedPostId));
+      
+      // Send rejection email notification
+      if (postToReject?.author?.email) {
+        try {
+          await supabase.functions.invoke("send-notification-email", {
+            body: {
+              type: "post_rejected",
+              recipientEmail: postToReject.author.email,
+              recipientName: postToReject.author.full_name,
+              data: {
+                postTitle: postToReject.title,
+                reason: rejectReason,
+              },
+            },
+          });
+          console.log("Rejection email sent");
+        } catch (err) {
+          console.error("Failed to send rejection email:", err);
+        }
+      }
+      
       setRejectDialogOpen(false);
       setRejectReason("");
       setSelectedPostId(null);
