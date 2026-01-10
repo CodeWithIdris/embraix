@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost as NewsPostType, PostComment } from "@/hooks/useNews";
+import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, Send, Trash2
+  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, Send, Trash2,
+  Share2, Twitter, Facebook, Linkedin, Link2, Check
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -18,6 +21,7 @@ const NewsPost = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { loadPost, vote, loadComments, addComment, deleteComment } = useNews();
 
   const [post, setPost] = useState<NewsPostType | null>(null);
@@ -25,6 +29,26 @@ const NewsPost = () => {
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const postUrl = typeof window !== "undefined" ? window.location.href : "";
+
+  const shareLinks = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(post?.title || "")}&url=${encodeURIComponent(postUrl)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`,
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(postUrl);
+      setCopied(true);
+      toast({ title: "Link copied!", description: "Post URL copied to clipboard" });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: "Failed to copy", variant: "destructive" });
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -192,12 +216,72 @@ const NewsPost = () => {
                   )}
 
                   {/* Content */}
-                  <div className="prose prose-invert max-w-none">
+                  <div className="prose prose-invert max-w-none mb-6">
                     {post.content.split("\n").map((paragraph, i) => (
                       <p key={i} className="text-foreground/90 mb-4">
                         {paragraph}
                       </p>
                     ))}
+                  </div>
+
+                  {/* Social Sharing */}
+                  <div className="flex items-center gap-2 pt-4 border-t border-border/50">
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Share2 className="w-4 h-4" />
+                      Share:
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-[#1DA1F2]/10 hover:text-[#1DA1F2]"
+                          onClick={() => window.open(shareLinks.twitter, "_blank", "width=600,height=400")}
+                        >
+                          <Twitter className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Share on Twitter</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-[#1877F2]/10 hover:text-[#1877F2]"
+                          onClick={() => window.open(shareLinks.facebook, "_blank", "width=600,height=400")}
+                        >
+                          <Facebook className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Share on Facebook</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                          onClick={() => window.open(shareLinks.linkedin, "_blank", "width=600,height=400")}
+                        >
+                          <Linkedin className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Share on LinkedIn</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0"
+                          onClick={copyToClipboard}
+                        >
+                          {copied ? <Check className="w-4 h-4 text-primary" /> : <Link2 className="w-4 h-4" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{copied ? "Copied!" : "Copy link"}</TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
               </div>

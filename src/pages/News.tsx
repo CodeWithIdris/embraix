@@ -13,13 +13,15 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost, NewsPostFormData } from "@/hooks/useNews";
 import {
-  Plus, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, TrendingUp
+  Plus, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, TrendingUp, Share2
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 
 const News = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { loading, loadApprovedPosts, createPost, vote } = useNews();
 
   const [posts, setPosts] = useState<NewsPost[]>([]);
@@ -157,6 +159,22 @@ const News = () => {
                 <MessageCircle className="w-3 h-3" />
                 {post.comment_count} comments
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const postUrl = `${window.location.origin}/news/${post.id}`;
+                  if (navigator.share) {
+                    navigator.share({ title: post.title, url: postUrl });
+                  } else {
+                    navigator.clipboard.writeText(postUrl);
+                    toast({ title: "Link copied!", description: "Post URL copied to clipboard" });
+                  }
+                }}
+                className="flex items-center gap-1 hover:text-primary transition-colors"
+              >
+                <Share2 className="w-3 h-3" />
+                Share
+              </button>
             </div>
           </div>
 
