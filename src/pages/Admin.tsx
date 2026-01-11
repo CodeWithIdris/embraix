@@ -17,10 +17,11 @@ import RichTextEditor from "@/components/blog/RichTextEditor";
 import { useToast } from "@/hooks/use-toast";
 import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
 import { ProjectsManager } from "@/components/admin/ProjectsManager";
+import { UserRolesManager } from "@/components/admin/UserRolesManager";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users
 } from "lucide-react";
 
 const Admin = () => {
@@ -279,7 +280,7 @@ const Admin = () => {
 
         <main className="container mx-auto p-6">
           <Tabs defaultValue="articles" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
               <TabsTrigger value="articles" className="gap-2">
                 <BookOpen className="w-4 h-4" />
                 Articles
@@ -303,6 +304,10 @@ const Admin = () => {
                     {newTicketCount > 0 && (
                       <Badge variant="destructive" className="ml-1">{newTicketCount}</Badge>
                     )}
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="gap-2">
+                    <Users className="w-4 h-4" />
+                    Users
                   </TabsTrigger>
                 </>
               )}
@@ -469,6 +474,13 @@ const Admin = () => {
                     ))}
                   </div>
                 )}
+              </TabsContent>
+            )}
+
+            {/* Users Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="users">
+                <UserRolesManager />
               </TabsContent>
             )}
           </Tabs>
