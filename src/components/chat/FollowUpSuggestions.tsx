@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Lightbulb } from "lucide-react";
 
 interface FollowUpSuggestionsProps {
@@ -5,14 +6,37 @@ interface FollowUpSuggestionsProps {
   disabled?: boolean;
 }
 
-const suggestions = [
+const allSuggestions = [
   "Tell me more about this",
   "What are the costs involved?",
   "How do I get started?",
   "Any alternatives you recommend?",
+  "What's the ROI on this?",
+  "How long does installation take?",
+  "What permits are needed?",
+  "Compare pros and cons",
+  "What maintenance is required?",
+  "Are there financing options?",
+  "What incentives are available?",
+  "How does this affect resale value?",
 ];
 
+const getRandomSuggestions = (count: number = 4): string[] => {
+  const shuffled = [...allSuggestions].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+};
+
 const FollowUpSuggestions = ({ onSelect, disabled }: FollowUpSuggestionsProps) => {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSuggestions(getRandomSuggestions(4));
+  }, []);
+
+  const refreshSuggestions = () => {
+    setSuggestions(getRandomSuggestions(4));
+  };
+
   return (
     <div className="flex flex-wrap gap-2 mt-3">
       {suggestions.map((suggestion) => (
