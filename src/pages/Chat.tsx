@@ -11,6 +11,8 @@ import { useChat } from "@/hooks/useChat";
 import TypingIndicator from "@/components/chat/TypingIndicator";
 import FollowUpSuggestions from "@/components/chat/FollowUpSuggestions";
 import ConversationSidebar from "@/components/chat/ConversationSidebar";
+import MessageFeedback from "@/components/chat/MessageFeedback";
+import VoiceInput from "@/components/chat/VoiceInput";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -107,6 +109,10 @@ const Chat = () => {
 
   const handleNewConversation = () => {
     setCurrentConversation(null);
+  };
+
+  const handleVoiceTranscript = (text: string) => {
+    setInput(prev => prev ? `${prev} ${text}` : text);
   };
 
   const lastMessage = messages[messages.length - 1];
@@ -271,6 +277,16 @@ const Chat = () => {
                           <TypingIndicator />
                         )}
                       </div>
+                      
+                      {/* Message Feedback for assistant messages */}
+                      {message.role === "assistant" && message.content && !isStreaming && user && currentConversation && (
+                        <MessageFeedback
+                          messageId={message.id}
+                          conversationId={currentConversation}
+                          userId={user.id}
+                        />
+                      )}
+                      
                       {/* Show follow-up suggestions after last assistant message */}
                       {message.role === "assistant" && index === messages.length - 1 && showFollowUp && (
                         <FollowUpSuggestions 
@@ -295,7 +311,11 @@ const Chat = () => {
 
           {/* Input Area */}
           <div className="p-4 border-t border-border/50">
-            <div className="max-w-3xl mx-auto flex gap-3">
+            <div className="max-w-3xl mx-auto flex gap-2">
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript}
+                disabled={isStreaming}
+              />
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -316,6 +336,9 @@ const Chat = () => {
                 )}
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              🎤 Use the microphone button to speak your questions
+            </p>
           </div>
         </div>
       </div>

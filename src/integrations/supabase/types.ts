@@ -145,6 +145,41 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_message_feedback: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_positive: boolean
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_positive: boolean
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_positive?: boolean
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_message_feedback_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -228,6 +263,7 @@ export type Database = {
       news_posts: {
         Row: {
           author_id: string
+          category_id: string | null
           content: string
           created_at: string | null
           excerpt: string | null
@@ -241,6 +277,7 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          category_id?: string | null
           content: string
           created_at?: string | null
           excerpt?: string | null
@@ -254,6 +291,7 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          category_id?: string | null
           content?: string
           created_at?: string | null
           excerpt?: string | null
@@ -265,7 +303,15 @@ export type Database = {
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "news_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "post_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscriptions: {
         Row: {
@@ -291,6 +337,59 @@ export type Database = {
           source?: string | null
           subscribed_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      post_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_bookmarks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "news_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
