@@ -2,21 +2,33 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CategoryFilter from "@/components/news/CategoryFilter";
+import TrendingPosts from "@/components/news/TrendingPosts";
+import BookmarkButton from "@/components/news/BookmarkButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost, NewsPostFormData } from "@/hooks/useNews";
 import {
-  Plus, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, TrendingUp, Share2
+  Plus, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, TrendingUp, Share2, BookOpen
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { calculateReadingTime, formatReadingTime } from "@/lib/readingTime";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  color: string;
+}
 
 const News = () => {
   const { user } = useAuth();
@@ -25,22 +37,44 @@ const News = () => {
   const { loading, loadApprovedPosts, createPost, vote } = useNews();
 
   const [posts, setPosts] = useState<NewsPost[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<NewsPost[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<NewsPostFormData>({
+  const [formData, setFormData] = useState<NewsPostFormData & { category_id?: string }>({
     title: "",
     content: "",
     excerpt: "",
     featured_image: "",
+    category_id: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     loadPosts();
+    loadCategories();
   }, [user?.id]);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      setFilteredPosts(posts.filter(p => (p as any).category_id === selectedCategory));
+    } else {
+      setFilteredPosts(posts);
+    }
+  }, [selectedCategory, posts]);
 
   const loadPosts = async () => {
     const data = await loadApprovedPosts(user?.id);
     setPosts(data);
+    setFilteredPosts(data);
+  };
+
+  const loadCategories = async () => {
+    const { data } = await supabase
+      .from("post_categories")
+      .select("*")
+      .order("name");
+    if (data) setCategories(data);
   };
 
   const handleSubmit = async () => {
@@ -55,7 +89,7 @@ const News = () => {
     const result = await createPost(formData, user.id);
     if (result) {
       setIsDialogOpen(false);
-      setFormData({ title: "", content: "", excerpt: "", featured_image: "" });
+      setFormData({ title: "", content: "", excerpt: "", featured_image: "", category_id: "" });
     }
     setSubmitting(false);
   };
@@ -68,7 +102,6 @@ const News = () => {
 
     const success = await vote(postId, user.id, voteType);
     if (success) {
-      // Optimistically update the UI
       setPosts(posts.map(post => {
         if (post.id !== postId) return post;
         
@@ -77,14 +110,11 @@ const News = () => {
         let newUserVote: number = voteType;
         
         if (currentUserVote === voteType) {
-          // Toggling off the same vote
           newVoteCount -= voteType;
           newUserVote = 0;
         } else if (currentUserVote !== 0) {
-          // Changing vote direction
           newVoteCount += voteType * 2;
         } else {
-          // New vote
           newVoteCount += voteType;
         }
         
@@ -97,101 +127,114 @@ const News = () => {
     }
   };
 
-  const PostCard = ({ post }: { post: NewsPost }) => (
-    <Card className="gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          {/* Voting */}
-          <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`p-1 h-8 w-8 ${post.user_vote === 1 ? "text-primary" : ""}`}
-              onClick={() => handleVote(post.id, 1)}
-            >
-              <ArrowBigUp className="w-5 h-5" />
-            </Button>
-            <span className={`text-sm font-bold ${(post.vote_count || 0) > 0 ? "text-primary" : (post.vote_count || 0) < 0 ? "text-destructive" : ""}`}>
-              {post.vote_count || 0}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`p-1 h-8 w-8 ${post.user_vote === -1 ? "text-destructive" : ""}`}
-              onClick={() => handleVote(post.id, -1)}
-            >
-              <ArrowBigDown className="w-5 h-5" />
-            </Button>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div
-              className="cursor-pointer"
-              onClick={() => navigate(`/news/${post.id}`)}
-            >
-              <h3 className="font-display text-lg font-semibold text-foreground hover:text-primary transition-colors line-clamp-2">
-                {post.title}
-              </h3>
-              {post.excerpt && (
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                  {post.excerpt}
-                </p>
-              )}
-            </div>
-
-            {/* Meta */}
-            <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Avatar className="w-5 h-5">
-                  <AvatarImage src={post.author?.avatar_url || undefined} />
-                  <AvatarFallback className="text-[10px]">
-                    {post.author?.full_name?.[0] || <User className="w-3 h-3" />}
-                  </AvatarFallback>
-                </Avatar>
-                <span>{post.author?.full_name || "Anonymous"}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {formatDistanceToNow(new Date(post.published_at || post.created_at), { addSuffix: true })}
-              </div>
-              <div className="flex items-center gap-1">
-                <MessageCircle className="w-3 h-3" />
-                {post.comment_count} comments
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const postUrl = `${window.location.origin}/news/${post.id}`;
-                  if (navigator.share) {
-                    navigator.share({ title: post.title, url: postUrl });
-                  } else {
-                    navigator.clipboard.writeText(postUrl);
-                    toast({ title: "Link copied!", description: "Post URL copied to clipboard" });
-                  }
-                }}
-                className="flex items-center gap-1 hover:text-primary transition-colors"
+  const PostCard = ({ post }: { post: NewsPost }) => {
+    const readingTime = calculateReadingTime(post.content);
+    
+    return (
+      <Card className="gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
+        <CardContent className="p-4">
+          <div className="flex gap-4">
+            {/* Voting */}
+            <div className="flex flex-col items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`p-1 h-8 w-8 ${post.user_vote === 1 ? "text-primary" : ""}`}
+                onClick={() => handleVote(post.id, 1)}
               >
-                <Share2 className="w-3 h-3" />
-                Share
-              </button>
+                <ArrowBigUp className="w-5 h-5" />
+              </Button>
+              <span className={`text-sm font-bold ${(post.vote_count || 0) > 0 ? "text-primary" : (post.vote_count || 0) < 0 ? "text-destructive" : ""}`}>
+                {post.vote_count || 0}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`p-1 h-8 w-8 ${post.user_vote === -1 ? "text-destructive" : ""}`}
+                onClick={() => handleVote(post.id, -1)}
+              >
+                <ArrowBigDown className="w-5 h-5" />
+              </Button>
             </div>
-          </div>
 
-          {/* Featured Image */}
-          {post.featured_image && (
-            <div className="hidden sm:block w-24 h-20 rounded-lg overflow-hidden flex-shrink-0">
-              <img
-                src={post.featured_image}
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div
+                className="cursor-pointer"
+                onClick={() => navigate(`/news/${post.id}`)}
+              >
+                <h3 className="font-display text-lg font-semibold text-foreground hover:text-primary transition-colors line-clamp-2">
+                  {post.title}
+                </h3>
+                {post.excerpt && (
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    {post.excerpt}
+                  </p>
+                )}
+              </div>
+
+              {/* Meta */}
+              <div className="flex items-center flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Avatar className="w-5 h-5">
+                    <AvatarImage src={post.author?.avatar_url || undefined} />
+                    <AvatarFallback className="text-[10px]">
+                      {post.author?.full_name?.[0] || <User className="w-3 h-3" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>{post.author?.full_name || "Anonymous"}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {formatDistanceToNow(new Date(post.published_at || post.created_at), { addSuffix: true })}
+                </div>
+                <div className="flex items-center gap-1">
+                  <BookOpen className="w-3 h-3" />
+                  {formatReadingTime(readingTime)}
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-3 h-3" />
+                  {post.comment_count} comments
+                </div>
+                <BookmarkButton 
+                  postId={post.id} 
+                  userId={user?.id || null} 
+                  onAuthRequired={() => navigate("/auth")}
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const postUrl = `${window.location.origin}/news/${post.id}`;
+                    if (navigator.share) {
+                      navigator.share({ title: post.title, url: postUrl });
+                    } else {
+                      navigator.clipboard.writeText(postUrl);
+                      toast({ title: "Link copied!", description: "Post URL copied to clipboard" });
+                    }
+                  }}
+                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  <Share2 className="w-3 h-3" />
+                  Share
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+
+            {/* Featured Image */}
+            {post.featured_image && (
+              <div className="hidden sm:block w-24 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                <img
+                  src={post.featured_image}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <>
@@ -205,7 +248,7 @@ const News = () => {
       <div className="min-h-screen pt-20 pb-12 bg-background">
         <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="font-display text-3xl font-bold text-foreground flex items-center gap-2">
                 <TrendingUp className="w-8 h-8 text-primary" />
@@ -236,6 +279,24 @@ const News = () => {
                       placeholder="What's the headline?"
                       className="mt-1"
                     />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Category</label>
+                    <Select 
+                      value={formData.category_id} 
+                      onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Summary</label>
@@ -285,25 +346,42 @@ const News = () => {
             </Dialog>
           </div>
 
-          {/* Posts Grid */}
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          {/* Category Filter */}
+          <CategoryFilter 
+            selectedCategory={selectedCategory} 
+            onSelect={setSelectedCategory} 
+          />
+
+          <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+            {/* Main Posts */}
+            <div>
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : filteredPosts.length === 0 ? (
+                <Card className="text-center py-12">
+                  <CardContent>
+                    <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">
+                      {selectedCategory ? "No posts in this category yet." : "No news posts yet. Be the first to share!"}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {filteredPosts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : posts.length === 0 ? (
-            <Card className="text-center py-12">
-              <CardContent>
-                <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No news posts yet. Be the first to share!</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
+
+            {/* Sidebar - Trending */}
+            <div className="hidden lg:block">
+              <TrendingPosts posts={posts} />
             </div>
-          )}
+          </div>
         </div>
       </div>
 
