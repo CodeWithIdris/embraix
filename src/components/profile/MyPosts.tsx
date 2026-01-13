@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { useNews, NewsPost, NewsPostFormData } from "@/hooks/useNews";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import RichTextEditor from "@/components/blog/RichTextEditor";
 import {
   Plus,
   Edit,
@@ -24,17 +27,25 @@ import {
   Clock,
   XCircle,
   AlertCircle,
+  Image,
+  Upload,
+  Link,
+  X,
 } from "lucide-react";
 
 export const MyPosts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { loading, loadUserPosts, createPost, updatePost, deletePost } = useNews();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [posts, setPosts] = useState<NewsPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [imageMode, setImageMode] = useState<"upload" | "url">("upload");
   const [formData, setFormData] = useState<NewsPostFormData>({
     title: "",
     content: "",
@@ -59,6 +70,7 @@ export const MyPosts = () => {
   const resetForm = () => {
     setFormData({ title: "", content: "", excerpt: "", featured_image: "" });
     setEditingPost(null);
+    setImageMode("upload");
   };
 
   const handleEdit = (post: NewsPost) => {
@@ -69,6 +81,7 @@ export const MyPosts = () => {
       excerpt: post.excerpt || "",
       featured_image: post.featured_image || "",
     });
+    setImageMode(post.featured_image ? "url" : "upload");
     setIsDialogOpen(true);
   };
 
@@ -98,6 +111,120 @@ export const MyPosts = () => {
       if (success) {
         setPosts(posts.filter((p) => p.id !== postId));
       }
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${user.id}/posts/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("post-images")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from("post-images")
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, featured_image: publicUrlData.publicUrl });
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      toast({
+        title: "Error",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const clearImage = () => {
+    setFormData({ ...formData, featured_image: "" });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const insertImageToContent = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${user.id}/posts/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("post-images")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from("post-images")
+        .getPublicUrl(filePath);
+
+      // Append image HTML to content
+      const imageHtml = `<p><img src="${publicUrlData.publicUrl}" alt="Content image" style="max-width: 100%; height: auto;" /></p>`;
+      setFormData({ ...formData, content: formData.content + imageHtml });
+
+      toast({
+        title: "Success",
+        description: "Image added to content",
+      });
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -151,7 +278,7 @@ export const MyPosts = () => {
               New Post
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingPost ? "Edit Post" : "Create New Post"}
@@ -169,6 +296,7 @@ export const MyPosts = () => {
                   className="mt-1"
                 />
               </div>
+              
               <div>
                 <label className="text-sm font-medium">Excerpt (optional)</label>
                 <Textarea
@@ -181,31 +309,120 @@ export const MyPosts = () => {
                   rows={2}
                 />
               </div>
+
+              {/* Featured Image Upload */}
               <div>
-                <label className="text-sm font-medium">Content</label>
-                <Textarea
+                <label className="text-sm font-medium">Featured Image</label>
+                <div className="flex gap-2 mt-1 mb-2">
+                  <Button
+                    type="button"
+                    variant={imageMode === "upload" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setImageMode("upload")}
+                  >
+                    <Upload className="w-4 h-4 mr-1" />
+                    Upload
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={imageMode === "url" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setImageMode("url")}
+                  >
+                    <Link className="w-4 h-4 mr-1" />
+                    URL
+                  </Button>
+                </div>
+
+                {imageMode === "upload" ? (
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                  >
+                    {uploading ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Uploading...</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Image className="w-8 h-8 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">
+                          Click to upload an image
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          PNG, JPG, GIF up to 5MB
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Input
+                    value={formData.featured_image}
+                    onChange={(e) =>
+                      setFormData({ ...formData, featured_image: e.target.value })
+                    }
+                    placeholder="https://example.com/image.jpg"
+                  />
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                {formData.featured_image && (
+                  <div className="relative mt-2">
+                    <img
+                      src={formData.featured_image}
+                      alt="Preview"
+                      className="w-full max-h-48 object-cover rounded-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={clearImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Content Editor */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-sm font-medium">Content</label>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={insertImageToContent}
+                      className="hidden"
+                    />
+                    <Button type="button" variant="outline" size="sm" asChild>
+                      <span>
+                        <Image className="w-4 h-4 mr-1" />
+                        Add Image to Content
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+                <RichTextEditor
                   value={formData.content}
-                  onChange={(e) =>
-                    setFormData({ ...formData, content: e.target.value })
-                  }
+                  onChange={(value) => setFormData({ ...formData, content: value })}
                   placeholder="Write your post content..."
-                  className="mt-1"
-                  rows={8}
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium">
-                  Featured Image URL (optional)
-                </label>
-                <Input
-                  value={formData.featured_image}
-                  onChange={(e) =>
-                    setFormData({ ...formData, featured_image: e.target.value })
-                  }
-                  placeholder="https://..."
-                  className="mt-1"
-                />
-              </div>
+
               <div className="flex gap-2 pt-4">
                 <Button
                   variant="outline"

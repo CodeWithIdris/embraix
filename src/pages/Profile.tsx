@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { MyPosts } from "@/components/profile/MyPosts";
+import { Wallet } from "@/components/profile/Wallet";
 import { ArrowLeft, Camera, Loader2, Save, User } from "lucide-react";
 
 interface ProfileData {
@@ -282,6 +283,11 @@ const Profile = () => {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Wallet Section */}
+          <div className="mt-8">
+            <Wallet />
+          </div>
 
           {/* My Posts Section */}
           <div className="mt-8">
