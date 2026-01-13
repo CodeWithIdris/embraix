@@ -6,6 +6,61 @@
 
 @layer base {
   :root {
+    /* Light theme */
+    --background: 0 0% 100%;
+    --foreground: 150 20% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 150 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 20% 10%;
+
+    --primary: 82 76% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 150 10% 92%;
+    --secondary-foreground: 150 20% 10%;
+
+    --muted: 150 10% 94%;
+    --muted-foreground: 150 10% 40%;
+
+    --accent: 82 76% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 10% 85%;
+    --input: 150 10% 85%;
+    --ring: 82 76% 40%;
+
+    --radius: 0.75rem;
+
+    /* Custom design tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(82, 76%, 40%) 0%, hsl(100, 60%, 35%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(150, 10%, 96%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 99%) 0%, hsl(0, 0%, 96%) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(82, 76%, 40%, 0.1) 0%, transparent 70%);
+    
+    --shadow-glow: 0 0 60px hsl(82, 76%, 40%, 0.15);
+    --shadow-card: 0 4px 24px hsl(0, 0%, 0%, 0.08);
+    --shadow-elevated: 0 8px 40px hsl(0, 0%, 0%, 0.12);
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 150 20% 10%;
+    --sidebar-primary: 82 76% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 10% 92%;
+    --sidebar-accent-foreground: 150 20% 10%;
+    --sidebar-border: 150 10% 85%;
+    --sidebar-ring: 82 76% 40%;
+  }
+
+  .dark {
     --background: 150 20% 6%;
     --foreground: 80 60% 95%;
 
@@ -27,16 +82,13 @@
     --accent: 82 76% 51%;
     --accent-foreground: 150 20% 6%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 150 12% 20%;
     --input: 150 12% 20%;
     --ring: 82 76% 51%;
 
-    --radius: 0.75rem;
-
-    /* Custom design tokens */
     --gradient-primary: linear-gradient(135deg, hsl(82, 76%, 51%) 0%, hsl(100, 60%, 40%) 100%);
     --gradient-dark: linear-gradient(180deg, hsl(150, 20%, 6%) 0%, hsl(150, 18%, 10%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(150, 18%, 12%) 0%, hsl(150, 18%, 8%) 100%);
@@ -46,9 +98,6 @@
     --shadow-card: 0 4px 24px hsl(0, 0%, 0%, 0.3);
     --shadow-elevated: 0 8px 40px hsl(0, 0%, 0%, 0.4);
 
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-body: 'Plus Jakarta Sans', sans-serif;
-
     --sidebar-background: 150 18% 10%;
     --sidebar-foreground: 80 60% 95%;
     --sidebar-primary: 82 76% 51%;
@@ -57,28 +106,6 @@
     --sidebar-accent-foreground: 80 60% 95%;
     --sidebar-border: 150 12% 20%;
     --sidebar-ring: 82 76% 51%;
-  }
-
-  .dark {
-    --background: 150 20% 6%;
-    --foreground: 80 60% 95%;
-    --card: 150 18% 10%;
-    --card-foreground: 80 60% 95%;
-    --popover: 150 18% 10%;
-    --popover-foreground: 80 60% 95%;
-    --primary: 82 76% 51%;
-    --primary-foreground: 150 20% 6%;
-    --secondary: 150 15% 15%;
-    --secondary-foreground: 80 60% 95%;
-    --muted: 150 12% 18%;
-    --muted-foreground: 150 10% 55%;
-    --accent: 82 76% 51%;
-    --accent-foreground: 150 20% 6%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 150 12% 20%;
-    --input: 150 12% 20%;
-    --ring: 82 76% 51%;
   }
 }
 
