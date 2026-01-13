@@ -65,22 +65,41 @@ const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
     setIsProcessing(true);
     try {
       // Convert blob to base64
-      const reader = new FileReader();
+      const fileReader = new FileReader();
       const base64Promise = new Promise<string>((resolve) => {
-        reader.onloadend = () => {
-          const base64 = (reader.result as string).split(',')[1];
+        fileReader.onloadend = () => {
+          const base64 = (fileReader.result as string).split(',')[1];
           resolve(base64);
         };
       });
-      reader.readAsDataURL(audioBlob);
+      fileReader.readAsDataURL(audioBlob);
       const base64Audio = await base64Promise;
 
-      // Send to edge function for transcription
-      const { data, error } = await supabase.functions.invoke('voice-to-text', {
-        body: { audio: base64Audio }
-      });
+      // Get the current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Authentication required");
+      }
 
-      if (error) throw error;
+      // Send to edge function for transcription with proper auth
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-to-text`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ audio: base64Audio })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Transcription failed");
+      }
+
+      const data = await response.json();
 
       if (data?.text) {
         onTranscript(data.text);

@@ -48,16 +48,32 @@ const ConsultAI = () => {
     setIsLoading(true);
 
     try {
-      const response = await supabase.functions.invoke("ai-chat", {
-        body: { messages: [...messages, { role: "user", content: userMessage }] },
-      });
+      // Get the current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Authentication required");
+      }
 
-      if (response.error) {
-        throw new Error(response.error.message);
+      // Call AI endpoint with proper authentication
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ messages: [...messages, { role: "user", content: userMessage }] })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "AI service error");
       }
 
       // Handle streaming response
-      const reader = response.data?.body?.getReader();
+      const reader = response.body?.getReader();
       if (reader) {
         let assistantMessage = "";
         setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
