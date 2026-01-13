@@ -127,10 +127,58 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify authentication - require admin role for sending notifications
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.error("Missing or invalid Authorization header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    // Verify user with anon key first
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the JWT by getting the user
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    
+    if (userError || !user) {
+      console.error("JWT verification failed:", userError);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Authenticated user for send-notification-email:", user.id);
+
+    // Use service role client to check admin role (bypasses RLS)
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    
+    // Verify user is admin or writer before allowing notification emails
+    const { data: roleData, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .in("role", ["admin", "writer"])
+      .maybeSingle();
+
+    if (roleError || !roleData) {
+      console.error("User is not authorized to send notifications:", user.id);
+      return new Response(
+        JSON.stringify({ error: "Forbidden - Admin or Writer access required" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("User role verified:", roleData.role);
 
     const { type, recipientEmail, recipientName, data }: NotificationEmailRequest = await req.json();
 
