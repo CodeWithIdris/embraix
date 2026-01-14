@@ -21,6 +21,7 @@ import NewsPost from "./pages/NewsPost";
 import NotFound from "./pages/NotFound";
 import Store from "./pages/Store";
 import Centre from "./pages/Centre";
+import ConsultExpert from "./pages/ConsultExpert";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/news/:id" element={<NewsPost />} />
                 <Route path="/store" element={<Store />} />
                 <Route path="/centre/:section" element={<Centre />} />
+                <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
