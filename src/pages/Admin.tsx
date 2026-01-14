@@ -18,10 +18,12 @@ import { useToast } from "@/hooks/use-toast";
 import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
 import { ProjectsManager } from "@/components/admin/ProjectsManager";
 import { UserRolesManager } from "@/components/admin/UserRolesManager";
+import { TicketReplyDialog } from "@/components/admin/TicketReplyDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone
 } from "lucide-react";
 
 const Admin = () => {
