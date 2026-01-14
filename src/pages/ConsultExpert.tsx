@@ -265,21 +265,37 @@ const ConsultExpert = () => {
                       <p className="text-xs text-muted-foreground">{description.length}/2000 characters</p>
                     </div>
 
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number (optional)</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+234 800 000 0000"
+                      />
+                      <p className="text-xs text-muted-foreground">For call scheduling if needed</p>
+                    </div>
+
+                    {user && (
+                      <div className="space-y-2">
+                        <Label>Attachments (optional)</Label>
+                        <FileAttachment
+                          userId={user.id}
+                          onFilesChange={setAttachments}
+                          existingFiles={attachments}
+                        />
+                      </div>
+                    )}
+
                     <div className="bg-secondary/30 rounded-lg p-4 flex items-start gap-3">
                       <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-foreground">Pro Tip</p>
                         <p className="text-sm text-muted-foreground">
-                          Try our free AI consultation first for instant answers. If you need more detailed, 
-                          personalized guidance, submit your question to our experts here.
+                          Try our free AI consultation first for instant answers.
                         </p>
-                        <Button 
-                          variant="link" 
-                          size="sm" 
-                          className="px-0 h-auto text-primary"
-                          onClick={() => navigate("/chat")}
-                          type="button"
-                        >
+                        <Button variant="link" size="sm" className="px-0 h-auto text-primary" onClick={() => navigate("/chat")} type="button">
                           Try AI Consult →
                         </Button>
                       </div>
