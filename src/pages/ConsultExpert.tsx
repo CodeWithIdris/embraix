@@ -65,6 +65,8 @@ const ConsultExpert = () => {
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [expertise, setExpertise] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [attachments, setAttachments] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userTickets, setUserTickets] = useState<ConsultationTicket[]>([]);
 
@@ -77,7 +79,6 @@ const ConsultExpert = () => {
   useEffect(() => {
     if (user) {
       loadTickets().then((allTickets) => {
-        // Filter tickets for current user
         const myTickets = allTickets.filter(t => t.user_id === user.id);
         setUserTickets(myTickets);
       });
@@ -88,21 +89,13 @@ const ConsultExpert = () => {
     e.preventDefault();
     
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to submit a consultation request",
-        variant: "destructive",
-      });
+      toast({ title: "Authentication Required", description: "Please sign in", variant: "destructive" });
       navigate("/auth");
       return;
     }
 
     if (!subject.trim() || !description.trim() || !expertise) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+      toast({ title: "Missing Information", description: "Please fill in all required fields", variant: "destructive" });
       return;
     }
 
@@ -115,7 +108,10 @@ const ConsultExpert = () => {
       user.email || "",
       user.user_metadata?.full_name || null,
       fullSubject,
-      description
+      description,
+      undefined,
+      attachments,
+      phoneNumber || undefined
     );
 
     if (ticket) {
@@ -123,6 +119,8 @@ const ConsultExpert = () => {
       setSubject("");
       setDescription("");
       setExpertise("");
+      setPhoneNumber("");
+      setAttachments([]);
     }
     
     setIsSubmitting(false);
