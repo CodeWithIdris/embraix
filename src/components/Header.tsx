@@ -50,7 +50,7 @@ const navGroups = [
     label: "Consultation",
     items: [
       { icon: Sparkles, label: "AI Consult", href: "/chat", description: "Free AI-powered guidance" },
-      { icon: Users, label: "Consult an Expert", href: "/chat?expert=true", description: "Connect with specialists" },
+      { icon: Users, label: "Consult an Expert", href: "/consult-expert", description: "Connect with specialists" },
     ]
   },
   {
