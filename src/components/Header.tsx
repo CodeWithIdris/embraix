@@ -28,6 +28,7 @@ import {
   Sparkles,
   HelpCircle,
   GraduationCap,
+  TrendingUp,
   Store,
   ShoppingBag,
 } from "lucide-react";
@@ -58,6 +59,14 @@ const navGroups = [
     items: [
       { icon: Mail, label: "Subscribe", href: "/newsletter", description: "Get latest updates" },
       { icon: FileText, label: "Creators", href: "/blog", description: "Content creators & blog" },
+    ]
+  },
+  {
+    label: "Insight",
+    items: [
+      { icon: BookOpen, label: "Industry Reports", href: "/insight/reports", description: "In-depth analysis & trends" },
+      { icon: Star, label: "Case Studies", href: "/insight/case-studies", description: "Success stories & examples" },
+      { icon: FileText, label: "Whitepapers", href: "/insight/whitepapers", description: "Technical documents" },
     ]
   },
   {

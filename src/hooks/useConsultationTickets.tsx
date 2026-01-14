@@ -16,6 +16,13 @@ export interface ConsultationTicket {
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
+  expert_reply: string | null;
+  expert_reply_at: string | null;
+  expert_id: string | null;
+  attachments: string[];
+  phone_number: string | null;
+  call_scheduled_at: string | null;
+  call_notes: string | null;
 }
 
 export const useConsultationTickets = () => {
@@ -34,9 +41,14 @@ export const useConsultationTickets = () => {
 
       if (error) throw error;
 
-      setTickets(data || []);
-      setNewTicketCount((data || []).filter(t => t.status === "open").length);
-      return data || [];
+      const ticketsData = (data || []).map(t => ({
+        ...t,
+        attachments: t.attachments || [],
+      })) as ConsultationTicket[];
+
+      setTickets(ticketsData);
+      setNewTicketCount(ticketsData.filter(t => t.status === "open").length);
+      return ticketsData;
     } catch (err) {
       console.error("Error loading tickets:", err);
       return [];
@@ -51,7 +63,9 @@ export const useConsultationTickets = () => {
     userName: string | null,
     subject: string,
     description: string,
-    aiContext?: string
+    aiContext?: string,
+    attachments?: string[],
+    phoneNumber?: string
   ): Promise<ConsultationTicket | null> => {
     try {
       const { data, error } = await supabase
@@ -65,6 +79,8 @@ export const useConsultationTickets = () => {
           ai_context: aiContext || null,
           status: "open",
           priority: "normal",
+          attachments: attachments || [],
+          phone_number: phoneNumber || null,
         })
         .select()
         .single();
@@ -76,7 +92,7 @@ export const useConsultationTickets = () => {
         description: "An expert will contact you shortly",
       });
 
-      return data;
+      return { ...data, attachments: data.attachments || [] } as ConsultationTicket;
     } catch (err) {
       console.error("Error creating ticket:", err);
       toast({
@@ -90,7 +106,7 @@ export const useConsultationTickets = () => {
 
   const updateTicketStatus = async (ticketId: string, status: string): Promise<boolean> => {
     try {
-      const updates: any = { status };
+      const updates: Record<string, unknown> = { status };
       if (status === "resolved") {
         updates.resolved_at = new Date().toISOString();
       }
@@ -114,6 +130,78 @@ export const useConsultationTickets = () => {
     }
   };
 
+  const submitExpertReply = async (
+    ticketId: string,
+    expertId: string,
+    reply: string
+  ): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from("consultation_tickets")
+        .update({
+          expert_reply: reply,
+          expert_reply_at: new Date().toISOString(),
+          expert_id: expertId,
+          status: "resolved",
+          resolved_at: new Date().toISOString(),
+        })
+        .eq("id", ticketId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Reply Sent",
+        description: "The user will be notified of your response",
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Error submitting reply:", err);
+      toast({
+        title: "Error",
+        description: "Failed to submit reply",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  const scheduleCall = async (
+    ticketId: string,
+    expertId: string,
+    scheduledAt: Date,
+    notes: string
+  ): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from("consultation_tickets")
+        .update({
+          call_scheduled_at: scheduledAt.toISOString(),
+          call_notes: notes,
+          expert_id: expertId,
+          status: "in_progress",
+        })
+        .eq("id", ticketId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Call Scheduled",
+        description: "The user will be notified of the scheduled call",
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Error scheduling call:", err);
+      toast({
+        title: "Error",
+        description: "Failed to schedule call",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   const subscribeToNewTickets = (callback: (ticket: ConsultationTicket) => void) => {
     const channel = supabase
       .channel("consultation_tickets_realtime")
@@ -125,7 +213,7 @@ export const useConsultationTickets = () => {
           table: "consultation_tickets",
         },
         (payload) => {
-          const newTicket = payload.new as ConsultationTicket;
+          const newTicket = { ...payload.new, attachments: payload.new.attachments || [] } as ConsultationTicket;
           setTickets(prev => [newTicket, ...prev]);
           setNewTicketCount(prev => prev + 1);
           callback(newTicket);
@@ -145,6 +233,8 @@ export const useConsultationTickets = () => {
     loadTickets,
     createTicket,
     updateTicketStatus,
+    submitExpertReply,
+    scheduleCall,
     subscribeToNewTickets,
   };
 };
