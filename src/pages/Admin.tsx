@@ -192,6 +192,65 @@ const Admin = () => {
     }
   };
 
+  const handleExpertReply = async (ticketId: string, reply: string): Promise<boolean> => {
+    if (!user) return false;
+    
+    const ticket = tickets.find(t => t.id === ticketId);
+    const success = await submitExpertReply(ticketId, user.id, reply);
+    
+    if (success && ticket) {
+      // Send email notification
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await supabase.functions.invoke("send-notification-email", {
+          body: {
+            type: "expert_reply",
+            recipientEmail: ticket.user_email,
+            recipientName: ticket.user_name,
+            data: {
+              subject: ticket.subject,
+              reply: reply,
+              consultUrl: `${window.location.origin}/consult-expert`,
+            },
+          },
+        });
+      } catch (err) {
+        console.error("Failed to send reply notification:", err);
+      }
+      loadTickets();
+    }
+    return success;
+  };
+
+  const handleScheduleCall = async (ticketId: string, scheduledAt: Date, notes: string): Promise<boolean> => {
+    if (!user) return false;
+    
+    const ticket = tickets.find(t => t.id === ticketId);
+    const success = await scheduleCall(ticketId, user.id, scheduledAt, notes);
+    
+    if (success && ticket) {
+      // Send email notification
+      try {
+        await supabase.functions.invoke("send-notification-email", {
+          body: {
+            type: "call_scheduled",
+            recipientEmail: ticket.user_email,
+            recipientName: ticket.user_name,
+            data: {
+              subject: ticket.subject,
+              scheduledAt: format(scheduledAt, "PPPP 'at' p"),
+              notes: notes,
+            },
+          },
+        });
+      } catch (err) {
+        console.error("Failed to send call notification:", err);
+      }
+      loadTickets();
+    }
+    return success;
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "published": return <Badge className="bg-primary/20 text-primary"><CheckCircle className="w-3 h-3 mr-1" />Published</Badge>;
