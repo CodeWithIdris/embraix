@@ -498,45 +498,102 @@ const Admin = () => {
                         <CardHeader>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <CardTitle className="text-lg font-display">{ticket.subject}</CardTitle>
                                 {getTicketStatusBadge(ticket.status)}
+                                {ticket.call_scheduled_at && (
+                                  <Badge variant="outline" className="text-blue-500 border-blue-500">
+                                    <Phone className="w-3 h-3 mr-1" />
+                                    Call: {format(new Date(ticket.call_scheduled_at), "MMM d, h:mm a")}
+                                  </Badge>
+                                )}
                               </div>
                               <p className="text-sm text-muted-foreground mt-1">
                                 {ticket.user_name || ticket.user_email} • {new Date(ticket.created_at).toLocaleDateString()}
                               </p>
                             </div>
-                            <Select value={ticket.status} onValueChange={(value) => handleTicketStatusChange(ticket.id, value)}>
-                              <SelectTrigger className="w-[140px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="open">Open</SelectItem>
-                                <SelectItem value="in_progress">In Progress</SelectItem>
-                                <SelectItem value="resolved">Resolved</SelectItem>
-                                <SelectItem value="closed">Closed</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="hero"
+                                onClick={() => { setSelectedTicket(ticket); setReplyDialogOpen(true); }}
+                                disabled={ticket.status === "resolved" || ticket.status === "closed"}
+                              >
+                                <MessageSquare className="w-4 h-4 mr-1" />
+                                Reply
+                              </Button>
+                              <Select value={ticket.status} onValueChange={(value) => handleTicketStatusChange(ticket.id, value)}>
+                                <SelectTrigger className="w-[140px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="open">Open</SelectItem>
+                                  <SelectItem value="in_progress">In Progress</SelectItem>
+                                  <SelectItem value="resolved">Resolved</SelectItem>
+                                  <SelectItem value="closed">Closed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <p className="text-sm text-foreground/80">{ticket.description}</p>
+                          
+                          {ticket.attachments && ticket.attachments.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {ticket.attachments.map((url, index) => (
+                                <a
+                                  key={index}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 text-xs text-primary hover:underline bg-primary/10 px-2 py-1 rounded"
+                                >
+                                  <FileText className="w-3 h-3" />
+                                  Attachment {index + 1}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                          
                           {ticket.ai_context && (
                             <div className="bg-secondary/30 p-3 rounded-lg">
                               <p className="text-xs text-muted-foreground mb-1">AI Chat Context:</p>
                               <p className="text-sm text-foreground/70">{ticket.ai_context}</p>
                             </div>
                           )}
-                          <div className="flex gap-2 text-xs text-muted-foreground">
+                          
+                          {ticket.expert_reply && (
+                            <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg">
+                              <p className="text-xs text-primary mb-1">Expert Reply ({ticket.expert_reply_at ? format(new Date(ticket.expert_reply_at), "MMM d, yyyy") : ""}):</p>
+                              <p className="text-sm text-foreground/80 whitespace-pre-wrap">{ticket.expert_reply}</p>
+                            </div>
+                          )}
+                          
+                          <div className="flex gap-2 text-xs text-muted-foreground flex-wrap">
                             <span>📧 {ticket.user_email}</span>
                             <span>•</span>
                             <span>Priority: {ticket.priority}</span>
+                            {ticket.phone_number && (
+                              <>
+                                <span>•</span>
+                                <span>📞 {ticket.phone_number}</span>
+                              </>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
                 )}
+
+                <TicketReplyDialog
+                  ticket={selectedTicket}
+                  open={replyDialogOpen}
+                  onOpenChange={setReplyDialogOpen}
+                  onSubmitReply={handleExpertReply}
+                  onScheduleCall={handleScheduleCall}
+                />
               </TabsContent>
             )}
 

@@ -27,13 +27,16 @@ import {
   Sparkles,
   Zap,
   Shield,
-  Globe
+  Globe,
+  Phone,
+  FileText
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useConsultationTickets, ConsultationTicket } from "@/hooks/useConsultationTickets";
 import { useToast } from "@/hooks/use-toast";
+import { FileAttachment } from "@/components/consultation/FileAttachment";
 import { format } from "date-fns";
 
 const expertiseAreas = [
