@@ -216,9 +216,16 @@ export type Database = {
         Row: {
           ai_context: string | null
           assigned_to: string | null
+          attachments: string[] | null
+          call_notes: string | null
+          call_scheduled_at: string | null
           created_at: string | null
           description: string
+          expert_id: string | null
+          expert_reply: string | null
+          expert_reply_at: string | null
           id: string
+          phone_number: string | null
           priority: string | null
           resolved_at: string | null
           status: string
@@ -231,9 +238,16 @@ export type Database = {
         Insert: {
           ai_context?: string | null
           assigned_to?: string | null
+          attachments?: string[] | null
+          call_notes?: string | null
+          call_scheduled_at?: string | null
           created_at?: string | null
           description: string
+          expert_id?: string | null
+          expert_reply?: string | null
+          expert_reply_at?: string | null
           id?: string
+          phone_number?: string | null
           priority?: string | null
           resolved_at?: string | null
           status?: string
@@ -246,9 +260,16 @@ export type Database = {
         Update: {
           ai_context?: string | null
           assigned_to?: string | null
+          attachments?: string[] | null
+          call_notes?: string | null
+          call_scheduled_at?: string | null
           created_at?: string | null
           description?: string
+          expert_id?: string | null
+          expert_reply?: string | null
+          expert_reply_at?: string | null
           id?: string
+          phone_number?: string | null
           priority?: string | null
           resolved_at?: string | null
           status?: string
@@ -258,7 +279,15 @@ export type Database = {
           user_id?: string
           user_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "consultation_tickets_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       news_posts: {
         Row: {
