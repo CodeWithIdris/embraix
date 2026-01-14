@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface NotificationEmailRequest {
-  type: "post_approved" | "post_rejected" | "ticket_update" | "admin_new_ticket" | "admin_new_post";
+  type: "post_approved" | "post_rejected" | "ticket_update" | "admin_new_ticket" | "admin_new_post" | "expert_reply" | "call_scheduled";
   recipientEmail: string;
   recipientName?: string;
   data: Record<string, any>;
@@ -110,6 +110,60 @@ const getEmailContent = (type: string, data: Record<string, any>, recipientName:
           </div>
         `,
         text: `New Post Pending Review. Title: ${data.postTitle}. Author: ${data.authorName || data.authorEmail}. Review in dashboard: ${data.dashboardUrl}`,
+      };
+
+    case "expert_reply":
+      return {
+        subject: "🎉 Expert Response to Your Consultation",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #10b981; margin-bottom: 20px;">Great News, ${firstName}! 🎉</h1>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              An expert has responded to your consultation request: "<strong>${data.subject}</strong>"
+            </p>
+            <div style="background: #f0fdf4; border: 1px solid #10b981; border-radius: 12px; padding: 20px; margin: 25px 0;">
+              <p style="color: #166534; margin: 0 0 10px 0; font-weight: bold;">Expert Response:</p>
+              <p style="color: #374151; margin: 0; white-space: pre-wrap;">${data.reply}</p>
+            </div>
+            ${data.expertName ? `<p style="color: #6b7280; font-size: 14px;">Response from: <strong>${data.expertName}</strong></p>` : ''}
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${data.consultUrl}" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold;">
+                View Full Response →
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              Thank you for using Embraix!<br>
+              <strong style="color: #10b981;">The Embraix Team</strong>
+            </p>
+          </div>
+        `,
+        text: `Great News, ${firstName}! An expert has responded to your consultation request: "${data.subject}". Reply: ${data.reply}. View at: ${data.consultUrl}`,
+      };
+
+    case "call_scheduled":
+      return {
+        subject: "📞 Consultation Call Scheduled",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #3b82f6; margin-bottom: 20px;">Call Scheduled! 📞</h1>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              An expert has scheduled a call to discuss your consultation request: "<strong>${data.subject}</strong>"
+            </p>
+            <div style="background: #eff6ff; border: 1px solid #3b82f6; border-radius: 12px; padding: 20px; margin: 25px 0;">
+              <p style="margin: 0 0 10px 0;"><strong>📅 Date & Time:</strong> ${data.scheduledAt}</p>
+              ${data.notes ? `<p style="margin: 0;"><strong>📝 Notes:</strong> ${data.notes}</p>` : ''}
+            </div>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              Please make sure you're available at the scheduled time. The expert will contact you using the information you provided.
+            </p>
+            ${data.expertName ? `<p style="color: #6b7280; font-size: 14px;">Expert: <strong>${data.expertName}</strong></p>` : ''}
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              Best regards,<br>
+              <strong style="color: #10b981;">The Embraix Team</strong>
+            </p>
+          </div>
+        `,
+        text: `Call Scheduled! An expert has scheduled a call for your consultation request: "${data.subject}". Date & Time: ${data.scheduledAt}. ${data.notes ? `Notes: ${data.notes}` : ''}`,
       };
 
     default:
