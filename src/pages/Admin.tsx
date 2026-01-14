@@ -32,7 +32,7 @@ const Admin = () => {
   const { toast } = useToast();
   const { categories, tags, loading, loadArticles, createArticle, updateArticle, deleteArticle, generateSlug } = useBlog();
   const { loadPendingPosts, approvePost, rejectPost } = useNews();
-  const { tickets, newTicketCount, loadTickets, updateTicketStatus, subscribeToNewTickets } = useConsultationTickets();
+  const { tickets, newTicketCount, loadTickets, updateTicketStatus, submitExpertReply, scheduleCall, subscribeToNewTickets } = useConsultationTickets();
   
   const [articles, setArticles] = useState<Article[]>([]);
   const [pendingPosts, setPendingPosts] = useState<NewsPost[]>([]);
@@ -44,6 +44,8 @@ const Admin = () => {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<ConsultationTicket | null>(null);
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || !isWriter)) {
