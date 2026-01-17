@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Mail, 
@@ -30,7 +29,6 @@ const benefits = [
 const Newsletter = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,19 +41,21 @@ const Newsletter = () => {
       return;
     }
 
-    if (!email) {
-      toast.error("Please enter your email address");
+    if (!user.email) {
+      toast.error("No email address found. Please update your profile.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Call the welcome email edge function
+      console.log("Subscribing user:", user.email);
+      
+      // Call the welcome email edge function with the user's authenticated email
       const { data, error } = await supabase.functions.invoke("send-welcome-email", {
         body: {
-          email,
-          name: user.user_metadata?.full_name || "",
+          email: user.email,
+          name: user.user_metadata?.full_name || user.email.split("@")[0],
           source: "newsletter",
           userId: user.id,
         },
@@ -67,8 +67,9 @@ const Newsletter = () => {
         return;
       }
 
+      console.log("Newsletter subscription response:", data);
       setIsSubscribed(true);
-      toast.success("Successfully subscribed to the newsletter!");
+      toast.success("Successfully subscribed! Check your inbox for a welcome email.");
     } catch (err) {
       console.error("Subscription error:", err);
       toast.error("An error occurred. Please try again.");
@@ -156,39 +157,48 @@ const Newsletter = () => {
                       </div>
                     ) : (
                       <form onSubmit={handleSubscribe} className="space-y-4">
-                        <div>
-                          <Input
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="bg-secondary/50 border-border/50"
-                          />
-                        </div>
-                        <Button 
-                          type="submit" 
-                          variant="hero" 
-                          className="w-full"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Subscribing...
-                            </>
-                          ) : (
-                            <>
-                              Subscribe Now
+                        {user ? (
+                          <>
+                            <div className="text-center mb-4">
+                              <p className="text-sm text-muted-foreground">
+                                Subscribing as: <span className="font-medium text-foreground">{user.email}</span>
+                              </p>
+                            </div>
+                            <Button 
+                              type="submit" 
+                              variant="hero" 
+                              className="w-full"
+                              disabled={isLoading}
+                            >
+                              {isLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Subscribing...
+                                </>
+                              ) : (
+                                <>
+                                  Subscribe Now
+                                  <ArrowRight className="ml-2 w-4 h-4" />
+                                </>
+                              )}
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button 
+                              type="button" 
+                              variant="hero" 
+                              className="w-full"
+                              onClick={() => navigate("/auth")}
+                            >
+                              Sign In to Subscribe
                               <ArrowRight className="ml-2 w-4 h-4" />
-                            </>
-                          )}
-                        </Button>
-                        {!user && (
-                          <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-                            <Lock className="w-3 h-3" />
-                            Sign in required to access full newsletter content
-                          </p>
+                            </Button>
+                            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                              <Lock className="w-3 h-3" />
+                              Sign in required to subscribe
+                            </p>
+                          </>
                         )}
                       </form>
                     )}
