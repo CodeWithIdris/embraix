@@ -22,6 +22,9 @@ import NotFound from "./pages/NotFound";
 import Store from "./pages/Store";
 import Centre from "./pages/Centre";
 import ConsultExpert from "./pages/ConsultExpert";
+import IndustryReports from "./pages/insight/IndustryReports";
+import CaseStudies from "./pages/insight/CaseStudies";
+import Whitepapers from "./pages/insight/Whitepapers";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +53,9 @@ const App = () => (
                 <Route path="/store" element={<Store />} />
                 <Route path="/centre/:section" element={<Centre />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
+                <Route path="/insight/reports" element={<IndustryReports />} />
+                <Route path="/insight/case-studies" element={<CaseStudies />} />
+                <Route path="/insight/whitepapers" element={<Whitepapers />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
