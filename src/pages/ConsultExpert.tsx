@@ -25,11 +25,7 @@ import {
   Loader2,
   ArrowLeft,
   Sparkles,
-  Zap,
-  Shield,
-  Globe,
   Phone,
-  FileText
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -47,13 +43,6 @@ const expertiseAreas = [
   { value: "energy-audit", label: "Energy Audits & Efficiency" },
   { value: "commercial", label: "Commercial Projects" },
   { value: "other", label: "Other" },
-];
-
-const benefits = [
-  { icon: Users, title: "Certified Experts", description: "Connect with verified industry specialists" },
-  { icon: Zap, title: "Fast Response", description: "Get answers within 24-48 hours" },
-  { icon: Shield, title: "Confidential", description: "Your information is secure and private" },
-  { icon: Globe, title: "Africa-Focused", description: "Solutions tailored for African markets" },
 ];
 
 const ConsultExpert = () => {
@@ -157,7 +146,7 @@ const ConsultExpert = () => {
       <Header />
       
       <main className="min-h-screen pt-24 pb-16 bg-background">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-3xl">
           {/* Back Button */}
           <Button
             variant="ghost"
@@ -170,42 +159,26 @@ const ConsultExpert = () => {
           </Button>
 
           {/* Hero Section */}
-          <div className="text-center mb-12">
-            <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider mb-4">
+          <div className="text-center mb-8">
+            <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider mb-3">
               Expert Consultation
             </span>
-            <h1 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              Connect with <span className="text-gradient">Industry Specialists</span>
+            <h1 className="font-display text-2xl md:text-4xl font-bold mb-3">
+              Connect with <span className="text-gradient">Specialists</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Get personalized guidance from certified experts in clean energy, electric vehicles, 
-              and smart technologies. Submit your questions and receive detailed responses within 24-48 hours.
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm">
+              Get personalized guidance from certified experts. Submit your questions and receive responses within 24-48 hours.
             </p>
           </div>
 
-          {/* Benefits */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {benefits.map((benefit, index) => (
-              <Card key={index} className="bg-card/50 border-border/50">
-                <CardContent className="p-4 text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <benefit.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1">{benefit.title}</h3>
-                  <p className="text-xs text-muted-foreground">{benefit.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
           {/* Main Content */}
-          <Tabs defaultValue="submit" className="max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="submit" className="gap-2">
+          <Tabs defaultValue="submit">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="submit" className="gap-2 text-sm">
                 <Send className="w-4 h-4" />
                 Submit Question
               </TabsTrigger>
-              <TabsTrigger value="history" className="gap-2">
+              <TabsTrigger value="history" className="gap-2 text-sm">
                 <Clock className="w-4 h-4" />
                 My Requests ({userTickets.length})
               </TabsTrigger>
@@ -213,22 +186,22 @@ const ConsultExpert = () => {
 
             <TabsContent value="submit">
               <Card className="border-border/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Users className="w-5 h-5 text-primary" />
-                    Submit a Consultation Request
+                    Submit Request
                   </CardTitle>
-                  <CardDescription>
-                    Describe your question or challenge in detail. Our experts will review and respond with personalized guidance.
+                  <CardDescription className="text-sm">
+                    Describe your question in detail. Our experts will review and respond.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="expertise">Area of Expertise *</Label>
+                      <Label htmlFor="expertise" className="text-sm">Area of Expertise *</Label>
                       <Select value={expertise} onValueChange={setExpertise}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select the topic area" />
+                          <SelectValue placeholder="Select topic area" />
                         </SelectTrigger>
                         <SelectContent>
                           {expertiseAreas.map((area) => (
@@ -241,7 +214,7 @@ const ConsultExpert = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="subject">Subject *</Label>
+                      <Label htmlFor="subject" className="text-sm">Subject *</Label>
                       <Input
                         id="subject"
                         value={subject}
@@ -249,37 +222,40 @@ const ConsultExpert = () => {
                         placeholder="Brief summary of your question"
                         maxLength={200}
                       />
-                      <p className="text-xs text-muted-foreground">{subject.length}/200 characters</p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="description">Detailed Description *</Label>
+                      <Label htmlFor="description" className="text-sm">Details *</Label>
                       <Textarea
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Provide as much detail as possible about your question, including your location, budget constraints, timeline, and any specific requirements..."
-                        rows={6}
+                        placeholder="Provide details including location, budget, timeline, and specific requirements..."
+                        rows={5}
                         maxLength={2000}
                       />
-                      <p className="text-xs text-muted-foreground">{description.length}/2000 characters</p>
+                      <p className="text-xs text-muted-foreground text-right">{description.length}/2000</p>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number (optional)</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="+234 800 000 0000"
-                      />
-                      <p className="text-xs text-muted-foreground">For call scheduling if needed</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-sm flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5" />
+                          Phone (optional)
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          placeholder="+234 800 000 0000"
+                        />
+                      </div>
                     </div>
 
                     {user && (
                       <div className="space-y-2">
-                        <Label>Attachments (optional)</Label>
+                        <Label className="text-sm">Attachments (optional)</Label>
                         <FileAttachment
                           userId={user.id}
                           onFilesChange={setAttachments}
@@ -288,23 +264,25 @@ const ConsultExpert = () => {
                       </div>
                     )}
 
-                    <div className="bg-secondary/30 rounded-lg p-4 flex items-start gap-3">
-                      <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Pro Tip</p>
-                        <p className="text-sm text-muted-foreground">
-                          Try our free AI consultation first for instant answers.
-                        </p>
-                        <Button variant="link" size="sm" className="px-0 h-auto text-primary" onClick={() => navigate("/chat")} type="button">
-                          Try AI Consult →
-                        </Button>
+                    <div className="bg-secondary/30 rounded-lg p-3 flex items-start gap-3">
+                      <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <span className="font-medium text-foreground">Tip:</span>{" "}
+                        <span className="text-muted-foreground">Try our </span>
+                        <button 
+                          type="button"
+                          onClick={() => navigate("/chat")} 
+                          className="text-primary hover:underline"
+                        >
+                          free AI consultation
+                        </button>
+                        <span className="text-muted-foreground"> for instant answers.</span>
                       </div>
                     </div>
 
                     <Button 
                       type="submit" 
                       variant="hero" 
-                      size="lg" 
                       className="w-full"
                       disabled={isSubmitting}
                     >
@@ -316,7 +294,7 @@ const ConsultExpert = () => {
                       ) : (
                         <>
                           <Send className="w-4 h-4 mr-2" />
-                          Submit Consultation Request
+                          Submit Request
                         </>
                       )}
                     </Button>
@@ -327,13 +305,13 @@ const ConsultExpert = () => {
 
             <TabsContent value="history">
               <Card className="border-border/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Clock className="w-5 h-5 text-primary" />
-                    My Consultation Requests
+                    My Requests
                   </CardTitle>
-                  <CardDescription>
-                    Track the status of your submitted consultation requests.
+                  <CardDescription className="text-sm">
+                    Track the status of your consultation requests.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -343,41 +321,52 @@ const ConsultExpert = () => {
                     </div>
                   ) : userTickets.length === 0 ? (
                     <div className="text-center py-12">
-                      <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <MessageSquare className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                       <h3 className="font-semibold text-foreground mb-2">No requests yet</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        You haven't submitted any consultation requests yet.
+                      <p className="text-sm text-muted-foreground">
+                        You haven't submitted any requests.
                       </p>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          const tabsTrigger = document.querySelector('[data-state="inactive"][value="submit"]') as HTMLButtonElement;
-                          tabsTrigger?.click();
-                        }}
-                      >
-                        Submit Your First Request
-                      </Button>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {userTickets.map((ticket) => (
                         <div 
                           key={ticket.id} 
                           className="border border-border/50 rounded-lg p-4 hover:bg-secondary/20 transition-colors"
                         >
-                          <div className="flex items-start justify-between gap-4 mb-2">
-                            <h4 className="font-semibold text-foreground line-clamp-1">{ticket.subject}</h4>
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <h4 className="font-medium text-foreground text-sm line-clamp-1">{ticket.subject}</h4>
                             {getStatusBadge(ticket.status)}
                           </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                             {ticket.description}
                           </p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>Submitted: {format(new Date(ticket.created_at), "MMM d, yyyy")}</span>
-                            {ticket.resolved_at && (
-                              <span>Resolved: {format(new Date(ticket.resolved_at), "MMM d, yyyy")}</span>
-                            )}
+                          <div className="text-xs text-muted-foreground">
+                            {format(new Date(ticket.created_at), "MMM d, yyyy")}
                           </div>
+                          
+                          {/* Expert Reply */}
+                          {ticket.expert_reply && (
+                            <div className="mt-3 pt-3 border-t border-border/50">
+                              <div className="flex items-center gap-2 mb-2">
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                <span className="text-xs font-medium text-foreground">Expert Response</span>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{ticket.expert_reply}</p>
+                            </div>
+                          )}
+                          
+                          {/* Call Scheduled */}
+                          {ticket.call_scheduled_at && (
+                            <div className="mt-3 pt-3 border-t border-border/50">
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-primary" />
+                                <span className="text-xs text-foreground">
+                                  Call scheduled: {format(new Date(ticket.call_scheduled_at), "MMM d, yyyy 'at' h:mm a")}
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
