@@ -603,6 +603,302 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_projects: {
+        Row: {
+          client_name: string | null
+          completion_date: string | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[] | null
+          location: string | null
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_name?: string | null
+          completion_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          location?: string | null
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string | null
+          completion_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          location?: string | null
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_projects_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          provider_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_listings: {
+        Row: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at: string
+          description: string
+          id: string
+          images: string[] | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          price_range: string | null
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          description: string
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          price_range?: string | null
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          price_range?: string | null
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_listings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          parent_id: string | null
+          provider_id: string | null
+          recipient_id: string
+          sender_id: string
+          subject: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          parent_id?: string | null
+          provider_id?: string | null
+          recipient_id: string
+          sender_id: string
+          subject?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          parent_id?: string | null
+          provider_id?: string | null
+          recipient_id?: string
+          sender_id?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_messages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "service_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_messages_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_providers: {
+        Row: {
+          address: string | null
+          business_name: string
+          business_type: string
+          categories: Database["public"]["Enums"]["service_category"][]
+          city: string | null
+          country: string | null
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          email: string
+          id: string
+          is_verified: boolean | null
+          logo_url: string | null
+          paystack_customer_id: string | null
+          paystack_subscription_code: string | null
+          phone: string | null
+          rating: number | null
+          review_count: number | null
+          state: string | null
+          status: Database["public"]["Enums"]["provider_status"]
+          subscription_expires_at: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          business_type?: string
+          categories?: Database["public"]["Enums"]["service_category"][]
+          city?: string | null
+          country?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          email: string
+          id?: string
+          is_verified?: boolean | null
+          logo_url?: string | null
+          paystack_customer_id?: string | null
+          paystack_subscription_code?: string | null
+          phone?: string | null
+          rating?: number | null
+          review_count?: number | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["provider_status"]
+          subscription_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          business_type?: string
+          categories?: Database["public"]["Enums"]["service_category"][]
+          city?: string | null
+          country?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string
+          id?: string
+          is_verified?: boolean | null
+          logo_url?: string | null
+          paystack_customer_id?: string | null
+          paystack_subscription_code?: string | null
+          phone?: string | null
+          rating?: number | null
+          review_count?: number | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["provider_status"]
+          subscription_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_providers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           created_at: string | null
@@ -661,6 +957,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "writer" | "user"
+      provider_status: "pending" | "active" | "suspended" | "expired"
+      service_category:
+        | "consultation"
+        | "installation"
+        | "repair"
+        | "sales"
+        | "maintenance"
+        | "training"
+        | "audit"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -789,6 +1095,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "writer", "user"],
+      provider_status: ["pending", "active", "suspended", "expired"],
+      service_category: [
+        "consultation",
+        "installation",
+        "repair",
+        "sales",
+        "maintenance",
+        "training",
+        "audit",
+        "other",
+      ],
     },
   },
 } as const
