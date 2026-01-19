@@ -25,6 +25,11 @@ import ConsultExpert from "./pages/ConsultExpert";
 import IndustryReports from "./pages/insight/IndustryReports";
 import CaseStudies from "./pages/insight/CaseStudies";
 import Whitepapers from "./pages/insight/Whitepapers";
+import CentreHome from "./pages/centre/CentreHome";
+import BrowseServices from "./pages/centre/BrowseServices";
+import ProviderRegister from "./pages/centre/ProviderRegister";
+import ProviderProfile from "./pages/centre/ProviderProfile";
+import ProviderDashboard from "./pages/centre/ProviderDashboard";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +56,11 @@ const App = () => (
                 <Route path="/news" element={<News />} />
                 <Route path="/news/:id" element={<NewsPost />} />
                 <Route path="/store" element={<Store />} />
+                <Route path="/centre" element={<CentreHome />} />
+                <Route path="/centre/browse" element={<BrowseServices />} />
+                <Route path="/centre/register" element={<ProviderRegister />} />
+                <Route path="/centre/dashboard" element={<ProviderDashboard />} />
+                <Route path="/centre/provider/:id" element={<ProviderProfile />} />
                 <Route path="/centre/:section" element={<Centre />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="/insight/reports" element={<IndustryReports />} />
