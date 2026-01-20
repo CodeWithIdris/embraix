@@ -28,6 +28,9 @@ import {
 } from "@/components/ui/dialog";
 import ListingCard from "@/components/centre/ListingCard";
 import ProjectCard from "@/components/centre/ProjectCard";
+import ProviderImageUpload from "@/components/centre/ProviderImageUpload";
+import MultiImageUpload from "@/components/centre/MultiImageUpload";
+import MessagingInbox from "@/components/centre/MessagingInbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useServiceProviders, SERVICE_CATEGORIES } from "@/hooks/useServiceProviders";
 import { useServiceMessages } from "@/hooks/useServiceMessages";
@@ -42,7 +45,8 @@ import {
   AlertCircle,
   Crown,
   Loader2,
-  Settings
+  Settings,
+  Image as ImageIcon
 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -57,23 +61,31 @@ const ProviderDashboard = () => {
     useProviderListings, 
     useProviderProjects,
     createListing,
-    createProject
+    createProject,
+    updateProvider
   } = useServiceProviders();
   const { messages, unreadCount } = useServiceMessages();
 
   const [addListingOpen, setAddListingOpen] = useState(false);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [newListing, setNewListing] = useState({
     title: "",
     description: "",
     category: "" as ServiceCategory | "",
     price_range: "",
+    images: [] as string[],
   });
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
     client_name: "",
     location: "",
+    images: [] as string[],
+  });
+  const [profileImages, setProfileImages] = useState({
+    logo_url: myProvider?.logo_url || "",
+    cover_image: myProvider?.cover_image || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -90,8 +102,9 @@ const ProviderDashboard = () => {
         description: newListing.description,
         category: newListing.category as ServiceCategory,
         price_range: newListing.price_range || null,
+        images: newListing.images.length > 0 ? newListing.images : null,
       });
-      setNewListing({ title: "", description: "", category: "", price_range: "" });
+      setNewListing({ title: "", description: "", category: "", price_range: "", images: [] });
       setAddListingOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -108,9 +121,25 @@ const ProviderDashboard = () => {
         description: newProject.description || null,
         client_name: newProject.client_name || null,
         location: newProject.location || null,
+        images: newProject.images.length > 0 ? newProject.images : null,
       });
-      setNewProject({ title: "", description: "", client_name: "", location: "" });
+      setNewProject({ title: "", description: "", client_name: "", location: "", images: [] });
       setAddProjectOpen(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!myProvider) return;
+    setIsSubmitting(true);
+    try {
+      await updateProvider.mutateAsync({
+        id: myProvider.id,
+        logo_url: profileImages.logo_url || null,
+        cover_image: profileImages.cover_image || null,
+      });
+      setEditProfileOpen(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -519,41 +548,7 @@ const ProviderDashboard = () => {
             </TabsContent>
 
             <TabsContent value="messages">
-              <Card className="gradient-card border-border/50">
-                <CardHeader>
-                  <CardTitle className="font-display">Messages</CardTitle>
-                  <CardDescription>Customer inquiries and conversations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {messages && messages.length > 0 ? (
-                    <div className="space-y-4">
-                      {messages.slice(0, 10).map((message) => (
-                        <div
-                          key={message.id}
-                          className={`p-4 rounded-lg ${
-                            !message.is_read && message.recipient_id === user?.id
-                              ? "bg-primary/10 border border-primary/20"
-                              : "bg-secondary/30"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium">{message.subject || "No Subject"}</p>
-                            {!message.is_read && message.recipient_id === user?.id && (
-                              <Badge variant="secondary" className="text-xs">New</Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{message.content}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-8 text-center">
-                      <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No messages yet</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <MessagingInbox />
             </TabsContent>
           </Tabs>
         </div>
@@ -566,3 +561,4 @@ const ProviderDashboard = () => {
 };
 
 export default ProviderDashboard;
+
