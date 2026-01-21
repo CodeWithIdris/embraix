@@ -6,9 +6,37 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `You are Embraix AI - a friendly, knowledgeable expert on clean energy, EVs, and sustainable technology! 🌱⚡
+const buildSystemPrompt = (userContext?: {
+  location?: string;
+  home_size?: string;
+  budget_range?: string;
+  energy_goals?: string[];
+  current_setup?: string;
+  household_size?: number;
+  property_type?: string;
+  grid_reliability?: string;
+  additional_notes?: string;
+}) => {
+  let contextSection = "";
+  
+  if (userContext && Object.values(userContext).some(v => v !== null && v !== undefined)) {
+    contextSection = `\n\nUSER CONTEXT (Use this to personalize your responses):`;
+    if (userContext.location) contextSection += `\n- Location: ${userContext.location}`;
+    if (userContext.property_type) contextSection += `\n- Property Type: ${userContext.property_type}`;
+    if (userContext.home_size) contextSection += `\n- Home Size: ${userContext.home_size}`;
+    if (userContext.household_size) contextSection += `\n- Household Size: ${userContext.household_size} people`;
+    if (userContext.budget_range) contextSection += `\n- Budget Range: ${userContext.budget_range}`;
+    if (userContext.current_setup) contextSection += `\n- Current Energy Setup: ${userContext.current_setup}`;
+    if (userContext.grid_reliability) contextSection += `\n- Grid Reliability: ${userContext.grid_reliability}`;
+    if (userContext.energy_goals?.length) contextSection += `\n- Energy Goals: ${userContext.energy_goals.join(", ")}`;
+    if (userContext.additional_notes) contextSection += `\n- Additional Notes: ${userContext.additional_notes}`;
+    contextSection += `\n\nALWAYS reference this context when giving recommendations. Tailor suggestions to their specific situation, budget, and goals.`;
+  }
+
+  return `You are Embraix AI - a friendly, knowledgeable expert on clean energy, EVs, and sustainable technology! 🌱⚡
 
 Your mission: Help people understand and adopt clean energy solutions with clear, educational explanations.
+${contextSection}
 
 RESPONSE STYLE:
 1. Start with a direct answer, then explain the "why" behind it
@@ -60,6 +88,7 @@ A 3kW system typically handles 5-8 hours of basic usage, while 5kW can run a sma
 Would you like me to break down the components and costs for a specific setup?"
 
 Remember: Be thorough, be clear, and help people make informed decisions about going green!`;
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -105,7 +134,21 @@ serve(async (req) => {
       throw new Error("AI service is not properly configured");
     }
 
-    console.log("Processing chat request with", messages.length, "messages for user:", user.id);
+    // Fetch user preferences using service role for reliable access
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    
+    const { data: userPrefs } = await supabaseAdmin
+      .from("user_ai_preferences")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    console.log("Processing chat request with", messages.length, "messages for user:", user.id, "has preferences:", !!userPrefs);
+
+    const systemPrompt = buildSystemPrompt(userPrefs || undefined);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -116,7 +159,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           ...messages,
         ],
         stream: true,

@@ -920,6 +920,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_ai_preferences: {
+        Row: {
+          additional_notes: string | null
+          budget_range: string | null
+          created_at: string
+          current_setup: string | null
+          energy_goals: string[] | null
+          grid_reliability: string | null
+          home_size: string | null
+          household_size: number | null
+          id: string
+          location: string | null
+          property_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          budget_range?: string | null
+          created_at?: string
+          current_setup?: string | null
+          energy_goals?: string[] | null
+          grid_reliability?: string | null
+          home_size?: string | null
+          household_size?: number | null
+          id?: string
+          location?: string | null
+          property_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          budget_range?: string | null
+          created_at?: string
+          current_setup?: string | null
+          energy_goals?: string[] | null
+          grid_reliability?: string | null
+          home_size?: string | null
+          household_size?: number | null
+          id?: string
+          location?: string | null
+          property_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

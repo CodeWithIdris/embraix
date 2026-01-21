@@ -13,6 +13,7 @@ import FollowUpSuggestions from "@/components/chat/FollowUpSuggestions";
 import ConversationSidebar from "@/components/chat/ConversationSidebar";
 import MessageFeedback from "@/components/chat/MessageFeedback";
 import VoiceInput from "@/components/chat/VoiceInput";
+import UserPreferencesDialog from "@/components/chat/UserPreferencesDialog";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -207,6 +208,9 @@ const Chat = () => {
                 </p>
               </div>
             </div>
+            
+            {/* User Preferences */}
+            {user && <UserPreferencesDialog userId={user.id} />}
           </header>
 
           {/* Messages */}
