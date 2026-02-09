@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import BlogMedia from "@/components/BlogMedia";
-import ConsultAI from "@/components/ConsultAI";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import { FloatingAIConsult } from "@/components/FloatingAIConsult";
@@ -28,7 +27,6 @@ const Index = () => {
         <main>
           <Hero />
           <BlogMedia />
-          <ConsultAI />
           <Features />
         </main>
         <Footer />
