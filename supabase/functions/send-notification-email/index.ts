@@ -166,6 +166,101 @@ const getEmailContent = (type: string, data: Record<string, any>, recipientName:
         text: `Call Scheduled! An expert has scheduled a call for your consultation request: "${data.subject}". Date & Time: ${data.scheduledAt}. ${data.notes ? `Notes: ${data.notes}` : ''}`,
       };
 
+    case "provider_approved":
+      return {
+        subject: "🎉 Your Provider Account is Now Active!",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #10b981; margin-bottom: 20px;">Congratulations, ${firstName}! 🎉</h1>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              Great news! Your provider account <strong>"${data.businessName}"</strong> has been approved and is now active on Embraix Centre.
+            </p>
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 25px; margin: 25px 0;">
+              <h2 style="color: white; margin: 0 0 15px 0; font-size: 18px;">What You Can Do Now:</h2>
+              <ul style="color: white; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 20px;">
+                <li>Create and manage service listings</li>
+                <li>Showcase your projects and portfolio</li>
+                <li>Connect with potential clients</li>
+                <li>Receive inquiries directly</li>
+              </ul>
+            </div>
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${data.dashboardUrl}" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block;">
+                Go to Your Dashboard →
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              Welcome to Embraix!<br>
+              <strong style="color: #10b981;">The Embraix Team</strong>
+            </p>
+          </div>
+        `,
+        text: `Congratulations, ${firstName}! Your provider account "${data.businessName}" has been approved and is now active on Embraix Centre. Go to your dashboard: ${data.dashboardUrl}`,
+      };
+
+    case "provider_suspended":
+      return {
+        subject: "Important: Your Provider Account Status Update",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #374151; margin-bottom: 20px;">Hi ${firstName},</h1>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              We're writing to inform you that your provider account <strong>"${data.businessName}"</strong> has been suspended.
+            </p>
+            <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0;">
+              <p style="color: #b91c1c; margin: 0; font-size: 14px;">
+                <strong>What this means:</strong> Your listings are temporarily hidden from the marketplace, and you cannot receive new inquiries.
+              </p>
+            </div>
+            ${data.reason ? `
+              <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+                <strong>Reason:</strong> ${data.reason}
+              </p>
+            ` : ''}
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              If you believe this is an error or would like to discuss, please contact our support team.
+            </p>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              Best regards,<br>
+              <strong style="color: #10b981;">The Embraix Team</strong>
+            </p>
+          </div>
+        `,
+        text: `Hi ${firstName}, Your provider account "${data.businessName}" has been suspended. ${data.reason ? `Reason: ${data.reason}` : ''} Please contact support if you have questions.`,
+      };
+
+    case "new_service_message":
+      return {
+        subject: "📬 New Message on Embraix Centre",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #3b82f6; margin-bottom: 20px;">New Message! 📬</h1>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6;">
+              Hi ${firstName}, you've received a new message from <strong>${data.senderName}</strong>.
+            </p>
+            ${data.subject ? `
+              <div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0 0 5px 0; font-weight: bold; color: #374151;">Subject: ${data.subject}</p>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">"${data.preview}"</p>
+              </div>
+            ` : `
+              <div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">"${data.preview}"</p>
+              </div>
+            `}
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${data.inboxUrl}" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block;">
+                View Message →
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              <strong style="color: #10b981;">The Embraix Team</strong>
+            </p>
+          </div>
+        `,
+        text: `Hi ${firstName}, you've received a new message from ${data.senderName}. ${data.subject ? `Subject: ${data.subject}` : ''} Preview: "${data.preview}". View it at: ${data.inboxUrl}`,
+      };
+
     default:
       return {
         subject: "Notification from Embraix",
