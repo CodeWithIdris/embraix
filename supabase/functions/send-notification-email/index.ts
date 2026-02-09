@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface NotificationEmailRequest {
-  type: "post_approved" | "post_rejected" | "ticket_update" | "admin_new_ticket" | "admin_new_post" | "expert_reply" | "call_scheduled";
+  type: "post_approved" | "post_rejected" | "ticket_update" | "admin_new_ticket" | "admin_new_post" | "expert_reply" | "call_scheduled" | "provider_approved" | "provider_suspended" | "new_service_message";
   recipientEmail: string;
   recipientName?: string;
   data: Record<string, any>;
