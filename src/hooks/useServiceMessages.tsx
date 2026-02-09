@@ -67,7 +67,7 @@ export const useServiceMessages = () => {
     enabled: !!user,
   });
 
-  // Send message
+  // Send message with email notification
   const sendMessage = useMutation({
     mutationFn: async (messageData: Database["public"]["Tables"]["service_messages"]["Insert"]) => {
       const { data, error } = await supabase
@@ -79,9 +79,50 @@ export const useServiceMessages = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ["service-messages"] });
       queryClient.invalidateQueries({ queryKey: ["conversation", user?.id, data.recipient_id] });
+      
+      // Send email notification to recipient
+      try {
+        // Get recipient's email from profiles
+        const { data: recipientProfile } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("id", data.recipient_id)
+          .single();
+        
+        // Get sender's name
+        const { data: senderProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", data.sender_id)
+          .single();
+        
+        if (recipientProfile?.email) {
+          const baseUrl = window.location.origin;
+          const preview = data.content.length > 100 
+            ? data.content.substring(0, 100) + "..." 
+            : data.content;
+          
+          await supabase.functions.invoke("send-notification-email", {
+            body: {
+              type: "new_service_message",
+              recipientEmail: recipientProfile.email,
+              recipientName: recipientProfile.full_name || undefined,
+              data: {
+                senderName: senderProfile?.full_name || "A user",
+                subject: data.subject || undefined,
+                preview,
+                inboxUrl: `${baseUrl}/centre/dashboard`,
+              },
+            },
+          });
+        }
+      } catch (emailError) {
+        console.error("Failed to send message notification email:", emailError);
+        // Don't fail the mutation if email fails
+      }
     },
     onError: (error) => {
       toast({

@@ -90,6 +90,9 @@ const ProvidersManager = () => {
   const handleStatusChange = async (providerId: string, newStatus: ProviderStatus) => {
     setUpdating(true);
     try {
+      const provider = providers.find(p => p.id === providerId);
+      const previousStatus = provider?.status;
+      
       const { error } = await supabase
         .from("service_providers")
         .update({ status: newStatus })
@@ -103,6 +106,38 @@ const ProvidersManager = () => {
 
       if (selectedProvider?.id === providerId) {
         setSelectedProvider({ ...selectedProvider, status: newStatus });
+      }
+
+      // Send email notification for status changes
+      if (provider && previousStatus !== newStatus) {
+        const baseUrl = window.location.origin;
+        
+        if (newStatus === "active" && previousStatus !== "active") {
+          // Provider approved
+          supabase.functions.invoke("send-notification-email", {
+            body: {
+              type: "provider_approved",
+              recipientEmail: provider.email,
+              recipientName: provider.business_name,
+              data: {
+                businessName: provider.business_name,
+                dashboardUrl: `${baseUrl}/centre/dashboard`,
+              },
+            },
+          }).catch(err => console.error("Failed to send approval email:", err));
+        } else if (newStatus === "suspended") {
+          // Provider suspended
+          supabase.functions.invoke("send-notification-email", {
+            body: {
+              type: "provider_suspended",
+              recipientEmail: provider.email,
+              recipientName: provider.business_name,
+              data: {
+                businessName: provider.business_name,
+              },
+            },
+          }).catch(err => console.error("Failed to send suspension email:", err));
+        }
       }
 
       toast({
