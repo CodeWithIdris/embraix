@@ -17,7 +17,6 @@ import {
   Newspaper,
   FileText,
   Rocket,
-  Wrench,
   Star,
   BookOpen,
   Megaphone,
@@ -28,9 +27,10 @@ import {
   Sparkles,
   HelpCircle,
   GraduationCap,
-  TrendingUp,
   Store,
   ShoppingBag,
+  Search,
+  Briefcase,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -72,6 +72,8 @@ const navGroups = [
   {
     label: "Centre",
     items: [
+      { icon: Search, label: "Browse Services", href: "/centre/browse", description: "Find service providers" },
+      { icon: Briefcase, label: "Become a Provider", href: "/centre/register", description: "Offer your services" },
       { icon: HelpCircle, label: "Help & Support", href: "/centre/support", description: "FAQs and contact" },
       { icon: GraduationCap, label: "Learning", href: "/centre/learning", description: "Tutorials & resources" },
       { icon: Users, label: "Community", href: "/centre/community", description: "Forums & events" },
