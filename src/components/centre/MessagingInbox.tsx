@@ -66,13 +66,13 @@ const MessagingInbox = () => {
     const fetchPartnerNames = async () => {
       for (const partner of conversationPartners) {
         const { data } = await supabase
-          .from("profiles")
-          .select("full_name, email")
+          .from("public_profiles" as any)
+          .select("full_name")
           .eq("id", partner.id)
           .single();
         
         if (data) {
-          partner.name = data.full_name || data.email || "Unknown";
+          partner.name = (data as any).full_name || "Unknown";
         }
       }
     };
@@ -91,15 +91,15 @@ const MessagingInbox = () => {
       }
       
       const { data } = await supabase
-        .from("profiles")
-        .select("id, full_name, email")
+        .from("public_profiles" as any)
+        .select("id, full_name")
         .eq("id", selectedPartner)
         .single();
       
       if (data) {
         setPartnerInfo({
-          id: data.id,
-          name: data.full_name || data.email || "Unknown",
+          id: (data as any).id,
+          name: (data as any).full_name || "Unknown",
         });
       }
     };

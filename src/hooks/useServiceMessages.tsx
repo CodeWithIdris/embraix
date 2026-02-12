@@ -94,10 +94,10 @@ export const useServiceMessages = () => {
         
         // Get sender's name
         const { data: senderProfile } = await supabase
-          .from("profiles")
+          .from("public_profiles" as any)
           .select("full_name")
           .eq("id", data.sender_id)
-          .single();
+          .single() as { data: { full_name: string | null } | null };
         
         if (recipientProfile?.email) {
           const baseUrl = window.location.origin;
