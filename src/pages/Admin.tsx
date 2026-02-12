@@ -131,21 +131,29 @@ const Admin = () => {
     if (success) {
       setPendingPosts(pendingPosts.filter(p => p.id !== postId));
       
-      // Send approval email notification
-      if (postToApprove?.author?.email) {
+      // Send approval email notification - look up email from profiles (admin has access)
+      if (postToApprove) {
         try {
-          await supabase.functions.invoke("send-notification-email", {
-            body: {
-              type: "post_approved",
-              recipientEmail: postToApprove.author.email,
-              recipientName: postToApprove.author.full_name,
-              data: {
-                postTitle: postToApprove.title,
-                postUrl: `${window.location.origin}/news/${postId}`,
+          const { data: authorProfile } = await supabase
+            .from("profiles")
+            .select("email, full_name")
+            .eq("id", postToApprove.author_id)
+            .single();
+          
+          if (authorProfile?.email) {
+            await supabase.functions.invoke("send-notification-email", {
+              body: {
+                type: "post_approved",
+                recipientEmail: authorProfile.email,
+                recipientName: authorProfile.full_name,
+                data: {
+                  postTitle: postToApprove.title,
+                  postUrl: `${window.location.origin}/news/${postId}`,
+                },
               },
-            },
-          });
-          console.log("Approval email sent");
+            });
+            console.log("Approval email sent");
+          }
         } catch (err) {
           console.error("Failed to send approval email:", err);
         }
@@ -160,21 +168,29 @@ const Admin = () => {
     if (success) {
       setPendingPosts(pendingPosts.filter(p => p.id !== selectedPostId));
       
-      // Send rejection email notification
-      if (postToReject?.author?.email) {
+      // Send rejection email notification - look up email from profiles (admin has access)
+      if (postToReject) {
         try {
-          await supabase.functions.invoke("send-notification-email", {
-            body: {
-              type: "post_rejected",
-              recipientEmail: postToReject.author.email,
-              recipientName: postToReject.author.full_name,
-              data: {
-                postTitle: postToReject.title,
-                reason: rejectReason,
+          const { data: authorProfile } = await supabase
+            .from("profiles")
+            .select("email, full_name")
+            .eq("id", postToReject.author_id)
+            .single();
+          
+          if (authorProfile?.email) {
+            await supabase.functions.invoke("send-notification-email", {
+              body: {
+                type: "post_rejected",
+                recipientEmail: authorProfile.email,
+                recipientName: authorProfile.full_name,
+                data: {
+                  postTitle: postToReject.title,
+                  reason: rejectReason,
+                },
               },
-            },
-          });
-          console.log("Rejection email sent");
+            });
+            console.log("Rejection email sent");
+          }
         } catch (err) {
           console.error("Failed to send rejection email:", err);
         }
@@ -438,7 +454,7 @@ const Admin = () => {
                             <div>
                               <CardTitle className="text-lg font-display">{post.title}</CardTitle>
                               <p className="text-sm text-muted-foreground mt-1">
-                                By {post.author?.full_name || post.author?.email || "Unknown"} • {new Date(post.created_at).toLocaleDateString()}
+                                By {post.author?.full_name || "Unknown"} • {new Date(post.created_at).toLocaleDateString()}
                               </p>
                             </div>
                             <div className="flex gap-2">

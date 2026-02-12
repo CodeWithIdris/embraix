@@ -17,7 +17,6 @@ export interface NewsPost {
   author?: {
     full_name: string | null;
     avatar_url: string | null;
-    email: string | null;
   };
   vote_count?: number;
   user_vote?: number | null;
@@ -64,10 +63,10 @@ export const useNews = () => {
         (posts || []).map(async (post) => {
           // Get author
           const { data: author } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url, email")
+            .from("public_profiles" as any)
+            .select("full_name, avatar_url")
             .eq("id", post.author_id)
-            .single();
+            .single() as { data: { full_name: string | null; avatar_url: string | null } | null };
 
           // Get vote count
           const { data: votes } = await supabase
@@ -147,10 +146,10 @@ export const useNews = () => {
       const enrichedPosts = await Promise.all(
         (posts || []).map(async (post) => {
           const { data: author } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url, email")
+            .from("public_profiles" as any)
+            .select("full_name, avatar_url")
             .eq("id", post.author_id)
-            .single();
+            .single() as { data: { full_name: string | null; avatar_url: string | null } | null };
 
           return { ...post, author: author || undefined };
         })
@@ -175,10 +174,10 @@ export const useNews = () => {
 
       // Get author
       const { data: author } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url, email")
+        .from("public_profiles" as any)
+        .select("full_name, avatar_url")
         .eq("id", post.author_id)
-        .single();
+        .single() as { data: { full_name: string | null; avatar_url: string | null } | null };
 
       // Get vote count
       const { data: votes } = await supabase
@@ -427,10 +426,10 @@ export const useNews = () => {
       const enrichedComments = await Promise.all(
         (comments || []).map(async (comment) => {
           const { data: author } = await supabase
-            .from("profiles")
+            .from("public_profiles" as any)
             .select("full_name, avatar_url")
             .eq("id", comment.user_id)
-            .single();
+            .single() as { data: { full_name: string | null; avatar_url: string | null } | null };
 
           return { ...comment, author: author || undefined };
         })

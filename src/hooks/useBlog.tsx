@@ -30,7 +30,7 @@ export interface Article {
   updated_at: string;
   category?: Category;
   tags?: Tag[];
-  author?: { full_name: string | null; email: string | null };
+  author?: { full_name: string | null };
 }
 
 export interface ArticleFormData {
@@ -95,7 +95,7 @@ export const useBlog = () => {
           const [tagRes, authorRes] = await Promise.all([
             supabase.from("article_tags").select("tag:tags(*)").eq("article_id", article.id),
             article.author_id 
-              ? supabase.from("profiles").select("full_name, email").eq("id", article.author_id).maybeSingle()
+              ? (supabase.from("public_profiles" as any).select("full_name").eq("id", article.author_id).maybeSingle() as unknown as Promise<{ data: { full_name: string | null } | null }>)
               : Promise.resolve({ data: null })
           ]);
           
@@ -135,7 +135,7 @@ export const useBlog = () => {
       const [tagRes, authorRes] = await Promise.all([
         supabase.from("article_tags").select("tag:tags(*)").eq("article_id", id),
         data.author_id 
-          ? supabase.from("profiles").select("full_name, email").eq("id", data.author_id).maybeSingle()
+          ? (supabase.from("public_profiles" as any).select("full_name").eq("id", data.author_id).maybeSingle() as unknown as Promise<{ data: { full_name: string | null } | null }>)
           : Promise.resolve({ data: null })
       ]);
 
