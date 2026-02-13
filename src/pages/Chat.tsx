@@ -227,19 +227,23 @@ const Chat = () => {
                   Ask me anything about clean energy, electric vehicles, solar installations, 
                   or smart technologies. I'm here to provide expert guidance.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
                   {[
-                    "What's the best solar setup for my home?",
-                    "How do I choose an electric vehicle?",
-                    "Explain battery storage options",
-                    "Smart home energy tips"
-                  ].map((prompt) => (
+                    { icon: "☀️", text: "What's the best solar setup for my home?" },
+                    { icon: "🚗", text: "How do I choose an electric vehicle?" },
+                    { icon: "🔋", text: "Explain battery storage options" },
+                    { icon: "🏠", text: "Smart home energy tips" },
+                    { icon: "💰", text: "How much does solar installation cost?" },
+                    { icon: "⚡", text: "How to reduce my electricity bill?" },
+                  ].map((prompt, i) => (
                     <button
-                      key={prompt}
-                      onClick={() => setInput(prompt)}
-                      className="text-left p-3 rounded-lg bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                      key={prompt.text}
+                      onClick={() => handleSend(prompt.text)}
+                      className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
+                      style={{ animationDelay: `${i * 80}ms` }}
                     >
-                      {prompt}
+                      <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
+                      {prompt.text}
                     </button>
                   ))}
                 </div>
@@ -340,8 +344,8 @@ const Chat = () => {
                 )}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">
-              🎤 Use the microphone button to speak your questions
+            <p className="text-[11px] text-muted-foreground/60 text-center mt-2">
+              Embraix AI may produce inaccurate information. Verify important details.
             </p>
           </div>
         </div>
