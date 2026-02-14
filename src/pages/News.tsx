@@ -15,8 +15,9 @@ import TrendingPosts from "@/components/news/TrendingPosts";
 import BookmarkButton from "@/components/news/BookmarkButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost, NewsPostFormData } from "@/hooks/useNews";
+import PostActions from "@/components/news/PostActions";
 import {
-  Plus, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, TrendingUp, Share2, BookOpen
+  Plus, User, Clock, Loader2, TrendingUp, BookOpen
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
@@ -134,29 +135,6 @@ const News = () => {
       <Card className="gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
         <CardContent className="p-4">
           <div className="flex gap-4">
-            {/* Voting */}
-            <div className="flex flex-col items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`p-1 h-8 w-8 ${post.user_vote === 1 ? "text-primary" : ""}`}
-                onClick={() => handleVote(post.id, 1)}
-              >
-                <ArrowBigUp className="w-5 h-5" />
-              </Button>
-              <span className={`text-sm font-bold ${(post.vote_count || 0) > 0 ? "text-primary" : (post.vote_count || 0) < 0 ? "text-destructive" : ""}`}>
-                {post.vote_count || 0}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`p-1 h-8 w-8 ${post.user_vote === -1 ? "text-destructive" : ""}`}
-                onClick={() => handleVote(post.id, -1)}
-              >
-                <ArrowBigDown className="w-5 h-5" />
-              </Button>
-            </div>
-
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div
@@ -174,7 +152,7 @@ const News = () => {
               </div>
 
               {/* Meta */}
-              <div className="flex items-center flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
+              <div className="flex items-center flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Avatar className="w-5 h-5">
                     <AvatarImage src={post.author?.avatar_url || undefined} />
@@ -192,31 +170,25 @@ const News = () => {
                   <BookOpen className="w-3 h-3" />
                   {formatReadingTime(readingTime)}
                 </div>
-                <div className="flex items-center gap-1">
-                  <MessageCircle className="w-3 h-3" />
-                  {post.comment_count} comments
-                </div>
                 <BookmarkButton 
                   postId={post.id} 
                   userId={user?.id || null} 
                   onAuthRequired={() => navigate("/auth")}
                 />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const postUrl = `${window.location.origin}/news/${post.id}`;
-                    if (navigator.share) {
-                      navigator.share({ title: post.title, url: postUrl });
-                    } else {
-                      navigator.clipboard.writeText(postUrl);
-                      toast({ title: "Link copied!", description: "Post URL copied to clipboard" });
-                    }
-                  }}
-                  className="flex items-center gap-1 hover:text-primary transition-colors"
-                >
-                  <Share2 className="w-3 h-3" />
-                  Share
-                </button>
+              </div>
+
+              {/* Action Bar */}
+              <div className="mt-3 pt-2 border-t border-border/30">
+                <PostActions
+                  postId={post.id}
+                  voteCount={post.vote_count || 0}
+                  userVote={post.user_vote || 0}
+                  commentCount={post.comment_count || 0}
+                  title={post.title}
+                  onVote={(voteType) => handleVote(post.id, voteType)}
+                  onCommentClick={() => navigate(`/news/${post.id}`)}
+                  compact
+                />
               </div>
             </div>
 

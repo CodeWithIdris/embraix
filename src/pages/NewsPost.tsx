@@ -5,15 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost as NewsPostType, PostComment } from "@/hooks/useNews";
 import { useToast } from "@/hooks/use-toast";
+import PostActions from "@/components/news/PostActions";
 import {
-  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, User, Clock, Loader2, Send, Trash2,
-  Share2, Twitter, Facebook, Linkedin, Link2, Check
+  ArrowLeft, User, Clock, Loader2, Send, Trash2, MessageCircle
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -29,26 +28,6 @@ const NewsPost = () => {
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const postUrl = typeof window !== "undefined" ? window.location.href : "";
-
-  const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(post?.title || "")}&url=${encodeURIComponent(postUrl)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`,
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(postUrl);
-      setCopied(true);
-      toast({ title: "Link copied!", description: "Post URL copied to clipboard" });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast({ title: "Failed to copy", variant: "destructive" });
-    }
-  };
 
   useEffect(() => {
     if (id) {
@@ -157,139 +136,64 @@ const NewsPost = () => {
           {/* Post */}
           <Card className="gradient-card border-border/50 mb-8">
             <CardContent className="p-6">
-              <div className="flex gap-4">
-                {/* Voting */}
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`p-2 h-10 w-10 ${post.user_vote === 1 ? "text-primary bg-primary/10" : ""}`}
-                    onClick={() => handleVote(1)}
-                  >
-                    <ArrowBigUp className="w-6 h-6" />
-                  </Button>
-                  <span className={`text-lg font-bold ${(post.vote_count || 0) > 0 ? "text-primary" : (post.vote_count || 0) < 0 ? "text-destructive" : ""}`}>
-                    {post.vote_count || 0}
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-4">
+                {post.title}
+              </h1>
+
+              {/* Author & Date */}
+              <div className="flex items-center gap-3 mb-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={post.author?.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {post.author?.full_name?.[0] || <User className="w-4 h-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium text-foreground">
+                    {post.author?.full_name || "Anonymous"}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`p-2 h-10 w-10 ${post.user_vote === -1 ? "text-destructive bg-destructive/10" : ""}`}
-                    onClick={() => handleVote(-1)}
-                  >
-                    <ArrowBigDown className="w-6 h-6" />
-                  </Button>
                 </div>
-
-                {/* Content */}
-                <div className="flex-1">
-                  <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-4">
-                    {post.title}
-                  </h1>
-
-                  {/* Author & Date */}
-                  <div className="flex items-center gap-3 mb-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={post.author?.avatar_url || undefined} />
-                        <AvatarFallback>
-                          {post.author?.full_name?.[0] || <User className="w-4 h-4" />}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium text-foreground">
-                        {post.author?.full_name || "Anonymous"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {formatDistanceToNow(new Date(post.published_at || post.created_at), { addSuffix: true })}
-                    </div>
-                  </div>
-
-                  {/* Featured Image */}
-                  {post.featured_image && (
-                    <img
-                      src={post.featured_image}
-                      alt={post.title}
-                      className="w-full h-auto rounded-lg mb-6"
-                    />
-                  )}
-
-                  {/* Content */}
-                  <div className="prose prose-invert max-w-none mb-6">
-                    {post.content.split("\n").map((paragraph, i) => (
-                      <p key={i} className="text-foreground/90 mb-4">
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
-
-                  {/* Social Sharing */}
-                  <div className="flex items-center gap-2 pt-4 border-t border-border/50">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Share2 className="w-4 h-4" />
-                      Share:
-                    </span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 p-0 hover:bg-[#1DA1F2]/10 hover:text-[#1DA1F2]"
-                          onClick={() => window.open(shareLinks.twitter, "_blank", "width=600,height=400")}
-                        >
-                          <Twitter className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Share on Twitter</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 p-0 hover:bg-[#1877F2]/10 hover:text-[#1877F2]"
-                          onClick={() => window.open(shareLinks.facebook, "_blank", "width=600,height=400")}
-                        >
-                          <Facebook className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Share on Facebook</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 p-0 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
-                          onClick={() => window.open(shareLinks.linkedin, "_blank", "width=600,height=400")}
-                        >
-                          <Linkedin className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Share on LinkedIn</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 p-0"
-                          onClick={copyToClipboard}
-                        >
-                          {copied ? <Check className="w-4 h-4 text-primary" /> : <Link2 className="w-4 h-4" />}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>{copied ? "Copied!" : "Copy link"}</TooltipContent>
-                    </Tooltip>
-                  </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {formatDistanceToNow(new Date(post.published_at || post.created_at), { addSuffix: true })}
                 </div>
+              </div>
+
+              {/* Featured Image */}
+              {post.featured_image && (
+                <img
+                  src={post.featured_image}
+                  alt={post.title}
+                  className="w-full h-auto rounded-lg mb-6"
+                />
+              )}
+
+              {/* Content */}
+              <div className="prose prose-invert max-w-none mb-6">
+                {post.content.split("\n").map((paragraph, i) => (
+                  <p key={i} className="text-foreground/90 mb-4">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+
+              {/* Action Bar */}
+              <div className="pt-4 border-t border-border/50">
+                <PostActions
+                  postId={post.id}
+                  voteCount={post.vote_count || 0}
+                  userVote={post.user_vote || 0}
+                  commentCount={comments.length}
+                  title={post.title}
+                  onVote={(voteType) => handleVote(voteType)}
+                  onCommentClick={() => document.getElementById("comments-section")?.scrollIntoView({ behavior: "smooth" })}
+                />
               </div>
             </CardContent>
           </Card>
 
           {/* Comments Section */}
-          <div className="space-y-6">
+          <div id="comments-section" className="space-y-6">
             <h2 className="font-display text-xl font-semibold flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-primary" />
               Comments ({comments.length})
