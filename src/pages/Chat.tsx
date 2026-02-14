@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +11,9 @@ import TypingIndicator from "@/components/chat/TypingIndicator";
 import FollowUpSuggestions from "@/components/chat/FollowUpSuggestions";
 import ConversationSidebar from "@/components/chat/ConversationSidebar";
 import MessageFeedback from "@/components/chat/MessageFeedback";
+import EmojiReactions from "@/components/chat/EmojiReactions";
+import ShareConversation from "@/components/chat/ShareConversation";
+import StreamingText from "@/components/chat/StreamingText";
 import VoiceInput from "@/components/chat/VoiceInput";
 import UserPreferencesDialog from "@/components/chat/UserPreferencesDialog";
 import Header from "@/components/Header";
@@ -57,12 +59,9 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Send welcome email on first AI consult message
   const sendAIConsultWelcome = async () => {
     if (!user || hasTrackedFirstMessage) return;
-    
     try {
-      // Check if user already has an ai_consult subscription
       const { data: existing } = await supabase
         .from("newsletter_subscriptions")
         .select("id")
@@ -79,9 +78,7 @@ const Chat = () => {
             userId: user.id,
           },
         });
-        console.log("AI Consult welcome email sent");
       }
-      
       setHasTrackedFirstMessage(true);
     } catch (err) {
       console.error("Failed to send AI consult welcome:", err);
@@ -92,12 +89,7 @@ const Chat = () => {
     const text = message || input;
     if (!text.trim() || isStreaming) return;
     setInput("");
-    
-    // Send welcome email on first message
-    if (messages.length === 0) {
-      sendAIConsultWelcome();
-    }
-    
+    if (messages.length === 0) sendAIConsultWelcome();
     await sendMessage(text);
   };
 
@@ -118,6 +110,7 @@ const Chat = () => {
 
   const lastMessage = messages[messages.length - 1];
   const showFollowUp = lastMessage?.role === "assistant" && lastMessage.content && !isStreaming;
+  const currentConvData = conversations.find(c => c.id === currentConversation);
 
   if (authLoading) {
     return (
@@ -201,7 +194,7 @@ const Chat = () => {
                 <Sparkles className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="font-display font-semibold text-foreground">Embraix AI Consultant</h1>
+                <h1 className="font-display font-semibold text-foreground">Embraix AI</h1>
                 <p className="text-xs text-primary flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   Online
@@ -209,8 +202,14 @@ const Chat = () => {
               </div>
             </div>
             
-            {/* User Preferences */}
-            {user && <UserPreferencesDialog userId={user.id} />}
+            {/* Share + Preferences */}
+            <div className="flex items-center gap-1">
+              <ShareConversation 
+                messages={messages} 
+                title={currentConvData?.title} 
+              />
+              {user && <UserPreferencesDialog userId={user.id} />}
+            </div>
           </header>
 
           {/* Messages */}
@@ -224,17 +223,16 @@ const Chat = () => {
                   How can I help you today?
                 </h2>
                 <p className="text-muted-foreground max-w-md mb-8">
-                  Ask me anything about clean energy, electric vehicles, solar installations, 
-                  or smart technologies. I'm here to provide expert guidance.
+                  Ask about clean energy, EVs, solar, or smart tech. I'll keep it short and useful.
                 </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
                   {[
-                    { icon: "☀️", text: "What's the best solar setup for my home?" },
-                    { icon: "🚗", text: "How do I choose an electric vehicle?" },
-                    { icon: "🔋", text: "Explain battery storage options" },
+                    { icon: "☀️", text: "Best solar setup for my home?" },
+                    { icon: "🚗", text: "Help me choose an EV" },
+                    { icon: "🔋", text: "Battery storage options" },
                     { icon: "🏠", text: "Smart home energy tips" },
-                    { icon: "💰", text: "How much does solar installation cost?" },
-                    { icon: "⚡", text: "How to reduce my electricity bill?" },
+                    { icon: "💰", text: "Solar installation costs" },
+                    { icon: "⚡", text: "How to cut my light bill?" },
                   ].map((prompt, i) => (
                     <button
                       key={prompt.text}
@@ -249,14 +247,14 @@ const Chat = () => {
                 </div>
               </div>
             ) : (
-              <div className="max-w-3xl mx-auto space-y-6">
+              <div className="max-w-3xl mx-auto space-y-5">
                 {messages.map((message, index) => (
                   <div
                     key={message.id}
                     className={`flex gap-3 ${message.role === "user" ? "justify-end" : ""} animate-fade-in`}
                   >
                     {message.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center flex-shrink-0 mt-1">
                         <Bot className="w-4 h-4 text-primary-foreground" />
                       </div>
                     )}
@@ -267,35 +265,34 @@ const Chat = () => {
                           : "bg-secondary/50 rounded-tl-sm"
                       }`}
                     >
-                      <div className="text-sm text-foreground">
+                      <div className="text-sm text-foreground font-body leading-relaxed">
                         {message.content ? (
-                          <ReactMarkdown
-                            components={{
-                              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                              strong: ({ children }) => <span className="font-semibold">{children}</span>,
-                              em: ({ children }) => <span className="italic">{children}</span>,
-                              ul: ({ children }) => <ul className="list-disc list-inside mb-2">{children}</ul>,
-                              ol: ({ children }) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
-                              li: ({ children }) => <li className="mb-1">{children}</li>,
-                            }}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
+                          message.role === "assistant" ? (
+                            <StreamingText 
+                              content={message.content} 
+                              isComplete={!isStreaming || index !== messages.length - 1} 
+                            />
+                          ) : (
+                            <p>{message.content}</p>
+                          )
                         ) : (
                           <TypingIndicator />
                         )}
                       </div>
                       
-                      {/* Message Feedback for assistant messages */}
+                      {/* Emoji Reactions + Feedback for assistant messages */}
                       {message.role === "assistant" && message.content && !isStreaming && user && currentConversation && (
-                        <MessageFeedback
-                          messageId={message.id}
-                          conversationId={currentConversation}
-                          userId={user.id}
-                        />
+                        <div className="flex items-center gap-2 mt-1">
+                          <EmojiReactions messageId={message.id} />
+                          <MessageFeedback
+                            messageId={message.id}
+                            conversationId={currentConversation}
+                            userId={user.id}
+                          />
+                        </div>
                       )}
                       
-                      {/* Show follow-up suggestions after last assistant message */}
+                      {/* Follow-up suggestions after last assistant message */}
                       {message.role === "assistant" && index === messages.length - 1 && showFollowUp && (
                         <FollowUpSuggestions 
                           onSelect={(suggestion) => handleSend(suggestion)} 
@@ -304,7 +301,7 @@ const Chat = () => {
                       )}
                     </div>
                     {message.role === "user" && (
-                      <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
                         <span className="text-xs font-medium text-foreground">
                           {user?.email?.[0].toUpperCase()}
                         </span>
