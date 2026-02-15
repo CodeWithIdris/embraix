@@ -317,6 +317,74 @@ export type Database = {
           },
         ]
       }
+      expert_chat_messages: {
+        Row: {
+          chat_id: string
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          chat_id: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_chat_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "expert_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_chats: {
+        Row: {
+          client_id: string
+          closed_at: string | null
+          created_at: string
+          expert_id: string | null
+          expertise_area: string
+          id: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          closed_at?: string | null
+          created_at?: string
+          expert_id?: string | null
+          expertise_area: string
+          id?: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          closed_at?: string | null
+          created_at?: string
+          expert_id?: string | null
+          expertise_area?: string
+          id?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       news_posts: {
         Row: {
           author_id: string
@@ -1080,7 +1148,7 @@ export type Database = {
       is_admin_or_writer: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "writer" | "user"
+      app_role: "admin" | "writer" | "user" | "expert"
       provider_status: "pending" | "active" | "suspended" | "expired"
       service_category:
         | "consultation"
@@ -1218,7 +1286,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "writer", "user"],
+      app_role: ["admin", "writer", "user", "expert"],
       provider_status: ["pending", "active", "suspended", "expired"],
       service_category: [
         "consultation",
