@@ -55,6 +55,32 @@ serve(async (req) => {
 
     console.log("Authenticated user for voice-to-text:", user.id);
 
+    // Rate limiting: 20 requests per hour per user
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count } = await supabaseAdmin
+      .from("api_rate_limits")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("endpoint", "voice-to-text")
+      .gte("requested_at", oneHourAgo);
+
+    if (count !== null && count >= 20) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    await supabaseAdmin.from("api_rate_limits").insert({
+      user_id: user.id,
+      endpoint: "voice-to-text",
+    });
+
     const { audio } = await req.json();
     
     if (!audio) {

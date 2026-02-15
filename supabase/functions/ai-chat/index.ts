@@ -108,6 +108,32 @@ serve(async (req) => {
 
     console.log("Authenticated user:", user.id);
 
+    // Rate limiting: 50 requests per hour per user
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count } = await supabaseAdmin
+      .from("api_rate_limits")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("endpoint", "ai-chat")
+      .gte("requested_at", oneHourAgo);
+
+    if (count !== null && count >= 50) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    await supabaseAdmin.from("api_rate_limits").insert({
+      user_id: user.id,
+      endpoint: "ai-chat",
+    });
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -117,11 +143,6 @@ serve(async (req) => {
     }
 
     // Fetch user preferences using service role for reliable access
-    const supabaseAdmin = createClient(
-      supabaseUrl,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-    
     const { data: userPrefs } = await supabaseAdmin
       .from("user_ai_preferences")
       .select("*")

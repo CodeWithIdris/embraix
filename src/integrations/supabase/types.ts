@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_rate_limits: {
+        Row: {
+          endpoint: string
+          id: string
+          requested_at: string
+          user_id: string
+        }
+        Insert: {
+          endpoint: string
+          id?: string
+          requested_at?: string
+          user_id: string
+        }
+        Update: {
+          endpoint?: string
+          id?: string
+          requested_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       article_tags: {
         Row: {
           article_id: string
