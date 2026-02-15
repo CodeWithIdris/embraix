@@ -50,8 +50,7 @@ const navGroups = [
   {
     label: "Consultation",
     items: [
-      { icon: Sparkles, label: "AI Consult", href: "/chat", description: "Free AI-powered guidance" },
-      { icon: Users, label: "Consult an Expert", href: "/consult-expert", description: "Connect with specialists" },
+      { icon: Users, label: "Consult an Expert", href: "/consult-expert", description: "Live chat with specialists" },
     ]
   },
   {
@@ -84,7 +83,7 @@ const navGroups = [
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
-  const { user, isWriter, signOut } = useAuth();
+  const { user, isWriter, isExpert, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -182,6 +181,12 @@ const Header = () => {
                     <DropdownMenuItem onClick={() => navigate("/admin")} className="cursor-pointer gap-2">
                       <Settings className="w-4 h-4" />
                       Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  {isExpert && (
+                    <DropdownMenuItem onClick={() => navigate("/expert-dashboard")} className="cursor-pointer gap-2">
+                      <Users className="w-4 h-4" />
+                      Expert Panel
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -297,6 +302,17 @@ const Header = () => {
                       >
                         <Settings className="w-4 h-4 mr-2" />
                         Dashboard
+                      </Button>
+                    )}
+                    {isExpert && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="justify-start"
+                        onClick={() => { navigate("/expert-dashboard"); setIsMenuOpen(false); }}
+                      >
+                        <Users className="w-4 h-4 mr-2" />
+                        Expert Panel
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={handleSignOut}>

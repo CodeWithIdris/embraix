@@ -20,7 +20,7 @@ export const UserRolesManager = () => {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"admin" | "writer">("admin");
+  const [selectedRole, setSelectedRole] = useState<"admin" | "writer" | "expert">("admin");
 
   useEffect(() => {
     loadUsers();
@@ -70,7 +70,7 @@ export const UserRolesManager = () => {
     try {
       const { error } = await supabase
         .from("user_roles")
-        .insert({ user_id: userId, role: role as "admin" | "writer" | "user" });
+        .insert({ user_id: userId, role: role as "admin" | "writer" | "user" | "expert" });
 
       if (error) {
         if (error.code === "23505") {
@@ -114,7 +114,7 @@ export const UserRolesManager = () => {
         .from("user_roles")
         .delete()
         .eq("user_id", userId)
-        .eq("role", role as "admin" | "writer" | "user");
+        .eq("role", role as "admin" | "writer" | "user" | "expert");
 
       if (error) throw error;
 
@@ -148,6 +148,8 @@ export const UserRolesManager = () => {
         return "default";
       case "writer":
         return "secondary";
+      case "expert":
+        return "default";
       default:
         return "outline";
     }
@@ -159,6 +161,8 @@ export const UserRolesManager = () => {
         return <ShieldCheck className="w-3 h-3" />;
       case "writer":
         return <Shield className="w-3 h-3" />;
+      case "expert":
+        return <User className="w-3 h-3" />;
       default:
         return <User className="w-3 h-3" />;
     }
@@ -228,13 +232,14 @@ export const UserRolesManager = () => {
 
                   {/* Add Role */}
                   <div className="flex items-center gap-2 ml-auto">
-                    <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as "admin" | "writer")}>
-                      <SelectTrigger className="w-[100px] h-8">
+                    <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as "admin" | "writer" | "expert")}>
+                      <SelectTrigger className="w-[110px] h-8">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="writer">Writer</SelectItem>
+                        <SelectItem value="expert">Expert</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button

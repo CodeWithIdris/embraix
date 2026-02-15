@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -15,25 +13,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Users, 
-  Send, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle,
+import {
+  Users,
+  Send,
+  Clock,
+  CheckCircle2,
   MessageSquare,
   Loader2,
   ArrowLeft,
-  Sparkles,
-  Phone,
+  Plus,
+  X,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { useConsultationTickets, ConsultationTicket } from "@/hooks/useConsultationTickets";
-import { useToast } from "@/hooks/use-toast";
-import { FileAttachment } from "@/components/consultation/FileAttachment";
+import { useExpertChat, ExpertChat, ExpertChatMessage } from "@/hooks/useExpertChat";
 import { format } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const expertiseAreas = [
   { value: "solar", label: "Solar Energy & Installation" },
@@ -48,16 +44,25 @@ const expertiseAreas = [
 const ConsultExpert = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { toast } = useToast();
-  const { tickets, loading: ticketsLoading, createTicket, loadTickets } = useConsultationTickets();
-  
-  const [subject, setSubject] = useState("");
-  const [description, setDescription] = useState("");
-  const [expertise, setExpertise] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [attachments, setAttachments] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userTickets, setUserTickets] = useState<ConsultationTicket[]>([]);
+  const {
+    chats,
+    messages,
+    activeChat,
+    setActiveChat,
+    loading,
+    loadChats,
+    loadMessages,
+    createChat,
+    sendMessage,
+    closeChat,
+  } = useExpertChat();
+
+  const [newMessage, setNewMessage] = useState("");
+  const [showNewChat, setShowNewChat] = useState(false);
+  const [newSubject, setNewSubject] = useState("");
+  const [newExpertise, setNewExpertise] = useState("");
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -66,67 +71,57 @@ const ConsultExpert = () => {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user) {
-      loadTickets().then((allTickets) => {
-        const myTickets = allTickets.filter(t => t.user_id === user.id);
-        setUserTickets(myTickets);
-      });
-    }
-  }, [user]);
+    if (user) loadChats();
+  }, [user, loadChats]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please sign in", variant: "destructive" });
-      navigate("/auth");
-      return;
-    }
+  useEffect(() => {
+    if (activeChat) loadMessages(activeChat.id);
+  }, [activeChat, loadMessages]);
 
-    if (!subject.trim() || !description.trim() || !expertise) {
-      toast({ title: "Missing Information", description: "Please fill in all required fields", variant: "destructive" });
-      return;
-    }
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    setIsSubmitting(true);
-    
-    const fullSubject = `[${expertiseAreas.find(e => e.value === expertise)?.label}] ${subject}`;
-    
-    const ticket = await createTicket(
-      user.id,
-      user.email || "",
-      user.user_metadata?.full_name || null,
-      fullSubject,
-      description,
-      undefined,
-      attachments,
-      phoneNumber || undefined
-    );
-
-    if (ticket) {
-      setUserTickets(prev => [ticket, ...prev]);
-      setSubject("");
-      setDescription("");
-      setExpertise("");
-      setPhoneNumber("");
-      setAttachments([]);
+  const handleCreateChat = async () => {
+    if (!newSubject.trim() || !newExpertise) return;
+    const chat = await createChat(newExpertise, newSubject.trim());
+    if (chat) {
+      setActiveChat(chat);
+      setShowNewChat(false);
+      setNewSubject("");
+      setNewExpertise("");
     }
-    
-    setIsSubmitting(false);
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !activeChat || sending) return;
+    setSending(true);
+    await sendMessage(activeChat.id, newMessage.trim());
+    setNewMessage("");
+    setSending(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "open":
-        return <Badge variant="outline" className="text-amber-500 border-amber-500"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
-      case "in_progress":
-        return <Badge variant="outline" className="text-blue-500 border-blue-500"><MessageSquare className="w-3 h-3 mr-1" /> In Progress</Badge>;
-      case "resolved":
-        return <Badge variant="outline" className="text-green-500 border-green-500"><CheckCircle2 className="w-3 h-3 mr-1" /> Resolved</Badge>;
+      case "waiting":
+        return <Badge variant="outline" className="text-amber-500 border-amber-500 text-xs"><Clock className="w-3 h-3 mr-1" />Waiting</Badge>;
+      case "active":
+        return <Badge variant="outline" className="text-green-500 border-green-500 text-xs"><CheckCircle2 className="w-3 h-3 mr-1" />Active</Badge>;
+      case "closed":
+        return <Badge variant="outline" className="text-muted-foreground text-xs">Closed</Badge>;
       default:
-        return <Badge variant="outline"><AlertCircle className="w-3 h-3 mr-1" /> {status}</Badge>;
+        return <Badge variant="outline" className="text-xs">{status}</Badge>;
     }
   };
+
+  const myChats = chats.filter(c => c.client_id === user?.id);
 
   if (authLoading) {
     return (
@@ -140,245 +135,221 @@ const ConsultExpert = () => {
     <>
       <Helmet>
         <title>Consult an Expert - Embraix</title>
-        <meta name="description" content="Connect with certified industry specialists for personalized consultation on clean energy, EVs, and smart technologies." />
+        <meta name="description" content="Chat live with certified industry specialists for personalized consultation." />
       </Helmet>
 
       <Header />
-      
-      <main className="min-h-screen pt-24 pb-16 bg-background">
-        <div className="container mx-auto px-4 max-w-3xl">
-          {/* Back Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mb-6"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
 
-          {/* Hero Section */}
-          <div className="text-center mb-8">
-            <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider mb-3">
-              Expert Consultation
-            </span>
-            <h1 className="font-display text-2xl md:text-4xl font-bold mb-3">
-              Connect with <span className="text-gradient">Specialists</span>
-            </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-              Get personalized guidance from certified experts. Submit your questions and receive responses within 24-48 hours.
-            </p>
-          </div>
+      <main className="min-h-screen pt-20 pb-0 bg-background">
+        <div className="container mx-auto px-4 h-[calc(100vh-5rem)]">
+          <div className="flex h-full gap-0 border border-border/50 rounded-xl overflow-hidden bg-card">
+            {/* Sidebar - Chat list */}
+            <div className="w-80 border-r border-border/50 flex flex-col shrink-0 hidden md:flex">
+              <div className="p-4 border-b border-border/50">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-display font-bold text-lg">Expert Chat</h2>
+                  <Button size="sm" variant="ghost" onClick={() => setShowNewChat(true)}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Live chat with specialists</p>
+              </div>
 
-          {/* Main Content */}
-          <Tabs defaultValue="submit">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="submit" className="gap-2 text-sm">
-                <Send className="w-4 h-4" />
-                Submit Question
-              </TabsTrigger>
-              <TabsTrigger value="history" className="gap-2 text-sm">
-                <Clock className="w-4 h-4" />
-                My Requests ({userTickets.length})
-              </TabsTrigger>
-            </TabsList>
+              <ScrollArea className="flex-1">
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  </div>
+                ) : myChats.length === 0 ? (
+                  <div className="text-center py-8 px-4">
+                    <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No conversations yet</p>
+                    <Button size="sm" variant="hero" className="mt-3" onClick={() => setShowNewChat(true)}>
+                      Start a Chat
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border/30">
+                    {myChats.map(chat => (
+                      <button
+                        key={chat.id}
+                        onClick={() => { setActiveChat(chat); setShowNewChat(false); }}
+                        className={`w-full text-left p-4 hover:bg-secondary/30 transition-colors ${
+                          activeChat?.id === chat.id ? "bg-secondary/50" : ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm truncate pr-2">{chat.subject}</span>
+                          {getStatusBadge(chat.status)}
+                        </div>
+                        <p className="text-xs text-muted-foreground capitalize">{chat.expertise_area.replace("-", " ")}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(new Date(chat.created_at), "MMM d, h:mm a")}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
 
-            <TabsContent value="submit">
-              <Card className="border-border/50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Users className="w-5 h-5 text-primary" />
-                    Submit Request
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    Describe your question in detail. Our experts will review and respond.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="expertise" className="text-sm">Area of Expertise *</Label>
-                      <Select value={expertise} onValueChange={setExpertise}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select topic area" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {expertiseAreas.map((area) => (
-                            <SelectItem key={area.value} value={area.value}>
-                              {area.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="subject" className="text-sm">Subject *</Label>
-                      <Input
-                        id="subject"
-                        value={subject}
-                        onChange={(e) => setSubject(e.target.value)}
-                        placeholder="Brief summary of your question"
-                        maxLength={200}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="description" className="text-sm">Details *</Label>
-                      <Textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Provide details including location, budget, timeline, and specific requirements..."
-                        rows={5}
-                        maxLength={2000}
-                      />
-                      <p className="text-xs text-muted-foreground text-right">{description.length}/2000</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Main chat area */}
+            <div className="flex-1 flex flex-col">
+              {showNewChat ? (
+                <div className="flex-1 flex items-center justify-center p-6">
+                  <Card className="w-full max-w-md border-border/50">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          New Consultation
+                        </CardTitle>
+                        <Button size="sm" variant="ghost" onClick={() => setShowNewChat(false)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <CardDescription className="text-sm">
+                        Start a live chat with an available expert.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-sm flex items-center gap-2">
-                          <Phone className="w-3.5 h-3.5" />
-                          Phone (optional)
-                        </Label>
+                        <Label className="text-sm">Topic *</Label>
+                        <Select value={newExpertise} onValueChange={setNewExpertise}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select expertise area" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {expertiseAreas.map(a => (
+                              <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm">Subject *</Label>
                         <Input
-                          id="phone"
-                          type="tel"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder="+234 800 000 0000"
+                          value={newSubject}
+                          onChange={e => setNewSubject(e.target.value)}
+                          placeholder="Brief description of your question"
+                          maxLength={200}
                         />
                       </div>
+                      <Button
+                        variant="hero"
+                        className="w-full"
+                        onClick={handleCreateChat}
+                        disabled={!newSubject.trim() || !newExpertise}
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Start Chat
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : activeChat ? (
+                <>
+                  {/* Chat header */}
+                  <div className="p-4 border-b border-border/50 flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Button size="sm" variant="ghost" className="md:hidden" onClick={() => setActiveChat(null)}>
+                        <ArrowLeft className="w-4 h-4" />
+                      </Button>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{activeChat.subject}</h3>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {activeChat.expertise_area.replace("-", " ")} · {activeChat.status === "waiting" ? "Waiting for expert..." : activeChat.status === "active" ? "Expert connected" : "Closed"}
+                        </p>
+                      </div>
                     </div>
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(activeChat.status)}
+                      {activeChat.status !== "closed" && (
+                        <Button size="sm" variant="ghost" onClick={() => closeChat(activeChat.id)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
 
-                    {user && (
-                      <div className="space-y-2">
-                        <Label className="text-sm">Attachments (optional)</Label>
-                        <FileAttachment
-                          userId={user.id}
-                          onFilesChange={setAttachments}
-                          existingFiles={attachments}
-                        />
+                  {/* Messages */}
+                  <ScrollArea className="flex-1 p-4">
+                    {activeChat.status === "waiting" && messages.length === 0 && (
+                      <div className="text-center py-12">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto mb-3" />
+                        <p className="text-sm text-muted-foreground">Waiting for an expert to join...</p>
+                        <p className="text-xs text-muted-foreground mt-1">You can send your first message while you wait.</p>
                       </div>
                     )}
 
-                    <div className="bg-secondary/30 rounded-lg p-3 flex items-start gap-3">
-                      <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="text-sm">
-                        <span className="font-medium text-foreground">Tip:</span>{" "}
-                        <span className="text-muted-foreground">Try our </span>
-                        <button 
-                          type="button"
-                          onClick={() => navigate("/chat")} 
-                          className="text-primary hover:underline"
+                    <div className="space-y-3 max-w-2xl mx-auto">
+                      {messages.map(msg => {
+                        const isMe = msg.sender_id === user?.id;
+                        return (
+                          <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                            <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
+                              isMe
+                                ? "bg-primary text-primary-foreground rounded-br-md"
+                                : "bg-secondary/50 text-foreground rounded-bl-md"
+                            }`}>
+                              {!isMe && (
+                                <p className="text-xs font-medium text-primary mb-1">Expert</p>
+                              )}
+                              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                              <p className={`text-xs mt-1 ${isMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                                {format(new Date(msg.created_at), "h:mm a")}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </ScrollArea>
+
+                  {/* Message input */}
+                  {activeChat.status !== "closed" && (
+                    <div className="p-4 border-t border-border/50">
+                      <div className="flex gap-2 max-w-2xl mx-auto">
+                        <Input
+                          value={newMessage}
+                          onChange={e => setNewMessage(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          placeholder="Type your message..."
+                          disabled={sending}
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={handleSendMessage}
+                          disabled={!newMessage.trim() || sending}
+                          variant="hero"
+                          size="icon"
                         >
-                          free AI consultation
-                        </button>
-                        <span className="text-muted-foreground"> for instant answers.</span>
+                          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        </Button>
                       </div>
                     </div>
-
-                    <Button 
-                      type="submit" 
-                      variant="hero" 
-                      className="w-full"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Submitting...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 mr-2" />
-                          Submit Request
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="history">
-              <Card className="border-border/50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Clock className="w-5 h-5 text-primary" />
-                    My Requests
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    Track the status of your consultation requests.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {ticketsLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                    </div>
-                  ) : userTickets.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageSquare className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                      <h3 className="font-semibold text-foreground mb-2">No requests yet</h3>
-                      <p className="text-sm text-muted-foreground">
-                        You haven't submitted any requests.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {userTickets.map((ticket) => (
-                        <div 
-                          key={ticket.id} 
-                          className="border border-border/50 rounded-lg p-4 hover:bg-secondary/20 transition-colors"
-                        >
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <h4 className="font-medium text-foreground text-sm line-clamp-1">{ticket.subject}</h4>
-                            {getStatusBadge(ticket.status)}
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                            {ticket.description}
-                          </p>
-                          <div className="text-xs text-muted-foreground">
-                            {format(new Date(ticket.created_at), "MMM d, yyyy")}
-                          </div>
-                          
-                          {/* Expert Reply */}
-                          {ticket.expert_reply && (
-                            <div className="mt-3 pt-3 border-t border-border/50">
-                              <div className="flex items-center gap-2 mb-2">
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                <span className="text-xs font-medium text-foreground">Expert Response</span>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{ticket.expert_reply}</p>
-                            </div>
-                          )}
-                          
-                          {/* Call Scheduled */}
-                          {ticket.call_scheduled_at && (
-                            <div className="mt-3 pt-3 border-t border-border/50">
-                              <div className="flex items-center gap-2">
-                                <Phone className="w-4 h-4 text-primary" />
-                                <span className="text-xs text-foreground">
-                                  Call scheduled: {format(new Date(ticket.call_scheduled_at), "MMM d, yyyy 'at' h:mm a")}
-                                </span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="font-display font-bold text-lg mb-2">Expert Consultation</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Select a conversation or start a new one.
+                    </p>
+                    <Button variant="hero" onClick={() => setShowNewChat(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Chat
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </main>
-
-      <Footer />
     </>
   );
 };
