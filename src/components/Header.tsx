@@ -51,6 +51,7 @@ const navGroups = [
     label: "Consultation",
     items: [
       { icon: Users, label: "Consult an Expert", href: "/consult-expert", description: "Live chat with specialists" },
+      { icon: GraduationCap, label: "Become an Expert", href: "/expert/apply", description: "Apply to join our expert team" },
     ]
   },
   {
