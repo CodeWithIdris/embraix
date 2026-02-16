@@ -317,6 +317,57 @@ export type Database = {
           },
         ]
       }
+      expert_applications: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          experience_summary: string
+          expertise_areas: string[]
+          full_name: string
+          id: string
+          phone: string | null
+          qualifications: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          experience_summary: string
+          expertise_areas?: string[]
+          full_name: string
+          id?: string
+          phone?: string | null
+          qualifications?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          experience_summary?: string
+          expertise_areas?: string[]
+          full_name?: string
+          id?: string
+          phone?: string | null
+          qualifications?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       expert_chat_messages: {
         Row: {
           chat_id: string
@@ -1138,6 +1189,7 @@ export type Database = {
       }
     }
     Functions: {
+      auto_assign_expert: { Args: { p_chat_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

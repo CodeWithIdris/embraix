@@ -23,9 +23,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp
 } from "lucide-react";
 import ProvidersManager from "@/components/admin/ProvidersManager";
+import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
+import { ExpertAnalytics } from "@/components/admin/ExpertAnalytics";
 
 const Admin = () => {
   const { user, loading: authLoading, isWriter, isAdmin } = useAuth();
@@ -360,7 +362,7 @@ const Admin = () => {
 
         <main className="container mx-auto p-6">
           <Tabs defaultValue="articles" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:inline-grid">
               <TabsTrigger value="articles" className="gap-2">
                 <BookOpen className="w-4 h-4" />
                 Articles
@@ -388,6 +390,14 @@ const Admin = () => {
                   <TabsTrigger value="providers" className="gap-2">
                     <Building2 className="w-4 h-4" />
                     Providers
+                  </TabsTrigger>
+                  <TabsTrigger value="experts" className="gap-2">
+                    <GraduationCap className="w-4 h-4" />
+                    Experts
+                  </TabsTrigger>
+                  <TabsTrigger value="analytics" className="gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Analysis
                   </TabsTrigger>
                   <TabsTrigger value="users" className="gap-2">
                     <Users className="w-4 h-4" />
@@ -622,6 +632,20 @@ const Admin = () => {
             {isAdmin && (
               <TabsContent value="providers">
                 <ProvidersManager />
+              </TabsContent>
+            )}
+
+            {/* Experts Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="experts">
+                <ExpertApplicationsManager />
+              </TabsContent>
+            )}
+
+            {/* Expert Analysis Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="analytics">
+                <ExpertAnalytics />
               </TabsContent>
             )}
 

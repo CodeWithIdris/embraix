@@ -31,6 +31,7 @@ import ProviderRegister from "./pages/centre/ProviderRegister";
 import ProviderProfile from "./pages/centre/ProviderProfile";
 import ProviderDashboard from "./pages/centre/ProviderDashboard";
 import ExpertDashboard from "./pages/ExpertDashboard";
+import ExpertApply from "./pages/ExpertApply";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/centre/:section" element={<Centre />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="/expert-dashboard" element={<ExpertDashboard />} />
+                <Route path="/expert/apply" element={<ExpertApply />} />
                 <Route path="/insight/reports" element={<IndustryReports />} />
                 <Route path="/insight/case-studies" element={<CaseStudies />} />
                 <Route path="/insight/whitepapers" element={<Whitepapers />} />

@@ -81,6 +81,21 @@ export const useExpertChat = () => {
       if (error) throw error;
       const chat = data as ExpertChat;
       setChats(prev => [chat, ...prev]);
+
+      // Auto-assign an available expert
+      try {
+        const { data: assignResult } = await supabase.functions.invoke("assign-expert", {
+          body: { chat_id: chat.id },
+        });
+        if (assignResult?.assigned && assignResult?.expert_id) {
+          const updatedChat = { ...chat, expert_id: assignResult.expert_id, status: "active" };
+          setChats(prev => prev.map(c => c.id === chat.id ? updatedChat : c));
+          return updatedChat;
+        }
+      } catch (assignErr) {
+        console.error("Auto-assign failed:", assignErr);
+      }
+
       return chat;
     } catch (err) {
       console.error("Error creating chat:", err);
