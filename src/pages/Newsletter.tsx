@@ -51,7 +51,6 @@ const Newsletter = () => {
     try {
       console.log("Subscribing user:", user.email);
       
-      // Call the welcome email edge function with the user's authenticated email
       const { data, error } = await supabase.functions.invoke("send-welcome-email", {
         body: {
           email: user.email,
@@ -62,17 +61,28 @@ const Newsletter = () => {
       });
 
       if (error) {
-        console.error("Error sending welcome email:", error);
-        toast.error("Failed to subscribe. Please try again.");
+        console.error("Edge function invocation error:", error);
+        // Check if it's a non-2xx response with error details
+        const errorMessage = typeof error === 'object' && error.message 
+          ? error.message 
+          : "Failed to subscribe. Please try again.";
+        toast.error(errorMessage);
+        return;
+      }
+
+      // Check for application-level errors in the response
+      if (data?.error) {
+        console.error("Subscription error from server:", data.error);
+        toast.error(data.error);
         return;
       }
 
       console.log("Newsletter subscription response:", data);
       setIsSubscribed(true);
       toast.success("Successfully subscribed! Check your inbox for a welcome email.");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Subscription error:", err);
-      toast.error("An error occurred. Please try again.");
+      toast.error(err?.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
