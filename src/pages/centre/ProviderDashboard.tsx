@@ -333,26 +333,7 @@ const ProviderDashboard = () => {
             </div>
           </div>
 
-          {/* Subscription Notice */}
-          {myProvider.status === "pending" && (
-            <Card className="gradient-card border-primary/30 mb-8 overflow-hidden relative">
-              <div className="absolute inset-0 gradient-glow opacity-30" />
-              <CardContent className="py-6 relative">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                  <Crown className="w-10 h-10 text-primary" />
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="font-display font-bold text-lg">Activate Your Profile</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Subscribe to a premium package to make your profile visible to customers
-                    </p>
-                  </div>
-                  <Button variant="hero">
-                    Subscribe Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Provider is active - show dashboard content */}
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
