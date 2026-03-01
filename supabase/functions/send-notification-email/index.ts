@@ -358,7 +358,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("User role verified:", roleData.role);
     }
 
-    const { type, recipientEmail, recipientName, data }: NotificationEmailRequest = await req.json();
+    // type, recipientEmail, recipientName, data already parsed above
 
     if (!type || !recipientEmail) {
       return new Response(
