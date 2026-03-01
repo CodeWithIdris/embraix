@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface NotificationEmailRequest {
-  type: "post_approved" | "post_rejected" | "ticket_update" | "admin_new_ticket" | "admin_new_post" | "expert_reply" | "call_scheduled" | "provider_approved" | "provider_suspended" | "new_service_message";
+  type: "post_approved" | "post_rejected" | "ticket_update" | "admin_new_ticket" | "admin_new_post" | "expert_reply" | "call_scheduled" | "provider_approved" | "provider_suspended" | "new_service_message" | "new_provider_application";
   recipientEmail: string;
   recipientName?: string;
   data: Record<string, any>;
@@ -261,6 +261,26 @@ const getEmailContent = (type: string, data: Record<string, any>, recipientName:
         text: `Hi ${firstName}, you've received a new message from ${data.senderName}. ${data.subject ? `Subject: ${data.subject}` : ''} Preview: "${data.preview}". View it at: ${data.inboxUrl}`,
       };
 
+    case "new_provider_application":
+      return {
+        subject: "🏢 New Provider Application",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #f59e0b; margin-bottom: 20px;">🏢 New Provider Application</h1>
+            <div style="background: #fffbeb; border: 1px solid #fbbf24; border-radius: 12px; padding: 20px; margin: 20px 0;">
+              <p style="margin: 0 0 10px 0;"><strong>Business Name:</strong> ${data.businessName}</p>
+              <p style="margin: 0;"><strong>Email:</strong> ${data.email}</p>
+            </div>
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${data.adminUrl}" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold;">
+                Review Application →
+              </a>
+            </div>
+          </div>
+        `,
+        text: `New Provider Application: ${data.businessName} (${data.email}). Review at: ${data.adminUrl}`,
+      };
+
     default:
       return {
         subject: "Notification from Embraix",
@@ -313,23 +333,30 @@ const handler = async (req: Request): Promise<Response> => {
     // Use service role client to check admin role (bypasses RLS)
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
     
-    // Verify user is admin or writer before allowing notification emails
-    const { data: roleData, error: roleError } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["admin", "writer"])
-      .maybeSingle();
+    // Parse body first to check type
+    const { type, recipientEmail, recipientName, data }: NotificationEmailRequest = await req.json();
 
-    if (roleError || !roleData) {
-      console.error("User is not authorized to send notifications:", user.id);
-      return new Response(
-        JSON.stringify({ error: "Forbidden - Admin or Writer access required" }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    // Allow certain notification types from any authenticated user
+    const publicNotificationTypes = ["new_provider_application", "new_service_message"];
+    
+    if (!publicNotificationTypes.includes(type)) {
+      // Verify user is admin or writer before allowing notification emails
+      const { data: roleData, error: roleError } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .in("role", ["admin", "writer"])
+        .maybeSingle();
+
+      if (roleError || !roleData) {
+        console.error("User is not authorized to send notifications:", user.id);
+        return new Response(
+          JSON.stringify({ error: "Forbidden - Admin or Writer access required" }),
+          { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      console.log("User role verified:", roleData.role);
     }
-
-    console.log("User role verified:", roleData.role);
 
     const { type, recipientEmail, recipientName, data }: NotificationEmailRequest = await req.json();
 
