@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -169,13 +170,14 @@ const NewsPost = () => {
               )}
 
               {/* Content */}
-              <div className="prose prose-invert max-w-none mb-6">
-                {post.content.split("\n").map((paragraph, i) => (
-                  <p key={i} className="text-foreground/90 mb-4">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              <div 
+                className="prose prose-invert max-w-none mb-6 text-foreground/90
+                  prose-headings:text-foreground prose-headings:font-display
+                  prose-p:mb-4 prose-a:text-primary prose-a:underline
+                  prose-img:rounded-lg prose-img:max-w-full
+                  prose-strong:text-foreground prose-em:text-foreground/80"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+              />
 
               {/* Action Bar */}
               <div className="pt-4 border-t border-border/50">
