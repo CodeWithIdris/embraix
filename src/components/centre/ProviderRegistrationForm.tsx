@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -86,7 +87,27 @@ const ProviderRegistrationForm = ({ onSuccess }: ProviderRegistrationFormProps) 
         state: values.state || null,
         website: values.website || null,
         country: "Nigeria",
+        status: "pending",
       });
+
+      // Send notification email to admins
+      try {
+        await supabase.functions.invoke("send-notification-email", {
+          body: {
+            type: "new_provider_application",
+            recipientEmail: "support@embraix.com",
+            recipientName: "Admin",
+            data: {
+              businessName: values.business_name,
+              email: values.email,
+              adminUrl: `${window.location.origin}/admin`,
+            },
+          },
+        });
+      } catch (err) {
+        console.error("Failed to send admin notification:", err);
+      }
+
       onSuccess?.();
     } finally {
       setIsSubmitting(false);

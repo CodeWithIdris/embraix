@@ -199,6 +199,64 @@ const ProviderDashboard = () => {
     );
   }
 
+  // Block access for non-approved providers
+  if (myProvider.status !== "active") {
+    return (
+      <>
+        <Helmet>
+          <title>Account Under Review | Embraix Centre</title>
+        </Helmet>
+        <Header />
+        <div className="min-h-screen pt-20 pb-12 bg-background flex items-center justify-center">
+          <Card className="max-w-lg gradient-card border-border/50">
+            <CardContent className="pt-8 pb-8 text-center">
+              {myProvider.status === "pending" ? (
+                <>
+                  <Clock className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                  <h2 className="font-display text-2xl font-bold mb-2">Account Under Review</h2>
+                  <p className="text-muted-foreground mb-4">
+                    Your provider application is currently being reviewed by our team. 
+                    You'll receive an email notification once your account is approved.
+                  </p>
+                  <Badge className="bg-yellow-500/20 text-yellow-600 border-yellow-500/30">
+                    <Clock className="w-3 h-3 mr-1" />
+                    Pending Approval
+                  </Badge>
+                </>
+              ) : myProvider.status === "suspended" ? (
+                <>
+                  <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
+                  <h2 className="font-display text-2xl font-bold mb-2">Account Suspended</h2>
+                  <p className="text-muted-foreground mb-4">
+                    Your provider account has been suspended. Please contact support for more information.
+                  </p>
+                  <Badge className="bg-red-500/20 text-red-600 border-red-500/30">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    Suspended
+                  </Badge>
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h2 className="font-display text-2xl font-bold mb-2">Account Expired</h2>
+                  <p className="text-muted-foreground mb-4">
+                    Your provider subscription has expired. Please renew to continue using the dashboard.
+                  </p>
+                </>
+              )}
+              <div className="mt-6">
+                <Button variant="outline" onClick={() => navigate("/centre")}>
+                  Back to Centre
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -275,26 +333,7 @@ const ProviderDashboard = () => {
             </div>
           </div>
 
-          {/* Subscription Notice */}
-          {myProvider.status === "pending" && (
-            <Card className="gradient-card border-primary/30 mb-8 overflow-hidden relative">
-              <div className="absolute inset-0 gradient-glow opacity-30" />
-              <CardContent className="py-6 relative">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                  <Crown className="w-10 h-10 text-primary" />
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="font-display font-bold text-lg">Activate Your Profile</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Subscribe to a premium package to make your profile visible to customers
-                    </p>
-                  </div>
-                  <Button variant="hero">
-                    Subscribe Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Provider is active - show dashboard content */}
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

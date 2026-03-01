@@ -31,6 +31,7 @@ import {
   ShoppingBag,
   Search,
   Briefcase,
+  Wrench,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -42,8 +43,9 @@ const navGroups = [
     label: "Media",
     items: [
       { icon: Newspaper, label: "News / Reports", href: "/news", description: "Community news & reports" },
-      { icon: Rocket, label: "Projects & DIY", href: "/media/projects", description: "Projects and DIY guides" },
-      { icon: Star, label: "Reviews & Guides", href: "/media/reviews", description: "Product reviews & tutorials" },
+      { icon: Rocket, label: "Projects", href: "/media/projects", description: "Project showcases & case studies" },
+      { icon: Wrench, label: "Guides & DIY", href: "/media/diy-guides", description: "Tutorials and DIY guides" },
+      { icon: Star, label: "Reviews & Analysis", href: "/media/reviews", description: "Product reviews & analysis" },
       { icon: Megaphone, label: "Promotions", href: "/promotions", description: "Deals and promotions" },
     ]
   },

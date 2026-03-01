@@ -109,9 +109,9 @@ const ProviderRegister = () => {
                   <Badge className="bg-primary text-primary-foreground">Premium Required</Badge>
                 </div>
                 <CardTitle className="font-display text-xl">Premium Subscription</CardTitle>
-                <CardDescription>
-                  To offer services on Embraix, you'll need to subscribe to a premium package after registration.
-                  This ensures quality service providers and helps maintain the marketplace.
+        <CardDescription>
+                  After registration, your application will be reviewed by our team. 
+                  Once approved, you'll be able to list services and access your provider dashboard.
                 </CardDescription>
               </CardHeader>
               <CardContent className="relative">
