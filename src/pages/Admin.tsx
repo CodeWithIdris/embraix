@@ -28,6 +28,7 @@ import {
 import ProvidersManager from "@/components/admin/ProvidersManager";
 import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
 import { ExpertAnalytics } from "@/components/admin/ExpertAnalytics";
+import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
 
 const Admin = () => {
   const { user, loading: authLoading, isWriter, isAdmin } = useAuth();
@@ -642,10 +643,13 @@ const Admin = () => {
               </TabsContent>
             )}
 
-            {/* Expert Analysis Tab (Admin Only) */}
+            {/* Analytics Tab (Admin Only) */}
             {isAdmin && (
               <TabsContent value="analytics">
-                <ExpertAnalytics />
+                <PlatformAnalytics />
+                <div className="mt-8">
+                  <ExpertAnalytics />
+                </div>
               </TabsContent>
             )}
 

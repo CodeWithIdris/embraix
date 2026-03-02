@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationDropdown } from "@/components/news/NotificationDropdown";
 import logo from "@/assets/logo.jpg";
 
 // New navigation structure
@@ -159,6 +160,7 @@ const Header = () => {
 
           {/* Desktop Auth & Theme */}
           <div className="hidden md:flex items-center gap-2">
+            <NotificationDropdown />
             <ThemeToggle />
             
             {user ? (
