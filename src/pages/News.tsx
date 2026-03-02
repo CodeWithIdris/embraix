@@ -4,8 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
@@ -13,11 +12,12 @@ import Footer from "@/components/Footer";
 import CategoryFilter from "@/components/news/CategoryFilter";
 import TrendingPosts from "@/components/news/TrendingPosts";
 import BookmarkButton from "@/components/news/BookmarkButton";
+import RichPostEditor from "@/components/news/RichPostEditor";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost, NewsPostFormData } from "@/hooks/useNews";
 import PostActions from "@/components/news/PostActions";
 import {
-  Plus, User, Clock, Loader2, TrendingUp, BookOpen
+  Plus, User, Clock, Loader2, TrendingUp, BookOpen, Video, Headphones, ImageIcon, Filter
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
@@ -40,15 +40,10 @@ const News = () => {
   const [posts, setPosts] = useState<NewsPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<NewsPost[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [contentFilter, setContentFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("latest");
   const [categories, setCategories] = useState<Category[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<NewsPostFormData & { category_id?: string }>({
-    title: "",
-    content: "",
-    excerpt: "",
-    featured_image: "",
-    category_id: "",
-  });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -57,17 +52,44 @@ const News = () => {
   }, [user?.id]);
 
   useEffect(() => {
+    let result = [...posts];
+
+    // Category filter
     if (selectedCategory) {
-      setFilteredPosts(posts.filter(p => (p as any).category_id === selectedCategory));
-    } else {
-      setFilteredPosts(posts);
+      result = result.filter(p => (p as any).category_id === selectedCategory);
     }
-  }, [selectedCategory, posts]);
+
+    // Content type filter
+    if (contentFilter !== "all") {
+      result = result.filter(p => {
+        const c = p.content.toLowerCase();
+        switch (contentFilter) {
+          case "video": return c.includes("<iframe") || c.includes("<video");
+          case "podcast": return c.includes("<audio") || c.includes("spotify.com");
+          case "gallery": return (c.match(/<img/g) || []).length > 2;
+          default: return true;
+        }
+      });
+    }
+
+    // Sort
+    switch (sortBy) {
+      case "most_liked":
+        result.sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0));
+        break;
+      case "most_commented":
+        result.sort((a, b) => (b.comment_count || 0) - (a.comment_count || 0));
+        break;
+      default: // latest — already sorted
+        break;
+    }
+
+    setFilteredPosts(result);
+  }, [selectedCategory, contentFilter, sortBy, posts]);
 
   const loadPosts = async () => {
     const data = await loadApprovedPosts(user?.id);
     setPosts(data);
-    setFilteredPosts(data);
   };
 
   const loadCategories = async () => {
@@ -78,80 +100,82 @@ const News = () => {
     if (data) setCategories(data);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData: {
+    title: string;
+    content: string;
+    excerpt: string;
+    featured_image: string;
+    category_id: string;
+    content_type: string;
+  }) => {
     if (!user) {
       navigate("/auth");
       return;
     }
-
-    if (!formData.title.trim() || !formData.content.trim()) return;
-
     setSubmitting(true);
-    const result = await createPost(formData, user.id);
+    const result = await createPost({
+      title: formData.title,
+      content: formData.content,
+      excerpt: formData.excerpt,
+      featured_image: formData.featured_image,
+    }, user.id);
     if (result) {
       setIsDialogOpen(false);
-      setFormData({ title: "", content: "", excerpt: "", featured_image: "", category_id: "" });
+      toast({ title: "Post submitted for review" });
     }
     setSubmitting(false);
   };
 
   const handleVote = async (postId: string, voteType: 1 | -1) => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
+    if (!user) { navigate("/auth"); return; }
     const success = await vote(postId, user.id, voteType);
     if (success) {
       setPosts(posts.map(post => {
         if (post.id !== postId) return post;
-        
         const currentUserVote = post.user_vote || 0;
         let newVoteCount = post.vote_count || 0;
         let newUserVote: number = voteType;
-        
-        if (currentUserVote === voteType) {
-          newVoteCount -= voteType;
-          newUserVote = 0;
-        } else if (currentUserVote !== 0) {
-          newVoteCount += voteType * 2;
-        } else {
-          newVoteCount += voteType;
-        }
-        
-        return {
-          ...post,
-          vote_count: newVoteCount,
-          user_vote: newUserVote
-        };
+        if (currentUserVote === voteType) { newVoteCount -= voteType; newUserVote = 0; }
+        else if (currentUserVote !== 0) { newVoteCount += voteType * 2; }
+        else { newVoteCount += voteType; }
+        return { ...post, vote_count: newVoteCount, user_vote: newUserVote };
       }));
     }
   };
 
+  const getMediaIndicator = (content: string) => {
+    const c = content.toLowerCase();
+    const indicators = [];
+    if (c.includes("<iframe") || c.includes("<video")) indicators.push({ icon: Video, label: "Video" });
+    if (c.includes("<audio") || c.includes("spotify.com")) indicators.push({ icon: Headphones, label: "Audio" });
+    if ((c.match(/<img/g) || []).length > 2) indicators.push({ icon: ImageIcon, label: "Gallery" });
+    return indicators;
+  };
+
   const PostCard = ({ post }: { post: NewsPost }) => {
     const readingTime = calculateReadingTime(post.content);
-    
+    const mediaIndicators = getMediaIndicator(post.content);
+
     return (
       <Card className="gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
         <CardContent className="p-4">
           <div className="flex gap-4">
-            {/* Content */}
             <div className="flex-1 min-w-0">
-              <div
-                className="cursor-pointer"
-                onClick={() => navigate(`/news/${post.id}`)}
-              >
+              <div className="cursor-pointer" onClick={() => navigate(`/news/${post.id}`)}>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  {mediaIndicators.map(({ icon: Icon, label }) => (
+                    <Badge key={label} variant="outline" className="text-xs gap-1 py-0">
+                      <Icon className="w-3 h-3" />{label}
+                    </Badge>
+                  ))}
+                </div>
                 <h3 className="font-display text-lg font-semibold text-foreground hover:text-primary transition-colors line-clamp-2">
                   {post.title}
                 </h3>
                 {post.excerpt && (
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {post.excerpt}
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.excerpt}</p>
                 )}
               </div>
-
-              {/* Meta */}
               <div className="flex items-center flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Avatar className="w-5 h-5">
@@ -170,36 +194,20 @@ const News = () => {
                   <BookOpen className="w-3 h-3" />
                   {formatReadingTime(readingTime)}
                 </div>
-                <BookmarkButton 
-                  postId={post.id} 
-                  userId={user?.id || null} 
-                  onAuthRequired={() => navigate("/auth")}
-                />
+                <BookmarkButton postId={post.id} userId={user?.id || null} onAuthRequired={() => navigate("/auth")} />
               </div>
-
-              {/* Action Bar */}
               <div className="mt-3 pt-2 border-t border-border/30">
                 <PostActions
-                  postId={post.id}
-                  voteCount={post.vote_count || 0}
-                  userVote={post.user_vote || 0}
-                  commentCount={post.comment_count || 0}
-                  title={post.title}
+                  postId={post.id} voteCount={post.vote_count || 0} userVote={post.user_vote || 0}
+                  commentCount={post.comment_count || 0} title={post.title}
                   onVote={(voteType) => handleVote(post.id, voteType)}
-                  onCommentClick={() => navigate(`/news/${post.id}`)}
-                  compact
+                  onCommentClick={() => navigate(`/news/${post.id}`)} compact
                 />
               </div>
             </div>
-
-            {/* Featured Image */}
             {post.featured_image && (
-              <div className="hidden sm:block w-24 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src={post.featured_image}
-                  alt={post.title}
-                  className="w-full h-full object-cover"
-                />
+              <div className="hidden sm:block w-28 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
               </div>
             )}
           </div>
@@ -214,149 +222,89 @@ const News = () => {
         <title>News | Embraix - Community Clean Energy News</title>
         <meta name="description" content="Latest community news and discussions on clean energy, EVs, and sustainable technology in Africa." />
       </Helmet>
-
       <Header />
-
       <div className="min-h-screen pt-20 pb-12 bg-background">
         <div className="container mx-auto px-4">
-          {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="font-display text-3xl font-bold text-foreground flex items-center gap-2">
                 <TrendingUp className="w-8 h-8 text-primary" />
                 Community News
               </h1>
-              <p className="text-muted-foreground mt-1">
-                Share and discuss clean energy news with the community
-              </p>
+              <p className="text-muted-foreground mt-1">Share and discuss clean energy news with the community</p>
             </div>
-
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="hero" className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Create Post
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Create a New Post</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div>
-                    <label className="text-sm font-medium">Title *</label>
-                    <Input
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="What's the headline?"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Category</label>
-                    <Select 
-                      value={formData.category_id} 
-                      onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Summary</label>
-                    <Input
-                      value={formData.excerpt}
-                      onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                      placeholder="Brief description (optional)"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Content *</label>
-                    <Textarea
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="Share the full story..."
-                      className="mt-1 min-h-[200px]"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Featured Image URL</label>
-                    <Input
-                      value={formData.featured_image}
-                      onChange={(e) => setFormData({ ...formData, featured_image: e.target.value })}
-                      placeholder="https://..."
-                      className="mt-1"
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-4">
-                    <Button
-                      variant="hero"
-                      onClick={handleSubmit}
-                      disabled={submitting || !formData.title.trim() || !formData.content.trim()}
-                      className="flex-1"
-                    >
-                      {submitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : null}
-                      Submit for Review
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Your post will be reviewed by our team before publishing
-                  </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+            {user ? (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="hero" className="gap-2"><Plus className="w-4 h-4" />Submit News</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader><DialogTitle>Submit News</DialogTitle></DialogHeader>
+                  <RichPostEditor categories={categories} onSubmit={handleSubmit} submitting={submitting} />
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Button variant="hero" className="gap-2" onClick={() => navigate("/auth")}>
+                <Plus className="w-4 h-4" />Submit News
+              </Button>
+            )}
           </div>
 
-          {/* Category Filter */}
-          <CategoryFilter 
-            selectedCategory={selectedCategory} 
-            onSelect={setSelectedCategory} 
-          />
+          <CategoryFilter selectedCategory={selectedCategory} onSelect={setSelectedCategory} />
+
+          {/* Filters Row */}
+          <div className="flex items-center gap-3 mb-4 flex-wrap">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Filter className="w-4 h-4" />
+            </div>
+            <Select value={contentFilter} onValueChange={setContentFilter}>
+              <SelectTrigger className="w-[140px] h-8 text-xs">
+                <SelectValue placeholder="All types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="video">🎥 Videos</SelectItem>
+                <SelectItem value="podcast">🎙 Podcasts</SelectItem>
+                <SelectItem value="gallery">🖼 Galleries</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[150px] h-8 text-xs">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="latest">Latest</SelectItem>
+                <SelectItem value="most_liked">Most Liked</SelectItem>
+                <SelectItem value="most_commented">Most Commented</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="grid lg:grid-cols-[1fr_300px] gap-6">
-            {/* Main Posts */}
             <div>
               {loading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
+                <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
               ) : filteredPosts.length === 0 ? (
                 <Card className="text-center py-12">
                   <CardContent>
                     <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
-                      {selectedCategory ? "No posts in this category yet." : "No news posts yet. Be the first to share!"}
+                      {selectedCategory || contentFilter !== "all" ? "No matching posts found." : "No news posts yet. Be the first to share!"}
                     </p>
                   </CardContent>
                 </Card>
               ) : (
                 <div className="grid gap-4">
-                  {filteredPosts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
+                  {filteredPosts.map((post) => <PostCard key={post.id} post={post} />)}
                 </div>
               )}
             </div>
-
-            {/* Sidebar - Trending */}
             <div className="hidden lg:block">
               <TrendingPosts posts={posts} />
             </div>
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );
