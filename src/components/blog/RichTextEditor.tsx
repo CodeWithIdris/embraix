@@ -26,12 +26,13 @@ const sanitizeConfig = {
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'ul', 'ol', 'li',
     'blockquote', 'pre', 'code',
-    'a', 'span', 'div'
+    'a', 'span', 'div', 'img', 'figure', 'figcaption',
+    'iframe', 'video', 'audio', 'source',
   ],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'src', 'alt', 'width', 'height', 'controls', 'preload', 'allowfullscreen', 'frameborder', 'allow', 'loading'],
   ALLOW_DATA_ATTR: false,
   ADD_ATTR: ['target'],
-  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
+  FORBID_TAGS: ['script', 'form', 'input', 'object', 'embed'],
   FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover', 'onfocus', 'onblur'],
 };
 
