@@ -29,6 +29,16 @@ import ProvidersManager from "@/components/admin/ProvidersManager";
 import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
 import { ExpertAnalytics } from "@/components/admin/ExpertAnalytics";
 import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
+// Pending experts badge component
+const PendingExpertsBadge = () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    supabase.from("expert_applications").select("id", { count: "exact", head: true }).eq("status", "pending").then(({ count: c }) => {
+      if (c) setCount(c);
+    });
+  }, []);
+  return count > 0 ? <Badge variant="destructive" className="ml-1">{count}</Badge> : null;
+};
 
 const Admin = () => {
   const { user, loading: authLoading, isWriter, isAdmin } = useAuth();
