@@ -395,6 +395,7 @@ const Admin = () => {
                   <TabsTrigger value="experts" className="gap-2">
                     <GraduationCap className="w-4 h-4" />
                     Experts
+                    <PendingExpertsBadge />
                   </TabsTrigger>
                   <TabsTrigger value="analytics" className="gap-2">
                     <TrendingUp className="w-4 h-4" />
