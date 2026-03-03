@@ -320,13 +320,17 @@ export type Database = {
       expert_applications: {
         Row: {
           admin_notes: string | null
+          bio: string | null
           created_at: string
           email: string
           experience_summary: string
+          experience_years: number | null
           expertise_areas: string[]
           full_name: string
           id: string
+          linkedin: string | null
           phone: string | null
+          portfolio: string | null
           qualifications: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -336,13 +340,17 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          bio?: string | null
           created_at?: string
           email: string
           experience_summary: string
+          experience_years?: number | null
           expertise_areas?: string[]
           full_name: string
           id?: string
+          linkedin?: string | null
           phone?: string | null
+          portfolio?: string | null
           qualifications?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -352,13 +360,17 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          bio?: string | null
           created_at?: string
           email?: string
           experience_summary?: string
+          experience_years?: number | null
           expertise_areas?: string[]
           full_name?: string
           id?: string
+          linkedin?: string | null
           phone?: string | null
+          portfolio?: string | null
           qualifications?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -435,6 +447,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      expert_documents: {
+        Row: {
+          application_id: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "expert_applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       news_posts: {
         Row: {
