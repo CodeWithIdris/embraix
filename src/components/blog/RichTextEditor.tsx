@@ -116,7 +116,7 @@ const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorProps) =
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="min-h-[300px] p-4 prose prose-invert prose-sm max-w-none focus:outline-none bg-background"
+        className="min-h-[300px] p-4 prose dark:prose-invert prose-sm max-w-none focus:outline-none bg-background [&_figure]:my-4 [&_figcaption]:text-center [&_figcaption]:text-sm [&_img]:rounded-lg [&_img]:max-w-full [&_iframe]:w-full [&_iframe]:rounded-lg [&_video]:w-full [&_audio]:w-full"
         data-placeholder={placeholder}
         style={{
           '--tw-prose-body': 'hsl(var(--foreground))',

@@ -221,12 +221,18 @@ export const useChat = () => {
       }]);
 
       if (reader) {
-        while (true) {
+        let streamDone = false;
+        while (!streamDone) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            // Flush the decoder to get any remaining bytes
+            textBuffer += decoder.decode(new Uint8Array(), { stream: false });
+            streamDone = true;
+          } else {
+            textBuffer += decoder.decode(value, { stream: true });
+          }
           
-          textBuffer += decoder.decode(value, { stream: true });
-          
+          // Process all complete lines in the buffer
           let newlineIndex: number;
           while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
             let line = textBuffer.slice(0, newlineIndex);
@@ -237,7 +243,7 @@ export const useChat = () => {
             if (!line.startsWith("data: ")) continue;
             
             const jsonStr = line.slice(6).trim();
-            if (jsonStr === "[DONE]") break;
+            if (jsonStr === "[DONE]") continue;
             
             try {
               const parsed = JSON.parse(jsonStr);
@@ -253,8 +259,36 @@ export const useChat = () => {
                 );
               }
             } catch {
-              textBuffer = line + "\n" + textBuffer;
-              break;
+              // Incomplete JSON, put back and wait for more data
+              if (!streamDone) {
+                textBuffer = line + "\n" + textBuffer;
+                break;
+              }
+              // If stream is done, try to extract any remaining content
+              console.warn("Unparseable SSE line at end of stream:", line);
+            }
+          }
+
+          // When stream is done, process any remaining data in buffer
+          if (streamDone && textBuffer.trim()) {
+            const remaining = textBuffer.trim();
+            if (remaining.startsWith("data: ") && remaining.slice(6).trim() !== "[DONE]") {
+              try {
+                const parsed = JSON.parse(remaining.slice(6).trim());
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  assistantContent += delta;
+                  setMessages(prev =>
+                    prev.map(m =>
+                      m.id === assistantId
+                        ? { ...m, content: assistantContent }
+                        : m
+                    )
+                  );
+                }
+              } catch {
+                console.warn("Could not parse final buffer:", remaining);
+              }
             }
           }
         }

@@ -77,11 +77,14 @@ const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
 
       mediaRecorder.start(250); // collect data every 250ms for smoother recording
       setIsRecording(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Microphone access error:", err);
+      const isDenied = err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError";
       toast({
-        title: "Microphone Access Required",
-        description: "Please enable microphone access in your browser settings.",
+        title: isDenied ? "Microphone Access Denied" : "Microphone Error",
+        description: isDenied 
+          ? "Please allow microphone access in your browser settings and try again."
+          : "Could not access your microphone. Please check your device settings.",
         variant: "destructive",
       });
     }
@@ -150,9 +153,16 @@ const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
       }
     } catch (err) {
       console.error("Transcription error:", err);
+      let description = "Could not process your voice. Please try typing instead.";
+      if (err instanceof Error) {
+        if (err.message.includes("sign in")) description = "Please sign in to use voice input.";
+        else if (err.message.includes("Rate limit")) description = "Too many voice requests. Please wait a moment.";
+        else if (err.message.includes("Transcription failed")) description = "Transcription service unavailable. Please try again.";
+        else description = err.message;
+      }
       toast({
         title: "Voice input failed",
-        description: err instanceof Error ? err.message : "Could not process your voice. Please try typing instead.",
+        description,
         variant: "destructive",
       });
     } finally {
