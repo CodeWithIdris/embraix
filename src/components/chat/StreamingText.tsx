@@ -13,13 +13,22 @@ const StreamingText = ({ content, isComplete }: StreamingTextProps) => {
   const indexRef = useRef(0);
 
   useEffect(() => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+    // Always show the full content - no animation truncation risk
+    if (isComplete) {
+      setDisplayedContent(content);
+      indexRef.current = content.length;
+      prevContentRef.current = content;
+      return;
+    }
+
     // If content grew (streaming from API), animate the new chars
     if (content.length > prevContentRef.current.length) {
       const newContent = content;
       const startFrom = prevContentRef.current.length;
       
-      if (isComplete || startFrom === 0) {
-        // Show immediately if complete or first render
+      if (startFrom === 0) {
         setDisplayedContent(newContent);
         indexRef.current = newContent.length;
         prevContentRef.current = newContent;
@@ -30,7 +39,6 @@ const StreamingText = ({ content, isComplete }: StreamingTextProps) => {
       let i = startFrom;
       const animate = () => {
         if (i < newContent.length) {
-          // Show 3-5 chars per frame for fast but visible streaming
           const chunkSize = Math.min(3, newContent.length - i);
           i += chunkSize;
           setDisplayedContent(newContent.slice(0, i));

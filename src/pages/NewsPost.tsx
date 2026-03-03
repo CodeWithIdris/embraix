@@ -114,11 +114,15 @@ const NewsPost = () => {
               )}
 
               <div
-                className="prose prose-invert max-w-none mb-6 text-foreground/90
+                className="prose dark:prose-invert max-w-none mb-6 text-foreground/90
                   prose-headings:text-foreground prose-headings:font-display
                   prose-p:mb-4 prose-a:text-primary prose-a:underline
                   prose-img:rounded-lg prose-img:max-w-full
-                  prose-strong:text-foreground prose-em:text-foreground/80"
+                  prose-strong:text-foreground prose-em:text-foreground/80
+                  [&_figure]:my-4 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:text-muted-foreground
+                  [&_iframe]:w-full [&_iframe]:rounded-lg
+                  [&_video]:w-full [&_video]:rounded-lg
+                  [&_audio]:w-full"
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content, sanitizeConfig) }}
               />
 
