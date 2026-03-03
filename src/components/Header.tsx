@@ -51,20 +51,6 @@ const navGroups = [
     ]
   },
   {
-    label: "Consultation",
-    items: [
-      { icon: Users, label: "Consult an Expert", href: "/consult-expert", description: "Live chat with specialists" },
-      { icon: GraduationCap, label: "Become an Expert", href: "/expert/apply", description: "Apply to join our expert team" },
-    ]
-  },
-  {
-    label: "Newsletter",
-    items: [
-      { icon: Mail, label: "Subscribe", href: "/newsletter", description: "Get latest updates" },
-      { icon: FileText, label: "Creators", href: "/blog", description: "Content creators & blog" },
-    ]
-  },
-  {
     label: "Insight",
     items: [
       { icon: BookOpen, label: "Industry Reports", href: "/insight/reports", description: "In-depth analysis & trends" },
@@ -77,9 +63,10 @@ const navGroups = [
     items: [
       { icon: Search, label: "Browse Services", href: "/centre/browse", description: "Find service providers" },
       { icon: Briefcase, label: "Become a Provider", href: "/centre/register", description: "Offer your services" },
+      { icon: Users, label: "Consult an Expert", href: "/consult-expert", description: "Live chat with specialists" },
+      { icon: GraduationCap, label: "Become an Expert", href: "/expert/apply", description: "Apply to join our expert team" },
       { icon: HelpCircle, label: "Help & Support", href: "/centre/support", description: "FAQs and contact" },
-      { icon: GraduationCap, label: "Learning", href: "/centre/learning", description: "Tutorials & resources" },
-      { icon: Users, label: "Community", href: "/centre/community", description: "Forums & events" },
+      { icon: Mail, label: "Newsletter", href: "/newsletter", description: "Get latest updates" },
     ]
   },
 ];
