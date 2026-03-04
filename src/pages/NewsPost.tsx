@@ -127,13 +127,14 @@ const NewsPost = () => {
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content, sanitizeConfig) }}
               />
 
-              <div className="pt-4 border-t border-border/50">
+              <div className="pt-4 border-t border-border/50 flex items-center justify-between flex-wrap gap-2">
                 <PostActions
                   postId={post.id} voteCount={post.vote_count || 0} userVote={post.user_vote || 0}
                   commentCount={comments.length} title={post.title}
                   onVote={(voteType) => handleVote(voteType)}
                   onCommentClick={() => document.getElementById("comments-section")?.scrollIntoView({ behavior: "smooth" })}
                 />
+                <ShareButtons title={post.title} url={`${window.location.origin}/news/${post.id}`} />
               </div>
             </CardContent>
           </Card>
