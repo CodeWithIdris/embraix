@@ -11,6 +11,7 @@ import ThreadedComments from "@/components/news/ThreadedComments";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost as NewsPostType, PostComment } from "@/hooks/useNews";
 import PostActions from "@/components/news/PostActions";
+import ShareButtons from "@/components/news/ShareButtons";
 import {
   ArrowLeft, User, Clock, Loader2
 } from "lucide-react";
