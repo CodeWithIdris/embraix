@@ -32,6 +32,7 @@ import ProviderProfile from "./pages/centre/ProviderProfile";
 import ProviderDashboard from "./pages/centre/ProviderDashboard";
 import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertApply from "./pages/ExpertApply";
+import Waitlist from "./pages/Waitlist";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="/insight/reports" element={<IndustryReports />} />
                 <Route path="/insight/case-studies" element={<CaseStudies />} />
                 <Route path="/insight/whitepapers" element={<Whitepapers />} />
+                <Route path="/waitlist" element={<Waitlist />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
