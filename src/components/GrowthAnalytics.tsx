@@ -17,8 +17,8 @@ const GrowthAnalytics = () => {
 
   const loadStats = async () => {
     const [waitlist, referrals, newsletter, posts] = await Promise.all([
-      supabase.from("waitlist_users").select("id", { count: "exact", head: true }),
-      supabase.from("referrals").select("id", { count: "exact", head: true }),
+      (supabase as any).from("waitlist_users").select("id", { count: "exact", head: true }),
+      (supabase as any).from("referrals").select("id", { count: "exact", head: true }),
       supabase.from("newsletter_subscriptions").select("id", { count: "exact", head: true }),
       supabase.from("news_posts").select("id", { count: "exact", head: true }).eq("status", "approved"),
     ]);

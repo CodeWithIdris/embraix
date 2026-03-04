@@ -50,7 +50,7 @@ const Waitlist = () => {
       // Look up referrer if ref code provided
       let referredBy: string | null = null;
       if (refCode) {
-        const { data: referrer } = await supabase
+        const { data: referrer } = await (supabase as any)
           .from("waitlist_users")
           .select("id")
           .eq("referral_code", refCode)
@@ -58,7 +58,7 @@ const Waitlist = () => {
         if (referrer) referredBy = referrer.id;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("waitlist_users")
         .insert({
           name: name.trim(),
@@ -66,7 +66,7 @@ const Waitlist = () => {
           country: country.trim() || null,
           preferences,
           referred_by: referredBy,
-        } as any)
+        })
         .select()
         .single();
 
@@ -79,12 +79,12 @@ const Waitlist = () => {
       } else {
         // Create referral record
         if (referredBy && data) {
-          await supabase.from("referrals").insert({
+          await (supabase as any).from("referrals").insert({
             referrer_id: referredBy,
-            referred_user_id: (data as any).id,
-          } as any);
+            referred_user_id: data.id,
+          });
         }
-        setReferralLink(`${window.location.origin}/waitlist?ref=${(data as any)?.referral_code || ""}`);
+        setReferralLink(`${window.location.origin}/waitlist?ref=${data?.referral_code || ""}`);
         setSubmitted(true);
         toast({ title: "Welcome to the Embraix waitlist!" });
       }
