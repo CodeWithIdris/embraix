@@ -29,6 +29,7 @@ import ProvidersManager from "@/components/admin/ProvidersManager";
 import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
 import { ExpertAnalytics } from "@/components/admin/ExpertAnalytics";
 import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
+import GrowthAnalytics from "@/components/GrowthAnalytics";
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
