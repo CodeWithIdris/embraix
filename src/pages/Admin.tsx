@@ -662,6 +662,9 @@ const Admin = () => {
                 <div className="mt-8">
                   <ExpertAnalytics />
                 </div>
+                <div className="mt-8">
+                  <GrowthAnalytics />
+                </div>
               </TabsContent>
             )}
 
