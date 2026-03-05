@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Leaf, Mail, ArrowRight, Twitter, Linkedin, Youtube, Github } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Leaf, Twitter, Linkedin, Youtube, Github } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 const footerLinks = {
