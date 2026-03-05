@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.assign-expert]
 verify_jwt = false
+
+[functions.send-waitlist-welcome]
+verify_jwt = false
+
+[functions.send-waitlist-broadcast]
+verify_jwt = false
