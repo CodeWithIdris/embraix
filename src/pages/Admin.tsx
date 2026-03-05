@@ -30,6 +30,8 @@ import { ExpertApplicationsManager } from "@/components/admin/ExpertApplications
 import { ExpertAnalytics } from "@/components/admin/ExpertAnalytics";
 import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
 import GrowthAnalytics from "@/components/GrowthAnalytics";
+import WaitlistManager from "@/components/admin/WaitlistManager";
+import NewsletterManager from "@/components/admin/NewsletterManager";
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);

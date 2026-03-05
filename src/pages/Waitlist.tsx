@@ -87,6 +87,15 @@ const Waitlist = () => {
         setReferralLink(`${window.location.origin}/waitlist?ref=${data?.referral_code || ""}`);
         setSubmitted(true);
         toast({ title: "Welcome to the Embraix waitlist!" });
+
+        // Send welcome email (no auth required)
+        try {
+          await supabase.functions.invoke("send-waitlist-welcome", {
+            body: { email: email.trim().toLowerCase(), name: name.trim() },
+          });
+        } catch (emailErr) {
+          console.error("Welcome email error:", emailErr);
+        }
       }
     } catch (err) {
       console.error(err);
