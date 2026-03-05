@@ -1,4 +1,3 @@
-import { Link, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Leaf, Twitter, Linkedin, Youtube, Github } from "lucide-react";
 import logo from "@/assets/logo.jpg";
