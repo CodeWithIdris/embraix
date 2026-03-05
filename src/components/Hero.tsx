@@ -8,7 +8,7 @@ const Hero = () => {
   const { user } = useAuth();
 
   return (
-    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-16">
+    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-32 md:pt-36">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card" />
       

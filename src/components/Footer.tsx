@@ -1,7 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Leaf, Mail, ArrowRight, Twitter, Linkedin, Youtube, Github } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Leaf, Twitter, Linkedin, Youtube, Github } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 const footerLinks = {
@@ -40,7 +38,6 @@ const socialLinks = [
 ];
 
 const Footer = () => {
-  const navigate = useNavigate();
 
   return (
     <footer className="relative pt-20 pb-8 overflow-hidden bg-background">
@@ -48,30 +45,6 @@ const Footer = () => {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Newsletter Section */}
-        <div className="max-w-2xl mx-auto text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <Mail className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Stay Updated</span>
-          </div>
-          <h3 className="font-display text-2xl md:text-3xl font-bold mb-4 text-foreground">
-            Get the Latest in Sustainable Tech
-          </h3>
-          <p className="text-muted-foreground mb-6">
-            Subscribe to our newsletter for weekly insights on clean energy, EVs, and smart technologies.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              className="bg-secondary/50 border-border/50 focus:border-primary"
-            />
-            <Button variant="hero" onClick={() => navigate("/newsletter")}>
-              Subscribe
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-          </div>
-        </div>
 
         {/* Links Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16">
