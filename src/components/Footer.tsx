@@ -38,7 +38,6 @@ const socialLinks = [
 ];
 
 const Footer = () => {
-  const navigate = useNavigate();
 
   return (
     <footer className="relative pt-20 pb-8 overflow-hidden bg-background">
