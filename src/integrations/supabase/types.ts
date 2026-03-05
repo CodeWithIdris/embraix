@@ -938,6 +938,42 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_user_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_user_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_user_id?: string
+          referrer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: false
+            referencedRelation: "waitlist_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "waitlist_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_listings: {
         Row: {
           category: Database["public"]["Enums"]["service_category"]
@@ -1252,6 +1288,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      waitlist_users: {
+        Row: {
+          country: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          preferences: Json | null
+          referral_code: string | null
+          referred_by: string | null
+          status: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          preferences?: Json | null
+          referral_code?: string | null
+          referred_by?: string | null
+          status?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          preferences?: Json | null
+          referral_code?: string | null
+          referred_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_users_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "waitlist_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
