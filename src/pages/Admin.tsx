@@ -23,7 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp, Mail, UserPlus
 } from "lucide-react";
 import ProvidersManager from "@/components/admin/ProvidersManager";
 import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
@@ -376,7 +376,7 @@ const Admin = () => {
 
         <main className="container mx-auto p-6">
           <Tabs defaultValue="articles" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-10 lg:w-auto lg:inline-grid">
               <TabsTrigger value="articles" className="gap-2">
                 <BookOpen className="w-4 h-4" />
                 Articles
@@ -417,6 +417,14 @@ const Admin = () => {
                   <TabsTrigger value="users" className="gap-2">
                     <Users className="w-4 h-4" />
                     Users
+                  </TabsTrigger>
+                  <TabsTrigger value="waitlist" className="gap-2">
+                    <UserPlus className="w-4 h-4" />
+                    Waitlist
+                  </TabsTrigger>
+                  <TabsTrigger value="newsletter" className="gap-2">
+                    <Mail className="w-4 h-4" />
+                    Newsletter
                   </TabsTrigger>
                 </>
               )}
@@ -674,6 +682,20 @@ const Admin = () => {
             {isAdmin && (
               <TabsContent value="users">
                 <UserRolesManager />
+              </TabsContent>
+            )}
+
+            {/* Waitlist Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="waitlist">
+                <WaitlistManager />
+              </TabsContent>
+            )}
+
+            {/* Newsletter Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="newsletter">
+                <NewsletterManager />
               </TabsContent>
             )}
           </Tabs>
