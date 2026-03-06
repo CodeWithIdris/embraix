@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles, Check } from "lucide-react";
+import { WAITLIST_JOINED_KEY } from "@/components/WaitlistBanner";
 
 const preferenceOptions = [
   { id: "ai_insights", label: "AI Insights" },
@@ -47,7 +48,6 @@ const Waitlist = () => {
 
     setSubmitting(true);
     try {
-      // Look up referrer if ref code provided
       let referredBy: string | null = null;
       if (refCode) {
         const { data: referrer } = await (supabase as any)
@@ -73,11 +73,11 @@ const Waitlist = () => {
       if (error) {
         if (error.code === "23505") {
           toast({ title: "You're already on the waitlist!", description: "We'll keep you updated." });
+          localStorage.setItem(WAITLIST_JOINED_KEY, "1");
         } else {
           throw error;
         }
       } else {
-        // Create referral record
         if (referredBy && data) {
           await (supabase as any).from("referrals").insert({
             referrer_id: referredBy,
@@ -86,9 +86,9 @@ const Waitlist = () => {
         }
         setReferralLink(`${window.location.origin}/waitlist?ref=${data?.referral_code || ""}`);
         setSubmitted(true);
+        localStorage.setItem(WAITLIST_JOINED_KEY, "1");
         toast({ title: "Welcome to the Embraix waitlist!" });
 
-        // Send welcome email (no auth required)
         try {
           await supabase.functions.invoke("send-waitlist-welcome", {
             body: { email: email.trim().toLowerCase(), name: name.trim() },
@@ -112,7 +112,7 @@ const Waitlist = () => {
         <meta name="description" content="Join the Embraix waitlist for early access to AI insights, expert consultations, and clean energy tools." />
       </Helmet>
       <Header />
-      <div className="min-h-screen pt-20 pb-12 bg-background">
+      <div className="min-h-screen pt-32 pb-12 bg-background">
         <div className="container mx-auto px-4 max-w-lg">
           {submitted ? (
             <Card className="gradient-card border-border/50 mt-12 animate-fade-in">
@@ -147,7 +147,7 @@ const Waitlist = () => {
             </Card>
           ) : (
             <>
-              <div className="text-center mt-12 mb-8">
+              <div className="text-center mb-8">
                 <Sparkles className="w-10 h-10 text-primary mx-auto mb-3" />
                 <h1 className="font-display text-3xl font-bold text-foreground">Join Our Waitlist</h1>
                 <p className="text-muted-foreground mt-2">

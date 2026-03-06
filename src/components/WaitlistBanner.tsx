@@ -1,11 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 
+const WAITLIST_JOINED_KEY = "embraix_waitlist_joined";
+
 const WaitlistBanner = () => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [paused, setPaused] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const joined = localStorage.getItem(WAITLIST_JOINED_KEY);
+    const dismissed = sessionStorage.getItem("embraix_waitlist_dismissed");
+    if (!joined && !dismissed) setVisible(true);
+  }, []);
 
   if (!visible) return null;
 
@@ -34,7 +42,7 @@ const WaitlistBanner = () => {
         ))}
       </div>
       <button
-        onClick={() => setVisible(false)}
+        onClick={() => { setVisible(false); sessionStorage.setItem("embraix_waitlist_dismissed", "1"); }}
         className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-primary-foreground/20 rounded transition-colors"
         aria-label="Close banner"
       >
@@ -44,4 +52,5 @@ const WaitlistBanner = () => {
   );
 };
 
+export { WAITLIST_JOINED_KEY };
 export default WaitlistBanner;

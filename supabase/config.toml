@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.send-waitlist-broadcast]
 verify_jwt = false
+
+[functions.send-weekly-newsletter]
+verify_jwt = false
