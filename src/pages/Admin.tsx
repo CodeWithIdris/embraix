@@ -776,6 +776,13 @@ const Admin = () => {
                  <ResearchManager />
                </TabsContent>
              )}
+
+             {/* Store Products Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="store">
+                 <StoreProductsManager />
+               </TabsContent>
+             )}
           </Tabs>
         </main>
       </div>
