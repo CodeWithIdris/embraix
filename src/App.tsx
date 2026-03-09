@@ -89,9 +89,11 @@ const App = () => (
                 <Route path="/centre/products" element={<ComingSoon />} />
                 <Route path="/centre/innovation" element={<ComingSoon />} />
                 <Route path="/centre/:section" element={<Centre />} />
+                <Route path="/centre/experts" element={<ExpertMarketplace />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="/expert-dashboard" element={<ExpertDashboard />} />
                 <Route path="/expert/apply" element={<ExpertApply />} />
+                <Route path="/experts/:id" element={<ExpertProfile />} />
 
                 {/* Insight */}
                 <Route path="/insight" element={<InsightHub />} />
