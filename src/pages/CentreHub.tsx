@@ -106,6 +106,21 @@ const CentreHub = () => {
                     Start Consultation
                   </Button>
                 </div>
+              ) : activeId === "support" ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
+                  <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
+                    <HelpCircle className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground mb-1">Service Request Hub</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs">
+                      Request clean energy services — solar installation, energy audits, EV charging, and more.
+                    </p>
+                  </div>
+                  <Button variant="hero" size="sm" onClick={() => navigate("/centre/support-services")}>
+                    Request a Service
+                  </Button>
+                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-dashed border-border/50 rounded-xl">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
