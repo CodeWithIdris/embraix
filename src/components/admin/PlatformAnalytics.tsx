@@ -19,6 +19,9 @@ interface PlatformStats {
   totalTickets: number;
   openTickets: number;
   totalExperts: number;
+  totalWaitlist: number;
+  totalNewsletter: number;
+  activeNewsletter: number;
 }
 
 export const PlatformAnalytics = () => {
