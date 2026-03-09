@@ -118,6 +118,90 @@ export type Database = {
           },
         ]
       }
+      case_studies: {
+        Row: {
+          author_name: string | null
+          category: string | null
+          content: string | null
+          created_at: string
+          documentation_urls: string[] | null
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          images: string[] | null
+          impact: string | null
+          implementation: string | null
+          location: string | null
+          organization: string | null
+          problem: string | null
+          project_date: string | null
+          published_at: string | null
+          slug: string
+          solution: string | null
+          status: string
+          story_type: Database["public"]["Enums"]["story_type"]
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          documentation_urls?: string[] | null
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          images?: string[] | null
+          impact?: string | null
+          implementation?: string | null
+          location?: string | null
+          organization?: string | null
+          problem?: string | null
+          project_date?: string | null
+          published_at?: string | null
+          slug: string
+          solution?: string | null
+          status?: string
+          story_type?: Database["public"]["Enums"]["story_type"]
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          documentation_urls?: string[] | null
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          images?: string[] | null
+          impact?: string | null
+          implementation?: string | null
+          location?: string | null
+          organization?: string | null
+          problem?: string | null
+          project_date?: string | null
+          published_at?: string | null
+          slug?: string
+          solution?: string | null
+          status?: string
+          story_type?: Database["public"]["Enums"]["story_type"]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -1884,6 +1968,11 @@ export type Database = {
         | "smart_devices"
         | "accessories"
         | "bundles"
+      story_type:
+        | "community_story"
+        | "case_study"
+        | "energy_project"
+        | "impact_story"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2031,6 +2120,12 @@ export const Constants = {
         "smart_devices",
         "accessories",
         "bundles",
+      ],
+      story_type: [
+        "community_story",
+        "case_study",
+        "energy_project",
+        "impact_story",
       ],
     },
   },

@@ -49,6 +49,9 @@ import StoreProducts from "./pages/StoreProducts";
 import StoreCompare from "./pages/StoreCompare";
 import SubmitResearch from "./pages/insight/SubmitResearch";
 import ResearchPublications from "./pages/insight/ResearchPublications";
+import StoriesVoices from "./pages/media/StoriesVoices";
+import StoryDetail from "./pages/media/StoryDetail";
+import SubmitStory from "./pages/media/SubmitStory";
 
 const queryClient = new QueryClient();
 
@@ -76,7 +79,9 @@ const App = () => (
                 <Route path="/media/reports" element={<ComingSoon />} />
                 <Route path="/media/reviews" element={<ComingSoon />} />
                 <Route path="/media/diy-guides" element={<MediaPage />} />
-                <Route path="/media/stories" element={<ComingSoon />} />
+                <Route path="/media/stories" element={<StoriesVoices />} />
+                <Route path="/media/stories/submit" element={<SubmitStory />} />
+                <Route path="/media/stories/:slug" element={<StoryDetail />} />
                 <Route path="/media/articles" element={<Blog />} />
                 <Route path="/media/:category" element={<MediaPage />} />
                 <Route path="/blog" element={<Blog />} />
