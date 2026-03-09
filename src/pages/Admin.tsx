@@ -34,6 +34,7 @@ import WaitlistManager from "@/components/admin/WaitlistManager";
 import NewsletterManager from "@/components/admin/NewsletterManager";
 import EmailCampaigns from "@/components/admin/EmailCampaigns";
 import NewsAutomation from "@/components/admin/NewsAutomation";
+import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
