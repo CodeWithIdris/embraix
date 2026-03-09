@@ -49,7 +49,7 @@ export const usePublishedCaseStudies = (storyType?: string) => {
         .order("published_at", { ascending: false });
 
       if (storyType && storyType !== "all") {
-        query = query.eq("story_type", storyType);
+        query = query.eq("story_type", storyType as any);
       }
 
       const { data, error } = await query;
