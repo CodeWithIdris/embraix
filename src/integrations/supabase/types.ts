@@ -646,6 +646,69 @@ export type Database = {
           },
         ]
       }
+      installers: {
+        Row: {
+          assigned_count: number | null
+          availability_status: string
+          bio: string | null
+          certifications: string[] | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          location: string | null
+          phone: string | null
+          portfolio_images: string[] | null
+          specializations: string[]
+          status: string
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          assigned_count?: number | null
+          availability_status?: string
+          bio?: string | null
+          certifications?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          portfolio_images?: string[] | null
+          specializations?: string[]
+          status?: string
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          assigned_count?: number | null
+          availability_status?: string
+          bio?: string | null
+          certifications?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          portfolio_images?: string[] | null
+          specializations?: string[]
+          status?: string
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       news_posts: {
         Row: {
           author_id: string
@@ -1360,6 +1423,7 @@ export type Database = {
         Row: {
           admin_notes: string | null
           assigned_expert_id: string | null
+          assigned_installer_id: string | null
           attachments: string[] | null
           created_at: string
           description: string
@@ -1377,6 +1441,7 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           assigned_expert_id?: string | null
+          assigned_installer_id?: string | null
           attachments?: string[] | null
           created_at?: string
           description: string
@@ -1394,6 +1459,7 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           assigned_expert_id?: string | null
+          assigned_installer_id?: string | null
           attachments?: string[] | null
           created_at?: string
           description?: string
@@ -1414,6 +1480,13 @@ export type Database = {
             columns: ["assigned_expert_id"]
             isOneToOne: false
             referencedRelation: "expert_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_assigned_installer_id_fkey"
+            columns: ["assigned_installer_id"]
+            isOneToOne: false
+            referencedRelation: "installers"
             referencedColumns: ["id"]
           },
         ]
@@ -1578,6 +1651,7 @@ export type Database = {
     }
     Functions: {
       auto_assign_expert: { Args: { p_chat_id: string }; Returns: string }
+      auto_assign_installer: { Args: { p_request_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
