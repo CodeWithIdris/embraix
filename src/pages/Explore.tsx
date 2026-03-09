@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
@@ -40,6 +41,11 @@ const filterOptions: { id: Filter; label: string }[] = [
 const Explore = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Filter>("all");
+  const { track } = useAnalytics();
+
+  useEffect(() => {
+    track({ eventType: "page_view", metadata: { page: "/explore" } });
+  }, []);
 
   // Trending news (by published_at recency as proxy for trending)
   const { data: trendingNews, isLoading: loadingTrending } = useQuery({

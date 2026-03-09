@@ -14,13 +14,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCompare } from "@/contexts/CompareContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatPrice } from "@/components/store/StoreProductCard";
 import type { StoreProduct } from "@/hooks/useStoreProducts";
 import {
   ArrowLeft, Heart, ShoppingBag, MessageCircle, Zap, Battery, Sun, Car, Cpu, Package,
   CheckCircle, Shield, Wrench, Star, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const categoryIcons: Record<string, React.ElementType> = {
   solar_panels: Sun, batteries: Battery, inverters: Zap, ev_chargers: Car,
@@ -40,6 +41,7 @@ const ProductDetail = () => {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { track } = useAnalytics();
   const [activeImage, setActiveImage] = useState(0);
 
   const { data: product, isLoading } = useQuery({
@@ -56,6 +58,17 @@ const ProductDetail = () => {
     },
     enabled: !!slug,
   });
+
+  useEffect(() => {
+    if (product) {
+      track({
+        eventType: "product_view",
+        resourceId: product.id,
+        resourceType: "store_product",
+        metadata: { product_name: product.name, category: product.category },
+      });
+    }
+  }, [product?.id]);
 
   const { data: isSaved } = useQuery({
     queryKey: ["product-saved", product?.id, user?.id],
