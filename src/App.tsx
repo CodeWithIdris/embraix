@@ -49,6 +49,9 @@ import StoreProducts from "./pages/StoreProducts";
 import StoreCompare from "./pages/StoreCompare";
 import SubmitResearch from "./pages/insight/SubmitResearch";
 import ResearchPublications from "./pages/insight/ResearchPublications";
+import StoriesVoices from "./pages/media/StoriesVoices";
+import StoryDetail from "./pages/media/StoryDetail";
+import SubmitStory from "./pages/media/SubmitStory";
 
 const queryClient = new QueryClient();
 
