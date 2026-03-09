@@ -832,9 +832,14 @@ export type Database = {
           excerpt: string | null
           featured_image: string | null
           id: string
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
           published_at: string | null
           rejection_reason: string | null
+          scheduled_at: string | null
           status: string
+          subtitle: string | null
           title: string
           updated_at: string | null
         }
@@ -846,9 +851,14 @@ export type Database = {
           excerpt?: string | null
           featured_image?: string | null
           id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
           published_at?: string | null
           rejection_reason?: string | null
+          scheduled_at?: string | null
           status?: string
+          subtitle?: string | null
           title: string
           updated_at?: string | null
         }
@@ -860,9 +870,14 @@ export type Database = {
           excerpt?: string | null
           featured_image?: string | null
           id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
           published_at?: string | null
           rejection_reason?: string | null
+          scheduled_at?: string | null
           status?: string
+          subtitle?: string | null
           title?: string
           updated_at?: string | null
         }
