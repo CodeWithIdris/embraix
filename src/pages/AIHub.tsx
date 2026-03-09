@@ -59,8 +59,9 @@ const sections = [
 const AIHub = () => {
   const navigate = useNavigate();
 
-  const handleSectionClick = (prompt: string) => {
-    navigate(`/chat?prompt=${encodeURIComponent(prompt)}`);
+  const handleSectionClick = (section: typeof sections[0]) => {
+    // Pass mode instead of auto-sending prompt
+    navigate(`/chat?mode=${encodeURIComponent(section.label)}`);
   };
 
   return (
