@@ -32,7 +32,6 @@ const Index = () => {
         </main>
         <Footer />
         <FloatingAIConsult />
-        <WaitlistPopup />
       </div>
     </>
   );
