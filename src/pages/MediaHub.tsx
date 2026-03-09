@@ -170,6 +170,10 @@ const MediaHub = () => {
       );
     }
 
+    if (activeId === "stories") {
+      return <StoriesPanel navigate={navigate} />;
+    }
+
     // Coming soon for other sections
     return (
       <ComingSoonPanel
