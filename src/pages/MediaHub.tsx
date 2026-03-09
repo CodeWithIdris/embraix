@@ -301,4 +301,66 @@ const ComingSoonPanel = ({
   </div>
 );
 
+const StoriesPanel = ({ navigate }: { navigate: (path: string) => void }) => {
+  const { data: stories, isLoading } = usePublishedCaseStudies("all");
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex gap-3 p-3 rounded-lg border border-border/30">
+            <Skeleton className="w-16 h-16 rounded-lg flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!stories?.length) {
+    return <EmptyState label="No stories published yet." />;
+  }
+
+  return (
+    <div className="space-y-2">
+      {stories.slice(0, 8).map((story) => (
+        <button
+          key={story.id}
+          onClick={() => navigate(`/media/stories/${story.slug}`)}
+          className="w-full text-left flex gap-3 p-3 rounded-lg border border-border/30 hover:border-primary/30 hover:bg-primary/5 transition-all group"
+        >
+          {story.featured_image ? (
+            <img src={story.featured_image} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" loading="lazy" />
+          ) : (
+            <div className="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-6 h-6 text-muted-foreground" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{getStoryTypeLabel(story.story_type)}</Badge>
+            </div>
+            <h3 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">
+              {story.title}
+            </h3>
+            {story.location && (
+              <span className="text-[11px] text-muted-foreground/70 flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                {story.location}
+              </span>
+            )}
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary flex-shrink-0 self-center" />
+        </button>
+      ))}
+      <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => navigate("/media/stories")}>
+        View all stories
+      </Button>
+    </div>
+  );
+};
+
 export default MediaHub;
