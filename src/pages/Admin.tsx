@@ -456,10 +456,14 @@ const Admin = () => {
                      Services
                    </TabsTrigger>
                    <TabsTrigger value="installers" className="gap-2">
-                     <Wrench className="w-4 h-4" />
-                     Installers
-                     <PendingInstallersBadge />
-                   </TabsTrigger>
+                      <Wrench className="w-4 h-4" />
+                      Installers
+                      <PendingInstallersBadge />
+                    </TabsTrigger>
+                    <TabsTrigger value="research" className="gap-2">
+                      <FileText className="w-4 h-4" />
+                      Research
+                    </TabsTrigger>
                 </>
               )}
             </TabsList>
