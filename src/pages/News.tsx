@@ -107,6 +107,11 @@ const News = () => {
     featured_image: string;
     category_id: string;
     content_type: string;
+    subtitle?: string;
+    scheduled_at?: string;
+    meta_title?: string;
+    meta_description?: string;
+    keywords?: string[];
   }) => {
     if (!user) {
       navigate("/auth");
@@ -118,6 +123,12 @@ const News = () => {
       content: formData.content,
       excerpt: formData.excerpt,
       featured_image: formData.featured_image,
+      category_id: formData.category_id,
+      subtitle: formData.subtitle,
+      scheduled_at: formData.scheduled_at,
+      meta_title: formData.meta_title,
+      meta_description: formData.meta_description,
+      keywords: formData.keywords,
     }, user.id);
     if (result) {
       setIsDialogOpen(false);
