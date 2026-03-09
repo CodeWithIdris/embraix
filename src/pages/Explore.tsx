@@ -165,7 +165,6 @@ const Explore = () => {
                       excerpt={post.excerpt}
                       image={post.featured_image}
                       date={post.created_at!}
-                      votes={post.vote_count}
                       onClick={() => navigate(`/news/${post.id}`)}
                     />
                   ))}
