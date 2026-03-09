@@ -14,7 +14,7 @@ const sections = [
   { id: "learning", icon: GraduationCap, label: "Learning Hub", description: "Tutorials, courses, and educational resources on clean energy", href: "/centre/learning" },
   { id: "collaboration", icon: Users, label: "Collaboration Space", description: "Connect, share ideas, and collaborate with the community", href: "/centre/collaboration" },
   { id: "products", icon: ShoppingBag, label: "Product Access", description: "Showroom and marketplace for clean energy products", href: "/centre/products" },
-  { id: "support", icon: HelpCircle, label: "Support Services", description: "FAQs, help desk, and technical support", href: "/centre/support" },
+  { id: "support", icon: HelpCircle, label: "Support Services", description: "Request clean energy services — installation, audits, and more", href: "/centre/support-services" },
   { id: "consultation", icon: MessageSquare, label: "Expert Consultation", description: "Live chat with certified specialists and industry experts", href: "/consult-expert" },
   { id: "innovation", icon: Lightbulb, label: "Innovation Lab", description: "Experimental tools, prototypes, and innovation projects", href: "/centre/innovation" },
 ];
