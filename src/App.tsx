@@ -36,6 +36,8 @@ import ProviderProfile from "./pages/centre/ProviderProfile";
 import ProviderDashboard from "./pages/centre/ProviderDashboard";
 import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertApply from "./pages/ExpertApply";
+import ExpertProfile from "./pages/ExpertProfile";
+import ExpertMarketplace from "./pages/centre/ExpertMarketplace";
 import Waitlist from "./pages/Waitlist";
 import Explore from "./pages/Explore";
 
