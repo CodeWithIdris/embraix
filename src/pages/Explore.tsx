@@ -32,9 +32,9 @@ const Explore = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("news_posts")
-        .select("id, title, excerpt, created_at, featured_image, vote_count")
+        .select("id, title, excerpt, created_at, featured_image")
         .eq("status", "published")
-        .order("vote_count", { ascending: false })
+        .order("published_at", { ascending: false })
         .limit(6);
       return data || [];
     },
@@ -45,7 +45,7 @@ const Explore = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("news_posts")
-        .select("id, title, excerpt, created_at, featured_image, vote_count")
+        .select("id, title, excerpt, created_at, featured_image")
         .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(6);
