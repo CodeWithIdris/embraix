@@ -465,6 +465,10 @@ const Admin = () => {
                       <FileText className="w-4 h-4" />
                       Research
                     </TabsTrigger>
+                    <TabsTrigger value="store" className="gap-2">
+                      <ShoppingBag className="w-4 h-4" />
+                      Store
+                    </TabsTrigger>
                 </>
               )}
             </TabsList>
