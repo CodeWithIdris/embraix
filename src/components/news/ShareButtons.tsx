@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Share2, Link2 } from "lucide-react";
+import { Link2 } from "lucide-react";
 
 interface ShareButtonsProps {
   title: string;
@@ -24,6 +24,11 @@ const ShareButtons = ({ title, url, referralCode }: ShareButtonsProps) => {
       <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" asChild>
         <a href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encoded}`} target="_blank" rel="noopener noreferrer">
           𝕏
+        </a>
+      </Button>
+      <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" asChild>
+        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encoded}`} target="_blank" rel="noopener noreferrer">
+          FB
         </a>
       </Button>
       <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" asChild>
