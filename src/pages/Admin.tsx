@@ -35,6 +35,19 @@ import NewsletterManager from "@/components/admin/NewsletterManager";
 import EmailCampaigns from "@/components/admin/EmailCampaigns";
 import NewsAutomation from "@/components/admin/NewsAutomation";
 import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
+import { InstallersManager } from "@/components/admin/InstallersManager";
+
+// Pending installers badge
+const PendingInstallersBadge = () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    supabase.from("installers").select("id", { count: "exact", head: true }).eq("status", "pending").then(({ count: c }) => {
+      if (c) setCount(c);
+    });
+  }, []);
+  return count > 0 ? <Badge variant="destructive" className="ml-1">{count}</Badge> : null;
+};
+
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
