@@ -17,10 +17,12 @@ import {
   User,
   Settings,
   Users,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "@/components/news/NotificationDropdown";
+import { GlobalSearch, SearchTrigger } from "@/components/GlobalSearch";
 
 import logo from "@/assets/logo.jpg";
 
