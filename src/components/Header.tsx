@@ -211,6 +211,9 @@ const Header = () => {
           )}
         </div>
       </header>
+      
+      {/* Global Search Modal */}
+      <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </div>
   );
 };
