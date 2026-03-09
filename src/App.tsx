@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { CompareProvider } from "@/contexts/CompareContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
@@ -44,6 +45,8 @@ import InstallerDashboard from "./pages/centre/InstallerDashboard";
 import Waitlist from "./pages/Waitlist";
 import Explore from "./pages/Explore";
 import WaitlistPopup from "./components/WaitlistPopup";
+import StoreProducts from "./pages/StoreProducts";
+import StoreCompare from "./pages/StoreCompare";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +55,7 @@ const App = () => (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <CompareProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -115,6 +119,9 @@ const App = () => (
 
                 {/* Store */}
                 <Route path="/store" element={<StoreHub />} />
+                <Route path="/store/products" element={<StoreProducts />} />
+                <Route path="/store/compare" element={<StoreCompare />} />
+                <Route path="/store/:category" element={<ComingSoon />} />
                 <Route path="/store/:category" element={<ComingSoon />} />
 
                 <Route path="/explore" element={<Explore />} />
@@ -124,6 +131,7 @@ const App = () => (
             </BrowserRouter>
             <WaitlistPopup />
           </TooltipProvider>
+          </CompareProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

@@ -1491,6 +1491,87 @@ export type Database = {
           },
         ]
       }
+      store_products: {
+        Row: {
+          battery_capacity: string | null
+          best_for: string | null
+          brand: string | null
+          category: Database["public"]["Enums"]["store_product_category"]
+          created_at: string
+          currency: string
+          description: string | null
+          features: string[] | null
+          id: string
+          images: string[] | null
+          installation_required: boolean | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          name: string
+          power_capacity: string | null
+          price: number
+          recommended_usage: string | null
+          sku: string | null
+          slug: string
+          specifications: Json | null
+          stock_quantity: number | null
+          system_type: string | null
+          updated_at: string
+          warranty_years: number | null
+        }
+        Insert: {
+          battery_capacity?: string | null
+          best_for?: string | null
+          brand?: string | null
+          category: Database["public"]["Enums"]["store_product_category"]
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          installation_required?: boolean | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name: string
+          power_capacity?: string | null
+          price?: number
+          recommended_usage?: string | null
+          sku?: string | null
+          slug: string
+          specifications?: Json | null
+          stock_quantity?: number | null
+          system_type?: string | null
+          updated_at?: string
+          warranty_years?: number | null
+        }
+        Update: {
+          battery_capacity?: string | null
+          best_for?: string | null
+          brand?: string | null
+          category?: Database["public"]["Enums"]["store_product_category"]
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          installation_required?: boolean | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name?: string
+          power_capacity?: string | null
+          price?: number
+          recommended_usage?: string | null
+          sku?: string | null
+          slug?: string
+          specifications?: Json | null
+          stock_quantity?: number | null
+          system_type?: string | null
+          updated_at?: string
+          warranty_years?: number | null
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           created_at: string | null
@@ -1673,6 +1754,14 @@ export type Database = {
         | "training"
         | "audit"
         | "other"
+      store_product_category:
+        | "solar_panels"
+        | "batteries"
+        | "inverters"
+        | "ev_chargers"
+        | "smart_devices"
+        | "accessories"
+        | "bundles"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1811,6 +1900,15 @@ export const Constants = {
         "training",
         "audit",
         "other",
+      ],
+      store_product_category: [
+        "solar_panels",
+        "batteries",
+        "inverters",
+        "ev_chargers",
+        "smart_devices",
+        "accessories",
+        "bundles",
       ],
     },
   },

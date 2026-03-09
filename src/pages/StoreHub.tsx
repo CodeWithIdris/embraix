@@ -7,7 +7,7 @@ import { FloatingAIConsult } from "@/components/FloatingAIConsult";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Sun, Flame, Car, Cpu, Battery, Package, Wrench, Megaphone, ExternalLink,
+  Sun, Flame, Car, Cpu, Battery, Package, Wrench, Megaphone, ExternalLink, ShoppingBag,
 } from "lucide-react";
 
 const sections = [
@@ -91,7 +91,7 @@ const StoreHub = () => {
                   <p className="text-xs text-muted-foreground">{active.description}</p>
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-dashed border-border/50 rounded-xl">
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-4 border border-dashed border-border/50 rounded-xl mb-6">
                 <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
                   <active.icon className="w-7 h-7 text-primary" />
                 </div>
@@ -100,7 +100,7 @@ const StoreHub = () => {
                   <p className="text-sm text-muted-foreground max-w-xs">{active.description}</p>
                 </div>
                 <Badge variant="outline" className="gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   Coming Soon
                 </Badge>
                 <div className="flex gap-2">
@@ -112,6 +112,18 @@ const StoreHub = () => {
                     Visit page
                   </Button>
                 </div>
+              </div>
+
+              {/* Browse all products CTA */}
+              <div className="p-6 rounded-xl bg-primary/5 border border-primary/20 text-center">
+                <h3 className="font-display font-semibold mb-2">Browse All Products</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Explore our product catalog, compare solutions, and find the right energy system for you.
+                </p>
+                <Button onClick={() => navigate("/store/products")} className="gap-2">
+                  <ShoppingBag className="w-4 h-4" />
+                  View Products & Compare
+                </Button>
               </div>
             </main>
           </div>
