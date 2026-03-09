@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Loader2, Users, Building2, Newspaper, Clock, MessageSquare,
-  TrendingUp, FileText, Ticket, GraduationCap, BarChart3
+  TrendingUp, FileText, Ticket, GraduationCap, BarChart3, Mail, UserPlus
 } from "lucide-react";
 
 interface PlatformStats {
