@@ -38,6 +38,7 @@ import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertApply from "./pages/ExpertApply";
 import ExpertProfile from "./pages/ExpertProfile";
 import ExpertMarketplace from "./pages/centre/ExpertMarketplace";
+import SupportServices from "./pages/centre/SupportServices";
 import Waitlist from "./pages/Waitlist";
 import Explore from "./pages/Explore";
 
@@ -89,6 +90,7 @@ const App = () => (
                 <Route path="/centre/products" element={<ComingSoon />} />
                 <Route path="/centre/innovation" element={<ComingSoon />} />
                 <Route path="/centre/experts" element={<ExpertMarketplace />} />
+                <Route path="/centre/support-services" element={<SupportServices />} />
                 <Route path="/centre/:section" element={<Centre />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="/expert-dashboard" element={<ExpertDashboard />} />

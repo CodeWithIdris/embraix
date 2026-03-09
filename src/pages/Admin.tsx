@@ -23,7 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp, Mail, UserPlus
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp, Mail, UserPlus, Wrench
 } from "lucide-react";
 import ProvidersManager from "@/components/admin/ProvidersManager";
 import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
@@ -34,6 +34,7 @@ import WaitlistManager from "@/components/admin/WaitlistManager";
 import NewsletterManager from "@/components/admin/NewsletterManager";
 import EmailCampaigns from "@/components/admin/EmailCampaigns";
 import NewsAutomation from "@/components/admin/NewsAutomation";
+import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
@@ -432,10 +433,14 @@ const Admin = () => {
                     <Send className="w-4 h-4" />
                     Campaigns
                   </TabsTrigger>
-                  <TabsTrigger value="automation" className="gap-2">
-                    <Newspaper className="w-4 h-4" />
-                    Automation
-                  </TabsTrigger>
+                   <TabsTrigger value="automation" className="gap-2">
+                     <Newspaper className="w-4 h-4" />
+                     Automation
+                   </TabsTrigger>
+                   <TabsTrigger value="service-requests" className="gap-2">
+                     <Wrench className="w-4 h-4" />
+                     Services
+                   </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -716,12 +721,19 @@ const Admin = () => {
               </TabsContent>
             )}
 
-            {/* Automation Tab (Admin Only) */}
-            {isAdmin && (
-              <TabsContent value="automation">
-                <NewsAutomation />
-              </TabsContent>
-            )}
+             {/* Automation Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="automation">
+                 <NewsAutomation />
+               </TabsContent>
+             )}
+
+             {/* Service Requests Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="service-requests">
+                 <ServiceRequestsManager />
+               </TabsContent>
+             )}
           </Tabs>
         </main>
       </div>

@@ -14,7 +14,7 @@ const sections = [
   { id: "learning", icon: GraduationCap, label: "Learning Hub", description: "Tutorials, courses, and educational resources on clean energy", href: "/centre/learning" },
   { id: "collaboration", icon: Users, label: "Collaboration Space", description: "Connect, share ideas, and collaborate with the community", href: "/centre/collaboration" },
   { id: "products", icon: ShoppingBag, label: "Product Access", description: "Showroom and marketplace for clean energy products", href: "/centre/products" },
-  { id: "support", icon: HelpCircle, label: "Support Services", description: "FAQs, help desk, and technical support", href: "/centre/support" },
+  { id: "support", icon: HelpCircle, label: "Support Services", description: "Request clean energy services — installation, audits, and more", href: "/centre/support-services" },
   { id: "consultation", icon: MessageSquare, label: "Expert Consultation", description: "Live chat with certified specialists and industry experts", href: "/consult-expert" },
   { id: "innovation", icon: Lightbulb, label: "Innovation Lab", description: "Experimental tools, prototypes, and innovation projects", href: "/centre/innovation" },
 ];
@@ -104,6 +104,21 @@ const CentreHub = () => {
                   </div>
                   <Button variant="hero" size="sm" onClick={() => navigate("/consult-expert")}>
                     Start Consultation
+                  </Button>
+                </div>
+              ) : activeId === "support" ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
+                  <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
+                    <HelpCircle className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground mb-1">Service Request Hub</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs">
+                      Request clean energy services — solar installation, energy audits, EV charging, and more.
+                    </p>
+                  </div>
+                  <Button variant="hero" size="sm" onClick={() => navigate("/centre/support-services")}>
+                    Request a Service
                   </Button>
                 </div>
               ) : (
