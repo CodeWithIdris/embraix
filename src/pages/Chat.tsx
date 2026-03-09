@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,12 +31,18 @@ import {
 const Chat = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [input, setInput] = useState("");
   const [hasTrackedFirstMessage, setHasTrackedFirstMessage] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+  const autoPromptFiredRef = useRef(false);
+  const [autoPrompt] = useState<string | null>(() => {
+    const p = searchParams.get("prompt");
+    return p ? decodeURIComponent(p) : null;
+  });
+
   const {
     conversations,
     currentConversation,
@@ -54,6 +60,31 @@ const Chat = () => {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
+
+  // Clean the prompt from URL once captured
+  useEffect(() => {
+    if (autoPrompt) {
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
+
+  // Auto-send the prompt once user is authenticated and chat is ready
+  useEffect(() => {
+    if (
+      autoPrompt &&
+      user &&
+      !authLoading &&
+      !autoPromptFiredRef.current &&
+      messages.length === 0 &&
+      !isLoading
+    ) {
+      autoPromptFiredRef.current = true;
+      const timer = setTimeout(() => {
+        handleSend(autoPrompt);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPrompt, user, authLoading, isLoading]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -220,31 +251,35 @@ const Chat = () => {
                   <Bot className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-                  How can I help you today?
+                  {autoPrompt ? "Starting your session…" : "How can I help you today?"}
                 </h2>
                 <p className="text-muted-foreground max-w-md mb-8">
-                  Ask about clean energy, EVs, solar, or smart tech. I'll keep it short and useful.
+                  {autoPrompt
+                    ? "Setting up your personalised AI session."
+                    : "Ask about clean energy, EVs, solar, or smart tech. I'll keep it short and useful."}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-                  {[
-                    { icon: "☀️", text: "Best solar setup for my home?" },
-                    { icon: "🚗", text: "Help me choose an EV" },
-                    { icon: "🔋", text: "Battery storage options" },
-                    { icon: "🏠", text: "Smart home energy tips" },
-                    { icon: "💰", text: "Solar installation costs" },
-                    { icon: "⚡", text: "How to cut my light bill?" },
-                  ].map((prompt, i) => (
-                    <button
-                      key={prompt.text}
-                      onClick={() => handleSend(prompt.text)}
-                      className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
-                      style={{ animationDelay: `${i * 80}ms` }}
-                    >
-                      <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
-                      {prompt.text}
-                    </button>
-                  ))}
-                </div>
+                {!autoPrompt && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                    {[
+                      { icon: "☀️", text: "Best solar setup for my home?" },
+                      { icon: "🚗", text: "Help me choose an EV" },
+                      { icon: "🔋", text: "Battery storage options" },
+                      { icon: "🏠", text: "Smart home energy tips" },
+                      { icon: "💰", text: "Solar installation costs" },
+                      { icon: "⚡", text: "How to cut my light bill?" },
+                    ].map((prompt, i) => (
+                      <button
+                        key={prompt.text}
+                        onClick={() => handleSend(prompt.text)}
+                        className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
+                        style={{ animationDelay: `${i * 80}ms` }}
+                      >
+                        <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
+                        {prompt.text}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="max-w-3xl mx-auto space-y-5">

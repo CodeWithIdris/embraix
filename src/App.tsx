@@ -37,6 +37,7 @@ import ProviderDashboard from "./pages/centre/ProviderDashboard";
 import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertApply from "./pages/ExpertApply";
 import Waitlist from "./pages/Waitlist";
+import Explore from "./pages/Explore";
 
 const queryClient = new QueryClient();
 
@@ -105,6 +106,7 @@ const App = () => (
                 <Route path="/store" element={<StoreHub />} />
                 <Route path="/store/:category" element={<ComingSoon />} />
 
+                <Route path="/explore" element={<Explore />} />
                 <Route path="/waitlist" element={<Waitlist />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
