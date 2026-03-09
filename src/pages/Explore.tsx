@@ -146,7 +146,7 @@ const Explore = () => {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Newspaper className="w-4 h-4 text-blue-500" />
+                  <Newspaper className="w-4 h-4 text-primary" />
                   <h2 className="font-display font-semibold text-foreground text-base">Latest News</h2>
                 </div>
                 <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => navigate("/news")}>
