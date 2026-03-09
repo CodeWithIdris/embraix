@@ -10,10 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, X, MessageCircle, CheckCircle2, XCircle } from "lucide-react";
 
-const comparisonRows = [
+type ComparisonRow = {
+  label: string;
+  key: string;
+  format?: (v: any, p: any) => string;
+  fallback?: string;
+};
+
+const comparisonRows: ComparisonRow[] = [
   { label: "Price", key: "price", format: (v: any, p: any) => formatPrice(v, p.currency) },
   { label: "Category", key: "category", format: (v: string) => v.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) },
-  { label: "Brand", key: "brand" },
+  { label: "Brand", key: "brand", fallback: "—" },
   { label: "Power Capacity", key: "power_capacity", fallback: "—" },
   { label: "Battery Capacity", key: "battery_capacity", fallback: "—" },
   { label: "System Type", key: "system_type", fallback: "—" },
@@ -21,7 +28,7 @@ const comparisonRows = [
   { label: "Installation Required", key: "installation_required", format: (v: boolean | null) => v === true ? "Yes" : v === false ? "No" : "—" },
   { label: "Best For", key: "best_for", fallback: "—" },
   { label: "Recommended Usage", key: "recommended_usage", fallback: "—" },
-] as const;
+];
 
 const StoreCompare = () => {
   const { compareItems, removeFromCompare, clearCompare } = useCompare();
