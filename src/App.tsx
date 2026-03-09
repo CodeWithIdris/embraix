@@ -119,6 +119,9 @@ const App = () => (
 
                 {/* Store */}
                 <Route path="/store" element={<StoreHub />} />
+                <Route path="/store/products" element={<StoreProducts />} />
+                <Route path="/store/compare" element={<StoreCompare />} />
+                <Route path="/store/:category" element={<ComingSoon />} />
                 <Route path="/store/:category" element={<ComingSoon />} />
 
                 <Route path="/explore" element={<Explore />} />
