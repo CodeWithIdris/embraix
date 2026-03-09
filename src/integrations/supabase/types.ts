@@ -1356,6 +1356,68 @@ export type Database = {
           },
         ]
       }
+      service_requests: {
+        Row: {
+          admin_notes: string | null
+          assigned_expert_id: string | null
+          attachments: string[] | null
+          created_at: string
+          description: string
+          id: string
+          location: string | null
+          phone: string | null
+          project_size: string | null
+          service_type: string
+          status: string
+          updated_at: string
+          user_email: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          assigned_expert_id?: string | null
+          attachments?: string[] | null
+          created_at?: string
+          description: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          project_size?: string | null
+          service_type: string
+          status?: string
+          updated_at?: string
+          user_email: string
+          user_id?: string | null
+          user_name: string
+        }
+        Update: {
+          admin_notes?: string | null
+          assigned_expert_id?: string | null
+          attachments?: string[] | null
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          project_size?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+          user_email?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_assigned_expert_id_fkey"
+            columns: ["assigned_expert_id"]
+            isOneToOne: false
+            referencedRelation: "expert_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           created_at: string | null
