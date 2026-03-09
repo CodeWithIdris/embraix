@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Leaf, Twitter, Linkedin, Youtube, Github } from "lucide-react";
+import { Leaf, Twitter, Facebook, Instagram } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 const footerLinks = {
