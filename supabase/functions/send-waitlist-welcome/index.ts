@@ -62,25 +62,44 @@ serve(async (req) => {
       </div>
     `;
 
-    const result = await resend.emails.send({
-      from: "Embraix <onboarding@resend.dev>",
+    // Try verified domain first, fall back to Resend sandbox
+    let result = await resend.emails.send({
+      from: "Embraix <hello@embraix.com>",
+      reply_to: "support@embraix.com",
       to: [email],
       subject: "Welcome to the Embraix Waitlist! 🚀",
       html,
+      headers: {
+        "X-Entity-Ref-ID": crypto.randomUUID(),
+      },
     });
 
     if (result?.error) {
+      console.warn("Primary send failed, trying fallback:", JSON.stringify(result.error));
+      // Fallback to Resend sandbox sender
+      result = await resend.emails.send({
+        from: "Embraix <onboarding@resend.dev>",
+        reply_to: "support@embraix.com",
+        to: [email],
+        subject: "Welcome to the Embraix Waitlist! 🚀",
+        html,
+      });
+    }
+
+    if (result?.error) {
       console.error("Resend error:", JSON.stringify(result.error));
-      return new Response(JSON.stringify({ error: "Failed to send" }), {
+      return new Response(JSON.stringify({ error: "Failed to send", details: result.error }), {
         status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    console.log("Waitlist welcome email sent to:", email, "Result:", JSON.stringify(result));
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
-    console.error("Error:", error.message);
+    console.error("Error sending waitlist email:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
