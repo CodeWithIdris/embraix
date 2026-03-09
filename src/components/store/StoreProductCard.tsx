@@ -3,8 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCompare } from "@/contexts/CompareContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import type { StoreProduct } from "@/hooks/useStoreProducts";
-import { Sun, Battery, Zap, Car, Cpu, Package } from "lucide-react";
+import { Sun, Battery, Zap, Car, Cpu, Package, Heart } from "lucide-react";
 
 const categoryIcons: Record<string, React.ElementType> = {
   solar_panels: Sun,
@@ -36,8 +40,43 @@ export const formatPrice = (price: number, currency: string = "NGN") => {
 
 const StoreProductCard = ({ product }: { product: StoreProduct }) => {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const inCompare = isInCompare(product.id);
   const Icon = categoryIcons[product.category] || Package;
+
+  const { data: isSaved } = useQuery({
+    queryKey: ["product-saved", product.id, user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("saved_products")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("product_id", product.id)
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user,
+  });
+
+  const toggleSave = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({ title: "Sign in required", description: "Please sign in to save products", variant: "destructive" });
+      return;
+    }
+
+    if (isSaved) {
+      await supabase.from("saved_products").delete().eq("user_id", user.id).eq("product_id", product.id);
+    } else {
+      await supabase.from("saved_products").insert({ user_id: user.id, product_id: product.id });
+    }
+    queryClient.invalidateQueries({ queryKey: ["product-saved", product.id, user.id] });
+    queryClient.invalidateQueries({ queryKey: ["saved-products", user.id] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard-stats", user.id] });
+  };
 
   return (
     <Card className="gradient-card border-border/50 hover:shadow-elevated transition-all duration-300 group overflow-hidden">
@@ -45,10 +84,18 @@ const StoreProductCard = ({ product }: { product: StoreProduct }) => {
       <div className="h-40 bg-secondary/30 flex items-center justify-center relative">
         <Icon className="w-12 h-12 text-primary/40" />
         {product.is_featured && (
-          <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs">
+          <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs">
             Featured
           </Badge>
         )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 hover:bg-background ${isSaved ? "text-rose-500" : "text-muted-foreground"}`}
+          onClick={toggleSave}
+        >
+          <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+        </Button>
       </div>
 
       <CardContent className="p-4 space-y-3">
