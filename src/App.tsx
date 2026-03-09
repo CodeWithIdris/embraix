@@ -52,6 +52,7 @@ import ResearchPublications from "./pages/insight/ResearchPublications";
 import StoriesVoices from "./pages/media/StoriesVoices";
 import StoryDetail from "./pages/media/StoryDetail";
 import SubmitStory from "./pages/media/SubmitStory";
+import ProductDetail from "./pages/ProductDetail";
 
 const queryClient = new QueryClient();
 
