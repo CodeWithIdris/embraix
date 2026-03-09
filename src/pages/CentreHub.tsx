@@ -16,6 +16,7 @@ const sections = [
   { id: "products", icon: ShoppingBag, label: "Product Access", description: "Showroom and marketplace for clean energy products", href: "/centre/products" },
   { id: "support", icon: HelpCircle, label: "Support Services", description: "Request clean energy services — installation, audits, and more", href: "/centre/support-services" },
   { id: "consultation", icon: MessageSquare, label: "Expert Consultation", description: "Live chat with certified specialists and industry experts", href: "/consult-expert" },
+  { id: "installers", icon: Wrench, label: "Installer Network", description: "Join the Embraix managed installer network for clean energy projects", href: "/centre/installer-register" },
   { id: "innovation", icon: Lightbulb, label: "Innovation Lab", description: "Experimental tools, prototypes, and innovation projects", href: "/centre/innovation" },
 ];
 
