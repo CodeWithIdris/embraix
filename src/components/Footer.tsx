@@ -31,10 +31,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Youtube, href: "#", label: "YouTube" },
-  { icon: Github, href: "#", label: "GitHub" },
+  { icon: Twitter, href: "https://x.com/embraix/", label: "X (Twitter)" },
+  { icon: Facebook, href: "https://web.facebook.com/embraix", label: "Facebook" },
+  { icon: Instagram, href: "https://www.instagram.com/embraixafrica/", label: "Instagram" },
 ];
 
 const Footer = () => {
