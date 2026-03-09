@@ -38,6 +38,7 @@ import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManage
 import { InstallersManager } from "@/components/admin/InstallersManager";
 import ResearchManager from "@/components/admin/ResearchManager";
 import StoreProductsManager from "@/components/admin/StoreProductsManager";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 
 // Pending installers badge
 const PendingInstallersBadge = () => {
