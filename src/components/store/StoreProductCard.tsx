@@ -6,6 +6,7 @@ import { useCompare } from "@/contexts/CompareContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import type { StoreProduct } from "@/hooks/useStoreProducts";
 import { Sun, Battery, Zap, Car, Cpu, Package, Heart } from "lucide-react";
