@@ -41,6 +41,7 @@ import ExpertMarketplace from "./pages/centre/ExpertMarketplace";
 import SupportServices from "./pages/centre/SupportServices";
 import Waitlist from "./pages/Waitlist";
 import Explore from "./pages/Explore";
+import WaitlistPopup from "./components/WaitlistPopup";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            <WaitlistPopup />
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
