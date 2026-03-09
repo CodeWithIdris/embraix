@@ -7,7 +7,7 @@ import { FloatingAIConsult } from "@/components/FloatingAIConsult";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  GraduationCap, Users, ShoppingBag, HelpCircle, MessageSquare, Lightbulb, ExternalLink,
+  GraduationCap, Users, ShoppingBag, HelpCircle, MessageSquare, Lightbulb, ExternalLink, Wrench,
 } from "lucide-react";
 
 const sections = [
@@ -16,6 +16,7 @@ const sections = [
   { id: "products", icon: ShoppingBag, label: "Product Access", description: "Showroom and marketplace for clean energy products", href: "/centre/products" },
   { id: "support", icon: HelpCircle, label: "Support Services", description: "Request clean energy services — installation, audits, and more", href: "/centre/support-services" },
   { id: "consultation", icon: MessageSquare, label: "Expert Consultation", description: "Live chat with certified specialists and industry experts", href: "/consult-expert" },
+  { id: "installers", icon: Wrench, label: "Installer Network", description: "Join the Embraix managed installer network for clean energy projects", href: "/centre/installer-register" },
   { id: "innovation", icon: Lightbulb, label: "Innovation Lab", description: "Experimental tools, prototypes, and innovation projects", href: "/centre/innovation" },
 ];
 
@@ -114,12 +115,32 @@ const CentreHub = () => {
                   <div>
                     <h3 className="font-display font-semibold text-foreground mb-1">Service Request Hub</h3>
                     <p className="text-sm text-muted-foreground max-w-xs">
-                      Request clean energy services — solar installation, energy audits, EV charging, and more.
+                      Request clean energy services — solar installation, energy audits, EV charging, and more. An Embraix-certified installer will be assigned automatically.
                     </p>
                   </div>
                   <Button variant="hero" size="sm" onClick={() => navigate("/centre/support-services")}>
                     Request a Service
                   </Button>
+                </div>
+              ) : activeId === "installers" ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
+                  <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
+                    <Wrench className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground mb-1">Embraix Installer Network</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs">
+                      Join our managed network of certified clean energy professionals. Get matched with service requests automatically.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="hero" size="sm" onClick={() => navigate("/centre/installer-register")}>
+                      Apply as Installer
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => navigate("/centre/installer-dashboard")}>
+                      Installer Dashboard
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-dashed border-border/50 rounded-xl">

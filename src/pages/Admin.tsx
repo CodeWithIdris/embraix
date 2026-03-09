@@ -35,6 +35,19 @@ import NewsletterManager from "@/components/admin/NewsletterManager";
 import EmailCampaigns from "@/components/admin/EmailCampaigns";
 import NewsAutomation from "@/components/admin/NewsAutomation";
 import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
+import { InstallersManager } from "@/components/admin/InstallersManager";
+
+// Pending installers badge
+const PendingInstallersBadge = () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    supabase.from("installers").select("id", { count: "exact", head: true }).eq("status", "pending").then(({ count: c }) => {
+      if (c) setCount(c);
+    });
+  }, []);
+  return count > 0 ? <Badge variant="destructive" className="ml-1">{count}</Badge> : null;
+};
+
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
@@ -441,6 +454,11 @@ const Admin = () => {
                      <Wrench className="w-4 h-4" />
                      Services
                    </TabsTrigger>
+                   <TabsTrigger value="installers" className="gap-2">
+                     <Wrench className="w-4 h-4" />
+                     Installers
+                     <PendingInstallersBadge />
+                   </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -732,6 +750,13 @@ const Admin = () => {
              {isAdmin && (
                <TabsContent value="service-requests">
                  <ServiceRequestsManager />
+               </TabsContent>
+             )}
+
+             {/* Installers Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="installers">
+                 <InstallersManager />
                </TabsContent>
              )}
           </Tabs>

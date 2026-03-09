@@ -192,6 +192,24 @@ const SupportServices = () => {
 
       if (error) throw error;
 
+      // Auto-assign installer
+      try {
+        // Get the just-inserted request ID
+        const { data: latestReq } = await supabase
+          .from("service_requests")
+          .select("id")
+          .eq("user_email", formData.email.trim())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (latestReq?.id) {
+          await supabase.rpc("auto_assign_installer", { p_request_id: latestReq.id });
+        }
+      } catch (assignErr) {
+        console.log("Auto-assignment attempted:", assignErr);
+      }
+
       // Notify admins
       if (user) {
         const { data: admins } = await supabase
@@ -277,7 +295,7 @@ const SupportServices = () => {
                 <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
                 <h3 className="font-semibold text-lg mb-1">Request Received!</h3>
                 <p className="text-muted-foreground">
-                  Your request has been received. An Embraix expert will contact you shortly.
+                  Your request has been received. An Embraix-certified installer will contact you shortly.
                 </p>
               </CardContent>
             </Card>
