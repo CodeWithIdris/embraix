@@ -14,13 +14,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCompare } from "@/contexts/CompareContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatPrice } from "@/components/store/StoreProductCard";
 import type { StoreProduct } from "@/hooks/useStoreProducts";
 import {
   ArrowLeft, Heart, ShoppingBag, MessageCircle, Zap, Battery, Sun, Car, Cpu, Package,
   CheckCircle, Shield, Wrench, Star, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const categoryIcons: Record<string, React.ElementType> = {
   solar_panels: Sun, batteries: Battery, inverters: Zap, ev_chargers: Car,

@@ -5,9 +5,17 @@ import BlogMedia from "@/components/BlogMedia";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import { FloatingAIConsult } from "@/components/FloatingAIConsult";
-
+import TrendingInsights from "@/components/TrendingInsights";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useEffect } from "react";
 
 const Index = () => {
+  const { track } = useAnalytics();
+
+  useEffect(() => {
+    track({ eventType: "page_view", metadata: { page: "/" } });
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -27,6 +35,7 @@ const Index = () => {
         <Header />
         <main>
           <Hero />
+          <TrendingInsights />
           <BlogMedia />
           <Features />
         </main>

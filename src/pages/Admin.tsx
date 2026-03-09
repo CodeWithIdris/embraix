@@ -712,7 +712,10 @@ const Admin = () => {
             {/* Analytics Tab (Admin Only) */}
             {isAdmin && (
               <TabsContent value="analytics">
-                <PlatformAnalytics />
+                <AnalyticsDashboard />
+                <div className="mt-8">
+                  <PlatformAnalytics />
+                </div>
                 <div className="mt-8">
                   <ExpertAnalytics />
                 </div>
