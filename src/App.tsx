@@ -131,6 +131,7 @@ const App = () => (
             </BrowserRouter>
             <WaitlistPopup />
           </TooltipProvider>
+          </CompareProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
