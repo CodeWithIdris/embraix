@@ -36,6 +36,7 @@ const navItems = [
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, isWriter, isExpert, signOut } = useAuth();
   const navigate = useNavigate();
 
