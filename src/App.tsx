@@ -79,7 +79,9 @@ const App = () => (
                 <Route path="/media/reports" element={<ComingSoon />} />
                 <Route path="/media/reviews" element={<ComingSoon />} />
                 <Route path="/media/diy-guides" element={<MediaPage />} />
-                <Route path="/media/stories" element={<ComingSoon />} />
+                <Route path="/media/stories" element={<StoriesVoices />} />
+                <Route path="/media/stories/submit" element={<SubmitStory />} />
+                <Route path="/media/stories/:slug" element={<StoryDetail />} />
                 <Route path="/media/articles" element={<Blog />} />
                 <Route path="/media/:category" element={<MediaPage />} />
                 <Route path="/blog" element={<Blog />} />
