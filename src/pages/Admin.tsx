@@ -721,12 +721,19 @@ const Admin = () => {
               </TabsContent>
             )}
 
-            {/* Automation Tab (Admin Only) */}
-            {isAdmin && (
-              <TabsContent value="automation">
-                <NewsAutomation />
-              </TabsContent>
-            )}
+             {/* Automation Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="automation">
+                 <NewsAutomation />
+               </TabsContent>
+             )}
+
+             {/* Service Requests Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="service-requests">
+                 <ServiceRequestsManager />
+               </TabsContent>
+             )}
           </Tabs>
         </main>
       </div>
