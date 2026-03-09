@@ -180,7 +180,7 @@ const Explore = () => {
               {loadingProducts ? <SkeletonGrid /> : featuredProducts?.length ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {featuredProducts.map((p: any) => (
-                    <button key={p.id} onClick={() => navigate(`/store/products/${p.slug}`)} className="w-full text-left rounded-xl border border-border/40 overflow-hidden hover:border-primary/30 hover:shadow-sm transition-all group bg-card">
+                    <button key={p.id} onClick={() => navigate(`/store/product/${p.slug}`)} className="w-full text-left rounded-xl border border-border/40 overflow-hidden hover:border-primary/30 hover:shadow-sm transition-all group bg-card">
                       {p.images?.[0] ? (
                         <img src={p.images[0]} alt={p.name} className="w-full h-36 object-cover" loading="lazy" />
                       ) : (
