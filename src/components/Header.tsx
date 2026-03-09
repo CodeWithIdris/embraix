@@ -131,6 +131,14 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setIsSearchOpen(true)}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
               <ThemeToggle />
               <button
                 className="p-2 text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
