@@ -7,7 +7,7 @@ import { FloatingAIConsult } from "@/components/FloatingAIConsult";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  GraduationCap, Users, ShoppingBag, HelpCircle, MessageSquare, Lightbulb, ExternalLink,
+  GraduationCap, Users, ShoppingBag, HelpCircle, MessageSquare, Lightbulb, ExternalLink, Wrench,
 } from "lucide-react";
 
 const sections = [
