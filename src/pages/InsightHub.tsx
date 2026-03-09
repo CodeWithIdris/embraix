@@ -16,7 +16,7 @@ const sections = [
   { id: "market", icon: Globe, label: "Market Intelligence", description: "Data-driven market insights and competitive landscape analysis", href: "/insight/market-intelligence" },
   { id: "community", icon: Users, label: "Community Insights", description: "Patterns and feedback from the Embraix community", href: "/insight/community-insights" },
   { id: "policy", icon: Landmark, label: "Policy & Strategy", description: "Regulatory updates, policy frameworks, and strategic guidance", href: "/insight/policy" },
-  { id: "research", icon: FileText, label: "Research Publications", description: "Whitepapers, academic papers, and technical research", href: "/insight/whitepapers" },
+  { id: "research", icon: FileText, label: "Research Publications", description: "Community-contributed research, whitepapers, and technical analysis", href: "/insight/research" },
 ];
 
 const InsightHub = () => {

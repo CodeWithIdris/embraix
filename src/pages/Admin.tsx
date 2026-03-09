@@ -36,6 +36,7 @@ import EmailCampaigns from "@/components/admin/EmailCampaigns";
 import NewsAutomation from "@/components/admin/NewsAutomation";
 import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
 import { InstallersManager } from "@/components/admin/InstallersManager";
+import ResearchManager from "@/components/admin/ResearchManager";
 
 // Pending installers badge
 const PendingInstallersBadge = () => {
@@ -455,10 +456,14 @@ const Admin = () => {
                      Services
                    </TabsTrigger>
                    <TabsTrigger value="installers" className="gap-2">
-                     <Wrench className="w-4 h-4" />
-                     Installers
-                     <PendingInstallersBadge />
-                   </TabsTrigger>
+                      <Wrench className="w-4 h-4" />
+                      Installers
+                      <PendingInstallersBadge />
+                    </TabsTrigger>
+                    <TabsTrigger value="research" className="gap-2">
+                      <FileText className="w-4 h-4" />
+                      Research
+                    </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -757,6 +762,13 @@ const Admin = () => {
              {isAdmin && (
                <TabsContent value="installers">
                  <InstallersManager />
+               </TabsContent>
+             )}
+
+             {/* Research Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="research">
+                 <ResearchManager />
                </TabsContent>
              )}
           </Tabs>

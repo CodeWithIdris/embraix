@@ -1221,6 +1221,72 @@ export type Database = {
         }
         Relationships: []
       }
+      research_submissions: {
+        Row: {
+          abstract: string
+          admin_notes: string | null
+          author_name: string
+          category: string
+          created_at: string
+          email: string
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          institution: string | null
+          published_at: string | null
+          rejection_reason: string | null
+          status: string
+          supporting_images: string[] | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          abstract: string
+          admin_notes?: string | null
+          author_name: string
+          category: string
+          created_at?: string
+          email: string
+          file_name?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          institution?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          supporting_images?: string[] | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          abstract?: string
+          admin_notes?: string | null
+          author_name?: string
+          category?: string
+          created_at?: string
+          email?: string
+          file_name?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          institution?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          supporting_images?: string[] | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_products: {
         Row: {
           created_at: string
