@@ -81,6 +81,9 @@ export const PlatformAnalytics = () => {
         totalTickets: totalTickets || 0,
         openTickets: openTickets || 0,
         totalExperts: totalExperts || 0,
+        totalWaitlist: totalWaitlist || 0,
+        totalNewsletter: totalNewsletter || 0,
+        activeNewsletter: activeNewsletter || 0,
       });
     } catch (err) {
       console.error("Error loading platform stats:", err);
