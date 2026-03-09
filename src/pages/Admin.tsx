@@ -428,6 +428,14 @@ const Admin = () => {
                     <Mail className="w-4 h-4" />
                     Newsletter
                   </TabsTrigger>
+                  <TabsTrigger value="campaigns" className="gap-2">
+                    <Send className="w-4 h-4" />
+                    Campaigns
+                  </TabsTrigger>
+                  <TabsTrigger value="automation" className="gap-2">
+                    <Newspaper className="w-4 h-4" />
+                    Automation
+                  </TabsTrigger>
                 </>
               )}
             </TabsList>
