@@ -192,6 +192,24 @@ const SupportServices = () => {
 
       if (error) throw error;
 
+      // Auto-assign installer
+      try {
+        // Get the just-inserted request ID
+        const { data: latestReq } = await supabase
+          .from("service_requests")
+          .select("id")
+          .eq("user_email", formData.email.trim())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (latestReq?.id) {
+          await supabase.rpc("auto_assign_installer", { p_request_id: latestReq.id });
+        }
+      } catch (assignErr) {
+        console.log("Auto-assignment attempted:", assignErr);
+      }
+
       // Notify admins
       if (user) {
         const { data: admins } = await supabase
