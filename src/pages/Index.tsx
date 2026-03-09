@@ -5,7 +5,7 @@ import BlogMedia from "@/components/BlogMedia";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import { FloatingAIConsult } from "@/components/FloatingAIConsult";
-import WaitlistPopup from "@/components/WaitlistPopup";
+
 
 const Index = () => {
   return (
