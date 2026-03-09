@@ -10,8 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Compass, TrendingUp, Newspaper, PenTool, ArrowRight, Clock,
-  Flame, ArrowBigUp,
+  Compass, TrendingUp, Newspaper, PenTool, ArrowRight, Clock, Flame,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
