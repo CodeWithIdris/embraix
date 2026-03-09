@@ -28,6 +28,64 @@ import {
   PanelLeft,
 } from "lucide-react";
 
+// AI Mode configurations for welcome messages
+const AI_MODES: Record<string, { welcome: string; prompts: { icon: string; text: string }[] }> = {
+  "Your Best Fit": {
+    welcome: "I can help you find the best sustainable technology solutions based on your needs. Tell me what you're looking for.",
+    prompts: [
+      { icon: "☀️", text: "What solar system is best for my home?" },
+      { icon: "💰", text: "How much does a solar setup cost in Nigeria?" },
+      { icon: "🔋", text: "What battery storage fits my budget?" },
+      { icon: "🚗", text: "Which EV suits my driving needs?" },
+    ],
+  },
+  "Plan Ahead": {
+    welcome: "I can help you forecast energy costs, ROI timelines, and plan your sustainable energy adoption. What would you like to plan?",
+    prompts: [
+      { icon: "📊", text: "What's the ROI for solar in 5 years?" },
+      { icon: "💡", text: "How can I reduce my energy costs?" },
+      { icon: "🏠", text: "Plan a complete home energy upgrade" },
+      { icon: "📈", text: "Forecast my savings with solar" },
+    ],
+  },
+  "Test & Try": {
+    welcome: "I can help you model scenarios and compare technologies side by side before you commit. What would you like to test?",
+    prompts: [
+      { icon: "⚖️", text: "Compare solar vs generator costs" },
+      { icon: "🔄", text: "Hybrid vs full solar system" },
+      { icon: "🚗", text: "EV vs petrol car running costs" },
+      { icon: "🔋", text: "Lithium vs lead-acid batteries" },
+    ],
+  },
+  "Made for Your Area": {
+    welcome: "I can provide solutions adapted to your local grid, climate, and regulations. Which country or city are you in?",
+    prompts: [
+      { icon: "🇳🇬", text: "Best solar options in Lagos, Nigeria" },
+      { icon: "🌍", text: "What incentives are available in my area?" },
+      { icon: "⚡", text: "How reliable is the grid where I live?" },
+      { icon: "☀️", text: "Solar potential in my location" },
+    ],
+  },
+  "What Others Need": {
+    welcome: "I can share insights from collective trends and patterns across the Embraix community. What would you like to explore?",
+    prompts: [
+      { icon: "📊", text: "What are trending energy topics?" },
+      { icon: "🏘️", text: "Popular solutions in my region" },
+      { icon: "💬", text: "Common questions from homeowners" },
+      { icon: "🔥", text: "Most recommended products" },
+    ],
+  },
+};
+
+const DEFAULT_PROMPTS = [
+  { icon: "☀️", text: "Best solar setup for my home?" },
+  { icon: "🚗", text: "Help me choose an EV" },
+  { icon: "🔋", text: "Battery storage options" },
+  { icon: "🏠", text: "Smart home energy tips" },
+  { icon: "💰", text: "Solar installation costs" },
+  { icon: "⚡", text: "How to cut my light bill?" },
+];
+
 const Chat = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -37,10 +95,12 @@ const Chat = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const autoPromptFiredRef = useRef(false);
-  const [autoPrompt] = useState<string | null>(() => {
-    const p = searchParams.get("prompt");
-    return p ? decodeURIComponent(p) : null;
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Get mode from URL (for AI Hub sections)
+  const [aiMode] = useState<string | null>(() => {
+    const mode = searchParams.get("mode");
+    return mode ? decodeURIComponent(mode) : null;
   });
 
   const {
@@ -61,30 +121,19 @@ const Chat = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Clean the prompt from URL once captured
+  // Clean the mode from URL once captured
   useEffect(() => {
-    if (autoPrompt) {
+    if (aiMode) {
       setSearchParams({}, { replace: true });
     }
   }, []);
 
-  // Auto-send the prompt once user is authenticated and chat is ready
+  // Auto-focus input when chat opens
   useEffect(() => {
-    if (
-      autoPrompt &&
-      user &&
-      !authLoading &&
-      !autoPromptFiredRef.current &&
-      messages.length === 0 &&
-      !isLoading
-    ) {
-      autoPromptFiredRef.current = true;
-      const timer = setTimeout(() => {
-        handleSend(autoPrompt);
-      }, 600);
-      return () => clearTimeout(timer);
+    if (!authLoading && user && messages.length === 0) {
+      setTimeout(() => inputRef.current?.focus(), 300);
     }
-  }, [autoPrompt, user, authLoading, isLoading]);
+  }, [authLoading, user, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -245,41 +294,32 @@ const Chat = () => {
 
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
-            {messages.length === 0 && !isLoading ? (
+          {messages.length === 0 && !isLoading ? (
               <div className="h-full flex flex-col items-center justify-center text-center px-4 py-12">
                 <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mb-6">
                   <Bot className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-                  {autoPrompt ? "Starting your session…" : "How can I help you today?"}
+                  {aiMode ? `Welcome to Embraix AI` : "How can I help you today?"}
                 </h2>
                 <p className="text-muted-foreground max-w-md mb-8">
-                  {autoPrompt
-                    ? "Setting up your personalised AI session."
+                  {aiMode && AI_MODES[aiMode]
+                    ? AI_MODES[aiMode].welcome
                     : "Ask about clean energy, EVs, solar, or smart tech. I'll keep it short and useful."}
                 </p>
-                {!autoPrompt && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-                    {[
-                      { icon: "☀️", text: "Best solar setup for my home?" },
-                      { icon: "🚗", text: "Help me choose an EV" },
-                      { icon: "🔋", text: "Battery storage options" },
-                      { icon: "🏠", text: "Smart home energy tips" },
-                      { icon: "💰", text: "Solar installation costs" },
-                      { icon: "⚡", text: "How to cut my light bill?" },
-                    ].map((prompt, i) => (
-                      <button
-                        key={prompt.text}
-                        onClick={() => handleSend(prompt.text)}
-                        className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
-                        style={{ animationDelay: `${i * 80}ms` }}
-                      >
-                        <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
-                        {prompt.text}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                  {(aiMode && AI_MODES[aiMode] ? AI_MODES[aiMode].prompts : DEFAULT_PROMPTS).map((prompt, i) => (
+                    <button
+                      key={prompt.text}
+                      onClick={() => handleSend(prompt.text)}
+                      className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
+                      style={{ animationDelay: `${i * 80}ms` }}
+                    >
+                      <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
+                      {prompt.text}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="max-w-3xl mx-auto space-y-5">
@@ -357,12 +397,14 @@ const Chat = () => {
                 disabled={isStreaming}
               />
               <Input
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about clean energy, EVs, or smart tech..."
                 className="flex-1 bg-secondary/50 border-border/50"
                 disabled={isStreaming}
+                autoFocus
               />
               <Button
                 onClick={() => handleSend()}

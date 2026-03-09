@@ -59,8 +59,9 @@ const sections = [
 const AIHub = () => {
   const navigate = useNavigate();
 
-  const handleSectionClick = (prompt: string) => {
-    navigate(`/chat?prompt=${encodeURIComponent(prompt)}`);
+  const handleSectionClick = (section: typeof sections[0]) => {
+    // Pass mode instead of auto-sending prompt
+    navigate(`/chat?mode=${encodeURIComponent(section.label)}`);
   };
 
   return (
@@ -93,7 +94,7 @@ const AIHub = () => {
             {sections.map((s) => (
               <button
                 key={s.label}
-                onClick={() => handleSectionClick(s.prompt)}
+                onClick={() => handleSectionClick(s)}
                 className="w-full text-left flex items-center gap-4 p-4 rounded-xl border border-border/50 bg-card hover:border-primary/40 hover:bg-primary/5 hover:shadow-glow transition-all duration-200 group"
               >
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg} group-hover:scale-105 transition-transform`}>
