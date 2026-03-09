@@ -116,11 +116,11 @@ const StoreCompare = () => {
                         // Special rendering for booleans
                         if (row.key === "installation_required") {
                           display = value === true ? (
-                            <span className="inline-flex items-center gap-1 text-yellow-600">
+                            <span className="inline-flex items-center gap-1 text-destructive">
                               <CheckCircle2 className="w-3.5 h-3.5" /> Yes
                             </span>
                           ) : value === false ? (
-                            <span className="inline-flex items-center gap-1 text-green-600">
+                            <span className="inline-flex items-center gap-1 text-primary">
                               <XCircle className="w-3.5 h-3.5" /> No
                             </span>
                           ) : "—";
