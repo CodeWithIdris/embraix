@@ -764,6 +764,13 @@ const Admin = () => {
                  <InstallersManager />
                </TabsContent>
              )}
+
+             {/* Research Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="research">
+                 <ResearchManager />
+               </TabsContent>
+             )}
           </Tabs>
         </main>
       </div>
