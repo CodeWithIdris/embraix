@@ -295,7 +295,7 @@ const SupportServices = () => {
                 <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
                 <h3 className="font-semibold text-lg mb-1">Request Received!</h3>
                 <p className="text-muted-foreground">
-                  Your request has been received. An Embraix expert will contact you shortly.
+                  Your request has been received. An Embraix-certified installer will contact you shortly.
                 </p>
               </CardContent>
             </Card>
