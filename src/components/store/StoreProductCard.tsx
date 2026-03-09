@@ -82,10 +82,17 @@ const StoreProductCard = ({ product }: { product: StoreProduct }) => {
   };
 
   return (
-    <Card className="gradient-card border-border/50 hover:shadow-elevated transition-all duration-300 group overflow-hidden">
+    <Card
+      className="gradient-card border-border/50 hover:shadow-elevated transition-all duration-300 group overflow-hidden cursor-pointer"
+      onClick={() => navigate(`/store/product/${product.slug}`)}
+    >
       {/* Image or icon placeholder */}
-      <div className="h-40 bg-secondary/30 flex items-center justify-center relative">
-        <Icon className="w-12 h-12 text-primary/40" />
+      <div className="h-40 bg-secondary/30 flex items-center justify-center relative overflow-hidden">
+        {hasImage ? (
+          <img src={product.images![0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+        ) : (
+          <Icon className="w-12 h-12 text-primary/40" />
+        )}
         {product.is_featured && (
           <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs">
             Featured
@@ -95,7 +102,7 @@ const StoreProductCard = ({ product }: { product: StoreProduct }) => {
           variant="ghost"
           size="icon"
           className={`absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 hover:bg-background ${isSaved ? "text-rose-500" : "text-muted-foreground"}`}
-          onClick={toggleSave}
+          onClick={(e) => { e.stopPropagation(); toggleSave(e); }}
         >
           <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
         </Button>
