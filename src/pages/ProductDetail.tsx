@@ -41,6 +41,7 @@ const ProductDetail = () => {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { track } = useAnalytics();
   const [activeImage, setActiveImage] = useState(0);
 
   const { data: product, isLoading } = useQuery({
