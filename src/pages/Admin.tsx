@@ -37,6 +37,7 @@ import NewsAutomation from "@/components/admin/NewsAutomation";
 import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
 import { InstallersManager } from "@/components/admin/InstallersManager";
 import ResearchManager from "@/components/admin/ResearchManager";
+import StoreProductsManager from "@/components/admin/StoreProductsManager";
 
 // Pending installers badge
 const PendingInstallersBadge = () => {
