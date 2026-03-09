@@ -294,41 +294,32 @@ const Chat = () => {
 
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
-            {messages.length === 0 && !isLoading ? (
+          {messages.length === 0 && !isLoading ? (
               <div className="h-full flex flex-col items-center justify-center text-center px-4 py-12">
                 <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mb-6">
                   <Bot className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-                  {autoPrompt ? "Starting your session…" : "How can I help you today?"}
+                  {aiMode ? `Welcome to Embraix AI` : "How can I help you today?"}
                 </h2>
                 <p className="text-muted-foreground max-w-md mb-8">
-                  {autoPrompt
-                    ? "Setting up your personalised AI session."
+                  {aiMode && AI_MODES[aiMode]
+                    ? AI_MODES[aiMode].welcome
                     : "Ask about clean energy, EVs, solar, or smart tech. I'll keep it short and useful."}
                 </p>
-                {!autoPrompt && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-                    {[
-                      { icon: "☀️", text: "Best solar setup for my home?" },
-                      { icon: "🚗", text: "Help me choose an EV" },
-                      { icon: "🔋", text: "Battery storage options" },
-                      { icon: "🏠", text: "Smart home energy tips" },
-                      { icon: "💰", text: "Solar installation costs" },
-                      { icon: "⚡", text: "How to cut my light bill?" },
-                    ].map((prompt, i) => (
-                      <button
-                        key={prompt.text}
-                        onClick={() => handleSend(prompt.text)}
-                        className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
-                        style={{ animationDelay: `${i * 80}ms` }}
-                      >
-                        <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
-                        {prompt.text}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                  {(aiMode && AI_MODES[aiMode] ? AI_MODES[aiMode].prompts : DEFAULT_PROMPTS).map((prompt, i) => (
+                    <button
+                      key={prompt.text}
+                      onClick={() => handleSend(prompt.text)}
+                      className="text-left p-3 rounded-xl bg-secondary/50 border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
+                      style={{ animationDelay: `${i * 80}ms` }}
+                    >
+                      <span className="mr-2 text-base group-hover:scale-110 inline-block transition-transform">{prompt.icon}</span>
+                      {prompt.text}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="max-w-3xl mx-auto space-y-5">
