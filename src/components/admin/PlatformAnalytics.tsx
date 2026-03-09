@@ -47,6 +47,9 @@ export const PlatformAnalytics = () => {
         { count: totalTickets },
         { count: openTickets },
         { count: totalExperts },
+        { count: totalWaitlist },
+        { count: totalNewsletter },
+        { count: activeNewsletter },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("service_providers").select("*", { count: "exact", head: true }),
