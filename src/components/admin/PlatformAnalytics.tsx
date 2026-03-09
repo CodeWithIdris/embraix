@@ -115,6 +115,9 @@ export const PlatformAnalytics = () => {
     { icon: Ticket, label: "Total Tickets", value: stats.totalTickets, color: "text-primary" },
     { icon: Clock, label: "Open Tickets", value: stats.openTickets, color: "text-amber-500" },
     { icon: GraduationCap, label: "Experts", value: stats.totalExperts, color: "text-primary" },
+    { icon: UserPlus, label: "Waitlist Users", value: stats.totalWaitlist, color: "text-primary" },
+    { icon: Mail, label: "Newsletter Subs", value: stats.totalNewsletter, color: "text-primary" },
+    { icon: Mail, label: "Active Subs", value: stats.activeNewsletter, color: "text-green-500" },
   ];
 
   return (
