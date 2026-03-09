@@ -6,6 +6,8 @@ import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import { FloatingAIConsult } from "@/components/FloatingAIConsult";
 import TrendingInsights from "@/components/TrendingInsights";
+import { OnboardingModal } from "@/components/OnboardingModal";
+import { FeedbackButton } from "@/components/FeedbackButton";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useEffect } from "react";
 
@@ -41,6 +43,8 @@ const Index = () => {
         </main>
         <Footer />
         <FloatingAIConsult />
+        <FeedbackButton />
+        <OnboardingModal />
       </div>
     </>
   );

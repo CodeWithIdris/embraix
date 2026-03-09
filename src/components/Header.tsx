@@ -17,10 +17,12 @@ import {
   User,
   Settings,
   Users,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "@/components/news/NotificationDropdown";
+import { GlobalSearch, SearchTrigger } from "@/components/GlobalSearch";
 
 import logo from "@/assets/logo.jpg";
 
@@ -34,6 +36,7 @@ const navItems = [
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, isWriter, isExpert, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -70,6 +73,7 @@ const Header = () => {
 
             {/* Desktop Auth & Theme */}
             <div className="hidden md:flex items-center gap-2">
+              <SearchTrigger onClick={() => setIsSearchOpen(true)} />
               <NotificationDropdown />
               <ThemeToggle />
               
@@ -127,6 +131,14 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setIsSearchOpen(true)}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
               <ThemeToggle />
               <button
                 className="p-2 text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
@@ -199,6 +211,9 @@ const Header = () => {
           )}
         </div>
       </header>
+      
+      {/* Global Search Modal */}
+      <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </div>
   );
 };
