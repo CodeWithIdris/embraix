@@ -32,6 +32,8 @@ import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
 import GrowthAnalytics from "@/components/GrowthAnalytics";
 import WaitlistManager from "@/components/admin/WaitlistManager";
 import NewsletterManager from "@/components/admin/NewsletterManager";
+import EmailCampaigns from "@/components/admin/EmailCampaigns";
+import NewsAutomation from "@/components/admin/NewsAutomation";
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
@@ -376,7 +378,7 @@ const Admin = () => {
 
         <main className="container mx-auto p-6">
           <Tabs defaultValue="articles" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-10 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-12 lg:w-auto lg:inline-grid">
               <TabsTrigger value="articles" className="gap-2">
                 <BookOpen className="w-4 h-4" />
                 Articles
@@ -425,6 +427,14 @@ const Admin = () => {
                   <TabsTrigger value="newsletter" className="gap-2">
                     <Mail className="w-4 h-4" />
                     Newsletter
+                  </TabsTrigger>
+                  <TabsTrigger value="campaigns" className="gap-2">
+                    <Send className="w-4 h-4" />
+                    Campaigns
+                  </TabsTrigger>
+                  <TabsTrigger value="automation" className="gap-2">
+                    <Newspaper className="w-4 h-4" />
+                    Automation
                   </TabsTrigger>
                 </>
               )}
@@ -696,6 +706,20 @@ const Admin = () => {
             {isAdmin && (
               <TabsContent value="newsletter">
                 <NewsletterManager />
+              </TabsContent>
+            )}
+
+            {/* Email Campaigns Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="campaigns">
+                <EmailCampaigns />
+              </TabsContent>
+            )}
+
+            {/* Automation Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="automation">
+                <NewsAutomation />
               </TabsContent>
             )}
           </Tabs>

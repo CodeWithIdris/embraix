@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Leaf, Twitter, Linkedin, Youtube, Github } from "lucide-react";
+import { Leaf, Twitter, Facebook, Instagram } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 const footerLinks = {
@@ -31,10 +31,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Youtube, href: "#", label: "YouTube" },
-  { icon: Github, href: "#", label: "GitHub" },
+  { icon: Twitter, href: "https://x.com/embraix/", label: "X (Twitter)" },
+  { icon: Facebook, href: "https://web.facebook.com/embraix", label: "Facebook" },
+  { icon: Instagram, href: "https://www.instagram.com/embraixafrica/", label: "Instagram" },
 ];
 
 const Footer = () => {
@@ -61,6 +60,8 @@ const Footer = () => {
                 <a
                   key={social.label}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={social.label}
                   className="w-9 h-9 rounded-lg bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-secondary transition-colors"
                 >

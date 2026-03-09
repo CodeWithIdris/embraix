@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Loader2, Users, Building2, Newspaper, Clock, MessageSquare,
-  TrendingUp, FileText, Ticket, GraduationCap, BarChart3
+  TrendingUp, FileText, Ticket, GraduationCap, BarChart3, Mail, UserPlus
 } from "lucide-react";
 
 interface PlatformStats {
@@ -19,6 +19,9 @@ interface PlatformStats {
   totalTickets: number;
   openTickets: number;
   totalExperts: number;
+  totalWaitlist: number;
+  totalNewsletter: number;
+  activeNewsletter: number;
 }
 
 export const PlatformAnalytics = () => {
@@ -44,6 +47,9 @@ export const PlatformAnalytics = () => {
         { count: totalTickets },
         { count: openTickets },
         { count: totalExperts },
+        { count: totalWaitlist },
+        { count: totalNewsletter },
+        { count: activeNewsletter },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("service_providers").select("*", { count: "exact", head: true }),
@@ -57,6 +63,9 @@ export const PlatformAnalytics = () => {
         supabase.from("consultation_tickets").select("*", { count: "exact", head: true }),
         supabase.from("consultation_tickets").select("*", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "expert"),
+        supabase.from("waitlist_users").select("*", { count: "exact", head: true }),
+        supabase.from("newsletter_subscriptions").select("*", { count: "exact", head: true }),
+        supabase.from("newsletter_subscriptions").select("*", { count: "exact", head: true }).eq("is_active", true),
       ]);
 
       setStats({
@@ -72,6 +81,9 @@ export const PlatformAnalytics = () => {
         totalTickets: totalTickets || 0,
         openTickets: openTickets || 0,
         totalExperts: totalExperts || 0,
+        totalWaitlist: totalWaitlist || 0,
+        totalNewsletter: totalNewsletter || 0,
+        activeNewsletter: activeNewsletter || 0,
       });
     } catch (err) {
       console.error("Error loading platform stats:", err);
@@ -103,6 +115,9 @@ export const PlatformAnalytics = () => {
     { icon: Ticket, label: "Total Tickets", value: stats.totalTickets, color: "text-primary" },
     { icon: Clock, label: "Open Tickets", value: stats.openTickets, color: "text-amber-500" },
     { icon: GraduationCap, label: "Experts", value: stats.totalExperts, color: "text-primary" },
+    { icon: UserPlus, label: "Waitlist Users", value: stats.totalWaitlist, color: "text-primary" },
+    { icon: Mail, label: "Newsletter Subs", value: stats.totalNewsletter, color: "text-primary" },
+    { icon: Mail, label: "Active Subs", value: stats.activeNewsletter, color: "text-green-500" },
   ];
 
   return (
