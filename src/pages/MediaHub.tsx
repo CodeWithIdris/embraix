@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { usePublishedCaseStudies, getStoryTypeLabel } from "@/hooks/useCaseStudies";
 import {
   Newspaper, FileText, Star, Wrench, BookOpen, Megaphone, PenTool,
-  Clock, ArrowRight, ExternalLink,
+  Clock, ArrowRight, ExternalLink, MapPin,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
