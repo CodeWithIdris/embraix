@@ -55,7 +55,7 @@ const Hero = () => {
               variant="hero" 
               size="default"
               className="min-w-[140px]"
-              onClick={() => navigate("/news")}
+              onClick={() => navigate("/explore")}
             >
               Explore
               <ArrowRight className="ml-2 w-4 h-4" />

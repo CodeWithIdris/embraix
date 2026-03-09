@@ -105,6 +105,7 @@ const App = () => (
                 <Route path="/store" element={<StoreHub />} />
                 <Route path="/store/:category" element={<ComingSoon />} />
 
+                <Route path="/explore" element={<Explore />} />
                 <Route path="/waitlist" element={<Waitlist />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
