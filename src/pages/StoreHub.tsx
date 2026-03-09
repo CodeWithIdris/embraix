@@ -7,7 +7,7 @@ import { FloatingAIConsult } from "@/components/FloatingAIConsult";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Sun, Flame, Car, Cpu, Battery, Package, Wrench, Megaphone, ExternalLink,
+  Sun, Flame, Car, Cpu, Battery, Package, Wrench, Megaphone, ExternalLink, ShoppingBag,
 } from "lucide-react";
 
 const sections = [
