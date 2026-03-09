@@ -243,10 +243,10 @@ const Explore = () => {
 // ── Sub-components ──
 
 const NewsCard = ({
-  id, title, excerpt, image, date, votes, onClick,
+  id, title, excerpt, image, date, onClick,
 }: {
   id: string; title: string; excerpt?: string | null; image?: string | null;
-  date: string; votes?: number | null; onClick: () => void;
+  date: string; onClick: () => void;
 }) => (
   <button
     onClick={onClick}
@@ -264,17 +264,10 @@ const NewsCard = ({
         {title}
       </h3>
       {excerpt && <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{excerpt}</p>}
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground/70">
-        <span className="flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {formatDistanceToNow(new Date(date), { addSuffix: true })}
-        </span>
-        {votes != null && votes > 0 && (
-          <span className="flex items-center gap-0.5">
-            <ArrowBigUp className="w-3 h-3" /> {votes}
-          </span>
-        )}
-      </div>
+      <span className="text-[11px] text-muted-foreground/70 flex items-center gap-1">
+        <Clock className="w-3 h-3" />
+        {formatDistanceToNow(new Date(date), { addSuffix: true })}
+      </span>
     </div>
   </button>
 );
