@@ -44,8 +44,10 @@ const StoreProductCard = ({ product }: { product: StoreProduct }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const inCompare = isInCompare(product.id);
   const Icon = categoryIcons[product.category] || Package;
+  const hasImage = product.images && product.images.length > 0;
 
   const { data: isSaved } = useQuery({
     queryKey: ["product-saved", product.id, user?.id],
