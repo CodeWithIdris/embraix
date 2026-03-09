@@ -73,6 +73,7 @@ const Header = () => {
 
             {/* Desktop Auth & Theme */}
             <div className="hidden md:flex items-center gap-2">
+              <SearchTrigger onClick={() => setIsSearchOpen(true)} />
               <NotificationDropdown />
               <ThemeToggle />
               
