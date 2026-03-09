@@ -59,6 +59,17 @@ const ProductDetail = () => {
     enabled: !!slug,
   });
 
+  useEffect(() => {
+    if (product) {
+      track({
+        eventType: "product_view",
+        resourceId: product.id,
+        resourceType: "store_product",
+        metadata: { product_name: product.name, category: product.category },
+      });
+    }
+  }, [product?.id]);
+
   const { data: isSaved } = useQuery({
     queryKey: ["product-saved", product?.id, user?.id],
     queryFn: async () => {

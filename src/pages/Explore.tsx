@@ -41,6 +41,11 @@ const filterOptions: { id: Filter; label: string }[] = [
 const Explore = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Filter>("all");
+  const { track } = useAnalytics();
+
+  useEffect(() => {
+    track({ eventType: "page_view", metadata: { page: "/explore" } });
+  }, []);
 
   // Trending news (by published_at recency as proxy for trending)
   const { data: trendingNews, isLoading: loadingTrending } = useQuery({
