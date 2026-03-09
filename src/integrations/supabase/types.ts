@@ -1194,6 +1194,62 @@ export type Database = {
           },
         ]
       }
+      reports_downloads: {
+        Row: {
+          downloaded_at: string
+          id: string
+          report_title: string
+          report_type: string | null
+          report_url: string | null
+          user_id: string
+        }
+        Insert: {
+          downloaded_at?: string
+          id?: string
+          report_title: string
+          report_type?: string | null
+          report_url?: string | null
+          user_id: string
+        }
+        Update: {
+          downloaded_at?: string
+          id?: string
+          report_title?: string
+          report_type?: string | null
+          report_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_products: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_listings: {
         Row: {
           category: Database["public"]["Enums"]["service_category"]
