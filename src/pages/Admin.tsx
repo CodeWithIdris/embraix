@@ -454,6 +454,11 @@ const Admin = () => {
                      <Wrench className="w-4 h-4" />
                      Services
                    </TabsTrigger>
+                   <TabsTrigger value="installers" className="gap-2">
+                     <Wrench className="w-4 h-4" />
+                     Installers
+                     <PendingInstallersBadge />
+                   </TabsTrigger>
                 </>
               )}
             </TabsList>
