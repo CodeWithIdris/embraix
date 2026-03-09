@@ -180,7 +180,7 @@ const Explore = () => {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <PenTool className="w-4 h-4 text-purple-500" />
+                  <PenTool className="w-4 h-4 text-primary" />
                   <h2 className="font-display font-semibold text-foreground text-base">Latest Articles</h2>
                 </div>
                 <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => navigate("/blog")}>
