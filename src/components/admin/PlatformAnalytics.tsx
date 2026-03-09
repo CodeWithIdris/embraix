@@ -60,6 +60,9 @@ export const PlatformAnalytics = () => {
         supabase.from("consultation_tickets").select("*", { count: "exact", head: true }),
         supabase.from("consultation_tickets").select("*", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "expert"),
+        supabase.from("waitlist_users").select("*", { count: "exact", head: true }),
+        supabase.from("newsletter_subscriptions").select("*", { count: "exact", head: true }),
+        supabase.from("newsletter_subscriptions").select("*", { count: "exact", head: true }).eq("is_active", true),
       ]);
 
       setStats({
