@@ -433,10 +433,14 @@ const Admin = () => {
                     <Send className="w-4 h-4" />
                     Campaigns
                   </TabsTrigger>
-                  <TabsTrigger value="automation" className="gap-2">
-                    <Newspaper className="w-4 h-4" />
-                    Automation
-                  </TabsTrigger>
+                   <TabsTrigger value="automation" className="gap-2">
+                     <Newspaper className="w-4 h-4" />
+                     Automation
+                   </TabsTrigger>
+                   <TabsTrigger value="service-requests" className="gap-2">
+                     <Wrench className="w-4 h-4" />
+                     Services
+                   </TabsTrigger>
                 </>
               )}
             </TabsList>
