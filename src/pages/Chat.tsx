@@ -397,12 +397,14 @@ const Chat = () => {
                 disabled={isStreaming}
               />
               <Input
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about clean energy, EVs, or smart tech..."
                 className="flex-1 bg-secondary/50 border-border/50"
                 disabled={isStreaming}
+                autoFocus
               />
               <Button
                 onClick={() => handleSend()}
