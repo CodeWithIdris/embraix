@@ -21,7 +21,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "@/components/news/NotificationDropdown";
-import WaitlistBanner from "@/components/WaitlistBanner";
+
 import logo from "@/assets/logo.jpg";
 
 const navItems = [
