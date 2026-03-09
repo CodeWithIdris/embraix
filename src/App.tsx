@@ -47,6 +47,8 @@ import Explore from "./pages/Explore";
 import WaitlistPopup from "./components/WaitlistPopup";
 import StoreProducts from "./pages/StoreProducts";
 import StoreCompare from "./pages/StoreCompare";
+import SubmitResearch from "./pages/insight/SubmitResearch";
+import ResearchPublications from "./pages/insight/ResearchPublications";
 
 const queryClient = new QueryClient();
 
