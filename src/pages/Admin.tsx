@@ -752,6 +752,13 @@ const Admin = () => {
                  <ServiceRequestsManager />
                </TabsContent>
              )}
+
+             {/* Installers Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="installers">
+                 <InstallersManager />
+               </TabsContent>
+             )}
           </Tabs>
         </main>
       </div>

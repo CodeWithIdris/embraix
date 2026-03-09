@@ -94,6 +94,8 @@ const App = () => (
                 <Route path="/centre/innovation" element={<ComingSoon />} />
                 <Route path="/centre/experts" element={<ExpertMarketplace />} />
                 <Route path="/centre/support-services" element={<SupportServices />} />
+                <Route path="/centre/installer-register" element={<InstallerRegister />} />
+                <Route path="/centre/installer-dashboard" element={<InstallerDashboard />} />
                 <Route path="/centre/:section" element={<Centre />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="/expert-dashboard" element={<ExpertDashboard />} />
