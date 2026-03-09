@@ -38,6 +38,7 @@ import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertApply from "./pages/ExpertApply";
 import ExpertProfile from "./pages/ExpertProfile";
 import ExpertMarketplace from "./pages/centre/ExpertMarketplace";
+import SupportServices from "./pages/centre/SupportServices";
 import Waitlist from "./pages/Waitlist";
 import Explore from "./pages/Explore";
 
