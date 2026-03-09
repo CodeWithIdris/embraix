@@ -708,6 +708,20 @@ const Admin = () => {
                 <NewsletterManager />
               </TabsContent>
             )}
+
+            {/* Email Campaigns Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="campaigns">
+                <EmailCampaigns />
+              </TabsContent>
+            )}
+
+            {/* Automation Tab (Admin Only) */}
+            {isAdmin && (
+              <TabsContent value="automation">
+                <NewsAutomation />
+              </TabsContent>
+            )}
           </Tabs>
         </main>
       </div>

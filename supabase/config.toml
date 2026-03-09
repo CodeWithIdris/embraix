@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.send-weekly-newsletter]
 verify_jwt = false
+
+[functions.scrape-news]
+verify_jwt = false
+
+[functions.send-email-campaign]
+verify_jwt = false
