@@ -32,6 +32,8 @@ import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
 import GrowthAnalytics from "@/components/GrowthAnalytics";
 import WaitlistManager from "@/components/admin/WaitlistManager";
 import NewsletterManager from "@/components/admin/NewsletterManager";
+import EmailCampaigns from "@/components/admin/EmailCampaigns";
+import NewsAutomation from "@/components/admin/NewsAutomation";
 // Pending experts badge component
 const PendingExpertsBadge = () => {
   const [count, setCount] = useState(0);
