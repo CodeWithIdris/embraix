@@ -91,11 +91,32 @@ export const ExpertApplicationsManager = () => {
       if (error) throw error;
 
       if (action === "approved") {
+        // Add expert role
         const { error: roleError } = await supabase
           .from("user_roles")
           .insert({ user_id: app.user_id, role: "expert" as any });
         if (roleError && roleError.code !== "23505") {
           console.error("Failed to add expert role:", roleError);
+        }
+
+        // Auto-create expert profile
+        const { error: profileError } = await supabase
+          .from("expert_profiles")
+          .insert({
+            user_id: app.user_id,
+            application_id: app.id,
+            full_name: app.full_name,
+            email: app.email,
+            phone: app.phone,
+            expertise_areas: app.expertise_areas,
+            experience_years: app.experience_years,
+            bio: app.experience_summary,
+            linkedin: app.linkedin,
+            portfolio: app.portfolio,
+            badges: ["verified"],
+          } as any);
+        if (profileError && profileError.code !== "23505") {
+          console.error("Failed to create expert profile:", profileError);
         }
       }
 

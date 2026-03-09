@@ -233,6 +233,65 @@ export type Database = {
           },
         ]
       }
+      consultation_requests: {
+        Row: {
+          created_at: string
+          expert_id: string
+          expert_response: string | null
+          id: string
+          message: string
+          preferred_date: string | null
+          preferred_time: string | null
+          responded_at: string | null
+          status: string
+          topic: string
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          expert_id: string
+          expert_response?: string | null
+          id?: string
+          message: string
+          preferred_date?: string | null
+          preferred_time?: string | null
+          responded_at?: string | null
+          status?: string
+          topic: string
+          updated_at?: string
+          user_email: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          created_at?: string
+          expert_id?: string
+          expert_response?: string | null
+          id?: string
+          message?: string
+          preferred_date?: string | null
+          preferred_time?: string | null
+          responded_at?: string | null
+          status?: string
+          topic?: string
+          updated_at?: string
+          user_email?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_requests_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "expert_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultation_tickets: {
         Row: {
           ai_context: string | null
@@ -482,6 +541,104 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "expert_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "expert_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_profiles: {
+        Row: {
+          application_id: string | null
+          avatar_url: string | null
+          badges: string[] | null
+          bio: string | null
+          certifications: string[] | null
+          city: string | null
+          consultation_count: number | null
+          country: string | null
+          created_at: string
+          email: string
+          experience_years: number | null
+          expertise_areas: string[]
+          full_name: string
+          hourly_rate: string | null
+          id: string
+          is_available: boolean | null
+          languages: string[] | null
+          linkedin: string | null
+          location: string | null
+          phone: string | null
+          portfolio: string | null
+          professional_title: string | null
+          rating: number | null
+          review_count: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_id?: string | null
+          avatar_url?: string | null
+          badges?: string[] | null
+          bio?: string | null
+          certifications?: string[] | null
+          city?: string | null
+          consultation_count?: number | null
+          country?: string | null
+          created_at?: string
+          email: string
+          experience_years?: number | null
+          expertise_areas?: string[]
+          full_name: string
+          hourly_rate?: string | null
+          id?: string
+          is_available?: boolean | null
+          languages?: string[] | null
+          linkedin?: string | null
+          location?: string | null
+          phone?: string | null
+          portfolio?: string | null
+          professional_title?: string | null
+          rating?: number | null
+          review_count?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string | null
+          avatar_url?: string | null
+          badges?: string[] | null
+          bio?: string | null
+          certifications?: string[] | null
+          city?: string | null
+          consultation_count?: number | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          experience_years?: number | null
+          expertise_areas?: string[]
+          full_name?: string
+          hourly_rate?: string | null
+          id?: string
+          is_available?: boolean | null
+          languages?: string[] | null
+          linkedin?: string | null
+          location?: string | null
+          phone?: string | null
+          portfolio?: string | null
+          professional_title?: string | null
+          rating?: number | null
+          review_count?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_profiles_application_id_fkey"
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "expert_applications"

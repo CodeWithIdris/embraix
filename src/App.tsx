@@ -36,6 +36,8 @@ import ProviderProfile from "./pages/centre/ProviderProfile";
 import ProviderDashboard from "./pages/centre/ProviderDashboard";
 import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertApply from "./pages/ExpertApply";
+import ExpertProfile from "./pages/ExpertProfile";
+import ExpertMarketplace from "./pages/centre/ExpertMarketplace";
 import Waitlist from "./pages/Waitlist";
 import Explore from "./pages/Explore";
 
@@ -86,10 +88,12 @@ const App = () => (
                 <Route path="/centre/collaboration" element={<ComingSoon />} />
                 <Route path="/centre/products" element={<ComingSoon />} />
                 <Route path="/centre/innovation" element={<ComingSoon />} />
+                <Route path="/centre/experts" element={<ExpertMarketplace />} />
                 <Route path="/centre/:section" element={<Centre />} />
                 <Route path="/consult-expert" element={<ConsultExpert />} />
                 <Route path="/expert-dashboard" element={<ExpertDashboard />} />
                 <Route path="/expert/apply" element={<ExpertApply />} />
+                <Route path="/experts/:id" element={<ExpertProfile />} />
 
                 {/* Insight */}
                 <Route path="/insight" element={<InsightHub />} />
