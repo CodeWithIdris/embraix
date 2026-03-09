@@ -23,7 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import {
   ArrowLeft, Plus, Edit, Trash2, FileText, Loader2, CheckCircle, Clock, Send, 
-  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp, Mail, UserPlus, Wrench
+  X, Ticket, Newspaper, BookOpen, AlertCircle, Rocket, Users, MessageSquare, Phone, Building2, GraduationCap, TrendingUp, Mail, UserPlus, Wrench, ShoppingBag
 } from "lucide-react";
 import ProvidersManager from "@/components/admin/ProvidersManager";
 import { ExpertApplicationsManager } from "@/components/admin/ExpertApplicationsManager";
@@ -37,6 +37,7 @@ import NewsAutomation from "@/components/admin/NewsAutomation";
 import { ServiceRequestsManager } from "@/components/admin/ServiceRequestsManager";
 import { InstallersManager } from "@/components/admin/InstallersManager";
 import ResearchManager from "@/components/admin/ResearchManager";
+import StoreProductsManager from "@/components/admin/StoreProductsManager";
 
 // Pending installers badge
 const PendingInstallersBadge = () => {
@@ -464,6 +465,10 @@ const Admin = () => {
                       <FileText className="w-4 h-4" />
                       Research
                     </TabsTrigger>
+                    <TabsTrigger value="store" className="gap-2">
+                      <ShoppingBag className="w-4 h-4" />
+                      Store
+                    </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -769,6 +774,13 @@ const Admin = () => {
              {isAdmin && (
                <TabsContent value="research">
                  <ResearchManager />
+               </TabsContent>
+             )}
+
+             {/* Store Products Tab (Admin Only) */}
+             {isAdmin && (
+               <TabsContent value="store">
+                 <StoreProductsManager />
                </TabsContent>
              )}
           </Tabs>
