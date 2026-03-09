@@ -28,6 +28,64 @@ import {
   PanelLeft,
 } from "lucide-react";
 
+// AI Mode configurations for welcome messages
+const AI_MODES: Record<string, { welcome: string; prompts: { icon: string; text: string }[] }> = {
+  "Your Best Fit": {
+    welcome: "I can help you find the best sustainable technology solutions based on your needs. Tell me what you're looking for.",
+    prompts: [
+      { icon: "☀️", text: "What solar system is best for my home?" },
+      { icon: "💰", text: "How much does a solar setup cost in Nigeria?" },
+      { icon: "🔋", text: "What battery storage fits my budget?" },
+      { icon: "🚗", text: "Which EV suits my driving needs?" },
+    ],
+  },
+  "Plan Ahead": {
+    welcome: "I can help you forecast energy costs, ROI timelines, and plan your sustainable energy adoption. What would you like to plan?",
+    prompts: [
+      { icon: "📊", text: "What's the ROI for solar in 5 years?" },
+      { icon: "💡", text: "How can I reduce my energy costs?" },
+      { icon: "🏠", text: "Plan a complete home energy upgrade" },
+      { icon: "📈", text: "Forecast my savings with solar" },
+    ],
+  },
+  "Test & Try": {
+    welcome: "I can help you model scenarios and compare technologies side by side before you commit. What would you like to test?",
+    prompts: [
+      { icon: "⚖️", text: "Compare solar vs generator costs" },
+      { icon: "🔄", text: "Hybrid vs full solar system" },
+      { icon: "🚗", text: "EV vs petrol car running costs" },
+      { icon: "🔋", text: "Lithium vs lead-acid batteries" },
+    ],
+  },
+  "Made for Your Area": {
+    welcome: "I can provide solutions adapted to your local grid, climate, and regulations. Which country or city are you in?",
+    prompts: [
+      { icon: "🇳🇬", text: "Best solar options in Lagos, Nigeria" },
+      { icon: "🌍", text: "What incentives are available in my area?" },
+      { icon: "⚡", text: "How reliable is the grid where I live?" },
+      { icon: "☀️", text: "Solar potential in my location" },
+    ],
+  },
+  "What Others Need": {
+    welcome: "I can share insights from collective trends and patterns across the Embraix community. What would you like to explore?",
+    prompts: [
+      { icon: "📊", text: "What are trending energy topics?" },
+      { icon: "🏘️", text: "Popular solutions in my region" },
+      { icon: "💬", text: "Common questions from homeowners" },
+      { icon: "🔥", text: "Most recommended products" },
+    ],
+  },
+};
+
+const DEFAULT_PROMPTS = [
+  { icon: "☀️", text: "Best solar setup for my home?" },
+  { icon: "🚗", text: "Help me choose an EV" },
+  { icon: "🔋", text: "Battery storage options" },
+  { icon: "🏠", text: "Smart home energy tips" },
+  { icon: "💰", text: "Solar installation costs" },
+  { icon: "⚡", text: "How to cut my light bill?" },
+];
+
 const Chat = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -37,10 +95,12 @@ const Chat = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const autoPromptFiredRef = useRef(false);
-  const [autoPrompt] = useState<string | null>(() => {
-    const p = searchParams.get("prompt");
-    return p ? decodeURIComponent(p) : null;
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Get mode from URL (for AI Hub sections)
+  const [aiMode] = useState<string | null>(() => {
+    const mode = searchParams.get("mode");
+    return mode ? decodeURIComponent(mode) : null;
   });
 
   const {
@@ -61,30 +121,19 @@ const Chat = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Clean the prompt from URL once captured
+  // Clean the mode from URL once captured
   useEffect(() => {
-    if (autoPrompt) {
+    if (aiMode) {
       setSearchParams({}, { replace: true });
     }
   }, []);
 
-  // Auto-send the prompt once user is authenticated and chat is ready
+  // Auto-focus input when chat opens
   useEffect(() => {
-    if (
-      autoPrompt &&
-      user &&
-      !authLoading &&
-      !autoPromptFiredRef.current &&
-      messages.length === 0 &&
-      !isLoading
-    ) {
-      autoPromptFiredRef.current = true;
-      const timer = setTimeout(() => {
-        handleSend(autoPrompt);
-      }, 600);
-      return () => clearTimeout(timer);
+    if (!authLoading && user && messages.length === 0) {
+      setTimeout(() => inputRef.current?.focus(), 300);
     }
-  }, [autoPrompt, user, authLoading, isLoading]);
+  }, [authLoading, user, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
