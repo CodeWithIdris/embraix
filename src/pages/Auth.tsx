@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Leaf, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logoGreen from "@/assets/logo-green.png";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -57,7 +58,6 @@ const Auth = () => {
           source: "signup",
         },
       });
-      console.log("Welcome email sent successfully");
     } catch (err) {
       console.error("Failed to send welcome email:", err);
     }
@@ -108,7 +108,6 @@ const Auth = () => {
             });
           }
         } else {
-          // Send welcome email on successful signup
           await sendWelcomeEmail(email, fullName);
           
           toast({
@@ -150,11 +149,8 @@ const Auth = () => {
           
           <Card className="gradient-card border-border/50 shadow-elevated">
             <CardHeader className="text-center pb-2">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-                  <Leaf className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <span className="font-display text-xl font-bold text-foreground">Embraix</span>
+              <div className="flex items-center justify-center mb-4">
+                <img src={logoGreen} alt="Embraix" className="h-9" />
               </div>
               <CardTitle className="font-display text-2xl">
                 {isLogin ? "Welcome back" : "Create account"}

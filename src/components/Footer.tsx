@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Leaf, Twitter, Facebook, Instagram } from "lucide-react";
-import logo from "@/assets/logo.jpg";
+import { useTheme } from "@/hooks/useTheme";
+import logoGreen from "@/assets/logo-green.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const footerLinks = {
   Media: [
@@ -14,8 +16,8 @@ const footerLinks = {
     { label: "AI Consult", href: "/chat" },
     { label: "Newsletter", href: "/newsletter" },
     { label: "Promotions", href: "/promotions" },
-    { label: "Centre", href: "#features" },
-    { label: "Insight", href: "#features" },
+    { label: "Centre", href: "/centre" },
+    { label: "Insight", href: "/insight" },
   ],
   Company: [
     { label: "About Us", href: "#" },
@@ -37,6 +39,8 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  const { theme } = useTheme();
+  const logo = theme === "dark" ? logoWhite : logoGreen;
 
   return (
     <footer className="relative pt-20 pb-8 overflow-hidden bg-background">
