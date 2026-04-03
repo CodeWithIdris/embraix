@@ -30,6 +30,51 @@ import {
 
 // AI Mode configurations for welcome messages
 const AI_MODES: Record<string, { welcome: string; prompts: { icon: string; text: string }[] }> = {
+  "Recommendations": {
+    welcome: "I'll help you find the best clean energy solutions for your situation. What are you looking for?",
+    prompts: [
+      { icon: "☀️", text: "Best solar panel for a 3-bedroom house" },
+      { icon: "🔋", text: "Recommend a battery for nighttime backup" },
+      { icon: "💡", text: "Which inverter fits a small business?" },
+      { icon: "💰", text: "Most cost-effective solar setup" },
+    ],
+  },
+  "Tools & Calculators": {
+    welcome: "I can help you calculate costs, ROI, and savings for clean energy systems. What would you like to estimate?",
+    prompts: [
+      { icon: "📊", text: "Calculate my solar ROI over 5 years" },
+      { icon: "💰", text: "How much can I save switching to solar?" },
+      { icon: "⚡", text: "Size a solar system for my monthly usage" },
+      { icon: "🔢", text: "Compare costs: solar vs generator" },
+    ],
+  },
+  "Diagnostics & Support": {
+    welcome: "I can help you diagnose and fix issues with your energy system. What problem are you experiencing?",
+    prompts: [
+      { icon: "🔧", text: "My inverter keeps beeping, what's wrong?" },
+      { icon: "☀️", text: "Solar panels not producing enough power" },
+      { icon: "🔋", text: "Battery not charging to full capacity" },
+      { icon: "⚠️", text: "System shuts off during high load" },
+    ],
+  },
+  "Intelligence & Trends": {
+    welcome: "I can share the latest trends and intelligence in clean energy. What topic interests you?",
+    prompts: [
+      { icon: "📈", text: "What's trending in African solar market?" },
+      { icon: "🚗", text: "Latest EV adoption trends in Nigeria" },
+      { icon: "📋", text: "New clean energy policies in 2026" },
+      { icon: "🌍", text: "Global battery technology breakthroughs" },
+    ],
+  },
+  "Actions & Execution": {
+    welcome: "Ready to take action! I can help you plan installations, find providers, and scope your project. What do you need?",
+    prompts: [
+      { icon: "🏠", text: "Help me plan a solar installation" },
+      { icon: "👷", text: "Find an installer in Lagos" },
+      { icon: "📝", text: "What do I need to start going solar?" },
+      { icon: "🔌", text: "Steps to set up EV charging at home" },
+    ],
+  },
   "Your Best Fit": {
     welcome: "I can help you find the best sustainable technology solutions based on your needs. Tell me what you're looking for.",
     prompts: [
@@ -73,6 +118,15 @@ const AI_MODES: Record<string, { welcome: string; prompts: { icon: string; text:
       { icon: "🏘️", text: "Popular solutions in my region" },
       { icon: "💬", text: "Common questions from homeowners" },
       { icon: "🔥", text: "Most recommended products" },
+    ],
+  },
+  "General": {
+    welcome: "Ask me anything about clean energy, solar, EVs, or smart technology. I'm here to help!",
+    prompts: [
+      { icon: "☀️", text: "Best solar setup for my home?" },
+      { icon: "🚗", text: "Help me choose an EV" },
+      { icon: "🔋", text: "Battery storage options" },
+      { icon: "💰", text: "Solar installation costs" },
     ],
   },
 };
