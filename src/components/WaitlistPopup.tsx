@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Sparkles, Check, Zap, Link2 } from "lucide-react";
+import { Loader2, Sparkles, Check, Link2 } from "lucide-react";
+import logoGreen from "@/assets/logo-green.png";
 
 const WAITLIST_JOINED_KEY = "embraix_waitlist_joined";
 
@@ -52,7 +53,6 @@ const WaitlistPopup = () => {
 
     setSubmitting(true);
     try {
-      // Check for referral code in URL
       const urlParams = new URLSearchParams(window.location.search);
       const refCode = urlParams.get("ref");
       let referredBy: string | null = null;
@@ -85,7 +85,6 @@ const WaitlistPopup = () => {
           setOpen(false);
         } else throw error;
       } else {
-        // Track referral
         if (referredBy && data) {
           await (supabase as any).from("referrals").insert({
             referrer_id: referredBy,
@@ -119,7 +118,7 @@ const WaitlistPopup = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v && !submitted) setOpen(false); if (!v && submitted) setOpen(false); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) setOpen(false); }}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-2xl border-primary/20 max-h-[90vh] overflow-y-auto">
         {submitted ? (
           <div className="py-8 px-6 space-y-4 text-center">
@@ -160,17 +159,13 @@ const WaitlistPopup = () => {
           </div>
         ) : (
           <>
-            <div className="gradient-primary px-6 py-5 text-center">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-primary-foreground" />
-                </div>
-              </div>
-              <h2 className="font-display text-lg font-bold text-primary-foreground">Get Early Access</h2>
-              <p className="text-xs text-primary-foreground/80 mt-1">AI insights · Expert consultations · Energy tools</p>
+            <div className="px-6 pt-6 pb-4 text-center">
+              <img src={logoGreen} alt="Embraix" className="h-7 mx-auto mb-4" />
+              <h2 className="font-display text-lg font-bold text-foreground">Get Early Access</h2>
+              <p className="text-xs text-muted-foreground mt-1">AI insights · Expert consultations · Energy tools</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-6 py-5 space-y-3">
+            <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-3">
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required className="h-10" />
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" required className="h-10" />
               <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country (optional)" className="h-10" />

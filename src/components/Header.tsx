@@ -20,11 +20,13 @@ import {
   Search,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationDropdown } from "@/components/news/NotificationDropdown";
 import { GlobalSearch, SearchTrigger } from "@/components/GlobalSearch";
 
-import logo from "@/assets/logo.jpg";
+import logoGreen from "@/assets/logo-green.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const navItems = [
   { label: "Media", href: "/media" },
@@ -38,7 +40,10 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, isWriter, isExpert, signOut } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
+
+  const logo = theme === "dark" ? logoWhite : logoGreen;
 
   const handleSignOut = async () => {
     await signOut();
