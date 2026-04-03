@@ -175,12 +175,24 @@ const Chat = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Clean the mode from URL once captured
+  // Clean the mode from URL once captured and auto-send query if present
+  const [initialQuery] = useState<string | null>(() => {
+    const q = searchParams.get("q");
+    return q ? decodeURIComponent(q) : null;
+  });
+
   useEffect(() => {
-    if (aiMode) {
+    if (aiMode || initialQuery) {
       setSearchParams({}, { replace: true });
     }
   }, []);
+
+  // Auto-send initial query from AIHub search bar
+  useEffect(() => {
+    if (initialQuery && user && !authLoading && messages.length === 0 && !isStreaming) {
+      handleSend(initialQuery);
+    }
+  }, [user, authLoading]);
 
   // Auto-focus input when chat opens
   useEffect(() => {
