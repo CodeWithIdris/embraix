@@ -5,17 +5,21 @@ import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ThreadedComments from "@/components/news/ThreadedComments";
+import RichPostEditor from "@/components/news/RichPostEditor";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost as NewsPostType, PostComment } from "@/hooks/useNews";
 import PostActions from "@/components/news/PostActions";
 import ShareButtons from "@/components/news/ShareButtons";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowLeft, User, Clock, Loader2, ArrowRight
+  ArrowLeft, User, Clock, Loader2, ArrowRight, Edit, Trash2
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 const sanitizeConfig = {
   ADD_TAGS: ['iframe', 'audio', 'video', 'source', 'figure', 'figcaption'],
