@@ -119,9 +119,29 @@ const NewsPost = () => {
       <Header />
       <div className="min-h-screen pt-20 pb-12 bg-background">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/news")} className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />Back to News
-          </Button>
+          <div className="flex items-center justify-between mb-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/news")}>
+              <ArrowLeft className="w-4 h-4 mr-2" />Back to News
+            </Button>
+            {user && post && user.id === post.author_id && (
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => setIsEditOpen(true)}>
+                  <Edit className="w-4 h-4 mr-1" /> Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    if (!confirm("Are you sure you want to delete this post?")) return;
+                    const success = await deletePost(post.id);
+                    if (success) navigate("/news");
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-1 text-destructive" /> Delete
+                </Button>
+              </div>
+            )}
+          </div>
 
           <Card className="gradient-card border-border/50 mb-8">
             <CardContent className="p-6">
