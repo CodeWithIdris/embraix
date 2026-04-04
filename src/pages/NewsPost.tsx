@@ -32,16 +32,26 @@ const NewsPost = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { loadPost, vote, loadComments, loadRelatedPosts } = useNews();
+  const { toast } = useToast();
+  const { loadPost, vote, loadComments, loadRelatedPosts, updatePost, deletePost } = useNews();
 
   const [post, setPost] = useState<NewsPostType | null>(null);
   const [comments, setComments] = useState<PostComment[]>([]);
   const [relatedPosts, setRelatedPosts] = useState<NewsPostType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (id) loadData();
   }, [id, user?.id]);
+
+  useEffect(() => {
+    supabase.from("post_categories").select("*").order("name").then(({ data }) => {
+      if (data) setCategories(data);
+    });
+  }, []);
 
   const loadData = async () => {
     setLoading(true);
