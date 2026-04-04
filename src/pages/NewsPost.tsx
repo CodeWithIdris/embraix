@@ -5,17 +5,21 @@ import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ThreadedComments from "@/components/news/ThreadedComments";
+import RichPostEditor from "@/components/news/RichPostEditor";
 import { useAuth } from "@/hooks/useAuth";
 import { useNews, NewsPost as NewsPostType, PostComment } from "@/hooks/useNews";
 import PostActions from "@/components/news/PostActions";
 import ShareButtons from "@/components/news/ShareButtons";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowLeft, User, Clock, Loader2, ArrowRight
+  ArrowLeft, User, Clock, Loader2, ArrowRight, Edit, Trash2
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 const sanitizeConfig = {
   ADD_TAGS: ['iframe', 'audio', 'video', 'source', 'figure', 'figcaption'],
@@ -28,16 +32,26 @@ const NewsPost = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { loadPost, vote, loadComments, loadRelatedPosts } = useNews();
+  const { toast } = useToast();
+  const { loadPost, vote, loadComments, loadRelatedPosts, updatePost, deletePost } = useNews();
 
   const [post, setPost] = useState<NewsPostType | null>(null);
   const [comments, setComments] = useState<PostComment[]>([]);
   const [relatedPosts, setRelatedPosts] = useState<NewsPostType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (id) loadData();
   }, [id, user?.id]);
+
+  useEffect(() => {
+    supabase.from("post_categories").select("*").order("name").then(({ data }) => {
+      if (data) setCategories(data);
+    });
+  }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -105,9 +119,29 @@ const NewsPost = () => {
       <Header />
       <div className="min-h-screen pt-20 pb-12 bg-background">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/news")} className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />Back to News
-          </Button>
+          <div className="flex items-center justify-between mb-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/news")}>
+              <ArrowLeft className="w-4 h-4 mr-2" />Back to News
+            </Button>
+            {user && post && user.id === post.author_id && (
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => setIsEditOpen(true)}>
+                  <Edit className="w-4 h-4 mr-1" /> Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    if (!confirm("Are you sure you want to delete this post?")) return;
+                    const success = await deletePost(post.id);
+                    if (success) navigate("/news");
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-1 text-destructive" /> Delete
+                </Button>
+              </div>
+            )}
+          </div>
 
           <Card className="gradient-card border-border/50 mb-8">
             <CardContent className="p-6">
@@ -196,6 +230,50 @@ const NewsPost = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Edit Dialog */}
+      {post && (
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Edit Post</DialogTitle></DialogHeader>
+            <RichPostEditor
+              categories={categories}
+              onSubmit={async (formData) => {
+                setEditSubmitting(true);
+                const success = await updatePost(post.id, {
+                  title: formData.title,
+                  content: formData.content,
+                  excerpt: formData.excerpt,
+                  featured_image: formData.featured_image,
+                  category_id: formData.category_id,
+                  subtitle: formData.subtitle,
+                  scheduled_at: formData.scheduled_at,
+                  meta_title: formData.meta_title,
+                  meta_description: formData.meta_description,
+                  keywords: formData.keywords,
+                });
+                setEditSubmitting(false);
+                if (success) {
+                  setIsEditOpen(false);
+                  loadData();
+                }
+              }}
+              submitting={editSubmitting}
+              initialData={{
+                title: post.title,
+                content: post.content,
+                excerpt: post.excerpt || "",
+                featured_image: post.featured_image || "",
+                category_id: (post as any).category_id || "",
+                subtitle: (post as any).subtitle || "",
+                meta_title: (post as any).meta_title || "",
+                meta_description: (post as any).meta_description || "",
+                keywords: (post as any).keywords || [],
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

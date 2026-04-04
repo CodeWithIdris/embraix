@@ -7,29 +7,105 @@ import { FloatingAIConsult } from "@/components/FloatingAIConsult";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  GraduationCap, Users, ShoppingBag, HelpCircle, MessageSquare, Lightbulb, ExternalLink, Wrench,
+  Wrench, HelpCircle, MessageSquare, GraduationCap, Users, ExternalLink,
 } from "lucide-react";
 
 const sections = [
-  { id: "learning", icon: GraduationCap, label: "Learning Hub", description: "Tutorials, courses, and educational resources on clean energy", href: "/centre/learning" },
-  { id: "collaboration", icon: Users, label: "Collaboration Space", description: "Connect, share ideas, and collaborate with the community", href: "/centre/collaboration" },
-  { id: "products", icon: ShoppingBag, label: "Product Access", description: "Showroom and marketplace for clean energy products", href: "/centre/products" },
-  { id: "support", icon: HelpCircle, label: "Support Services", description: "Request clean energy services — installation, audits, and more", href: "/centre/support-services" },
-  { id: "consultation", icon: MessageSquare, label: "Expert Consultation", description: "Live chat with certified specialists and industry experts", href: "/consult-expert" },
-  { id: "installers", icon: Wrench, label: "Installer Network", description: "Join the Embraix managed installer network for clean energy projects", href: "/centre/installer-register" },
-  { id: "innovation", icon: Lightbulb, label: "Innovation Lab", description: "Experimental tools, prototypes, and innovation projects", href: "/centre/innovation" },
+  { id: "installation", icon: Wrench, label: "Installation & Setup", description: "Professional solar installation, EV charger setup, and system configuration", href: "/centre/support-services" },
+  { id: "maintenance", icon: Wrench, label: "Maintenance & Repairs", description: "Routine maintenance, troubleshooting, and repair services for clean energy systems", href: "/centre/support-services" },
+  { id: "support", icon: HelpCircle, label: "Customer Support", description: "Request assistance, track service requests, and get expert help", href: "/centre/support-services" },
+  { id: "training", icon: GraduationCap, label: "Training & Certification", description: "Courses, certifications, and professional development for installers and technicians", href: "/centre/installer-register" },
+  { id: "community", icon: Users, label: "Community Services", description: "Connect with the community, expert consultations, and collaborative projects", href: "/consult-expert" },
 ];
 
 const CentreHub = () => {
   const navigate = useNavigate();
-  const [activeId, setActiveId] = useState("learning");
+  const [activeId, setActiveId] = useState("installation");
   const active = sections.find((s) => s.id === activeId)!;
+
+  const renderContent = () => {
+    if (activeId === "installation" || activeId === "maintenance" || activeId === "support") {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
+          <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
+            <active.icon className="w-7 h-7 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-display font-semibold text-foreground mb-1">{active.label}</h3>
+            <p className="text-sm text-muted-foreground max-w-xs">{active.description}</p>
+          </div>
+          <Button variant="hero" size="sm" onClick={() => navigate("/centre/support-services")}>
+            Request a Service
+          </Button>
+        </div>
+      );
+    }
+
+    if (activeId === "training") {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
+          <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
+            <GraduationCap className="w-7 h-7 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-display font-semibold text-foreground mb-1">Training & Certification</h3>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Build your skills, earn certifications, or apply to join the Embraix installer network.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="hero" size="sm" onClick={() => navigate("/centre/installer-register")}>
+              Apply as Installer
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/centre/installer-dashboard")}>
+              Installer Dashboard
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeId === "community") {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
+          <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
+            <MessageSquare className="w-7 h-7 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-display font-semibold text-foreground mb-1">Community & Expert Support</h3>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Connect with certified clean energy specialists for personalised guidance.
+            </p>
+          </div>
+          <Button variant="hero" size="sm" onClick={() => navigate("/consult-expert")}>
+            Start Consultation
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-dashed border-border/50 rounded-xl">
+        <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+          <active.icon className="w-7 h-7 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-display font-semibold text-foreground mb-1">{active.label}</h3>
+          <p className="text-sm text-muted-foreground max-w-xs">{active.description}</p>
+        </div>
+        <Badge variant="outline" className="gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+          Coming Soon
+        </Badge>
+      </div>
+    );
+  };
 
   return (
     <>
       <Helmet>
         <title>Centre | Embraix</title>
-        <meta name="description" content="Embraix Centre — learning, collaboration, product access, support, consultation, and innovation." />
+        <meta name="description" content="Embraix Centre — installation, maintenance, support, training, and community services." />
       </Helmet>
       <Header />
       <div className="min-h-screen pt-20 pb-16 bg-background">
@@ -39,7 +115,7 @@ const CentreHub = () => {
               Embraix <span className="text-gradient">Centre</span>
             </h1>
             <p className="text-sm text-muted-foreground">
-              Your hub for learning, collaboration, expert support, and innovation.
+              Installation, maintenance, support, training, and community services.
             </p>
           </div>
 
@@ -62,7 +138,6 @@ const CentreHub = () => {
           </div>
 
           <div className="flex gap-6">
-            {/* Sidebar */}
             <aside className="hidden md:block w-52 flex-shrink-0">
               <nav className="sticky top-24 space-y-0.5">
                 {sections.map((s) => (
@@ -82,7 +157,6 @@ const CentreHub = () => {
               </nav>
             </aside>
 
-            {/* Content */}
             <main className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -90,77 +164,7 @@ const CentreHub = () => {
                   <p className="text-xs text-muted-foreground">{active.description}</p>
                 </div>
               </div>
-
-              {/* Expert Consultation has live page */}
-              {activeId === "consultation" ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
-                  <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
-                    <MessageSquare className="w-7 h-7 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-1">Expert Consultation</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs">
-                      Connect directly with certified clean energy specialists for personalised guidance.
-                    </p>
-                  </div>
-                  <Button variant="hero" size="sm" onClick={() => navigate("/consult-expert")}>
-                    Start Consultation
-                  </Button>
-                </div>
-              ) : activeId === "support" ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
-                  <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
-                    <HelpCircle className="w-7 h-7 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-1">Service Request Hub</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs">
-                      Request clean energy services — solar installation, energy audits, EV charging, and more. An Embraix-certified installer will be assigned automatically.
-                    </p>
-                  </div>
-                  <Button variant="hero" size="sm" onClick={() => navigate("/centre/support-services")}>
-                    Request a Service
-                  </Button>
-                </div>
-              ) : activeId === "installers" ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-primary/20 bg-primary/5 rounded-xl">
-                  <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center">
-                    <Wrench className="w-7 h-7 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-1">Embraix Installer Network</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs">
-                      Join our managed network of certified clean energy professionals. Get matched with service requests automatically.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="hero" size="sm" onClick={() => navigate("/centre/installer-register")}>
-                      Apply as Installer
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => navigate("/centre/installer-dashboard")}>
-                      Installer Dashboard
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-center gap-4 border border-dashed border-border/50 rounded-xl">
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <active.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-1">{active.label}</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs">{active.description}</p>
-                  </div>
-                  <Badge variant="outline" className="gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                    Coming Soon
-                  </Badge>
-                  <Button variant="outline" size="sm" onClick={() => navigate(active.href)} className="gap-1">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Visit page
-                  </Button>
-                </div>
-              )}
+              {renderContent()}
             </main>
           </div>
         </div>
