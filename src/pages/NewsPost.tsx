@@ -230,6 +230,50 @@ const NewsPost = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Edit Dialog */}
+      {post && (
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Edit Post</DialogTitle></DialogHeader>
+            <RichPostEditor
+              categories={categories}
+              onSubmit={async (formData) => {
+                setEditSubmitting(true);
+                const success = await updatePost(post.id, {
+                  title: formData.title,
+                  content: formData.content,
+                  excerpt: formData.excerpt,
+                  featured_image: formData.featured_image,
+                  category_id: formData.category_id,
+                  subtitle: formData.subtitle,
+                  scheduled_at: formData.scheduled_at,
+                  meta_title: formData.meta_title,
+                  meta_description: formData.meta_description,
+                  keywords: formData.keywords,
+                });
+                setEditSubmitting(false);
+                if (success) {
+                  setIsEditOpen(false);
+                  loadData();
+                }
+              }}
+              submitting={editSubmitting}
+              initialData={{
+                title: post.title,
+                content: post.content,
+                excerpt: post.excerpt || "",
+                featured_image: post.featured_image || "",
+                category_id: (post as any).category_id || "",
+                subtitle: (post as any).subtitle || "",
+                meta_title: (post as any).meta_title || "",
+                meta_description: (post as any).meta_description || "",
+                keywords: (post as any).keywords || [],
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };
