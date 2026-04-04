@@ -6,18 +6,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, Loader2, Save, User } from "lucide-react";
+import { Camera, Loader2, Save, User, MapPin } from "lucide-react";
 
 const DashboardSettings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; email: string | null } | null>(null);
+  const [profile, setProfile] = useState<{
+    full_name: string | null;
+    avatar_url: string | null;
+    email: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    country: string | null;
+    gps_location: string | null;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
 
   useEffect(() => {
     if (user) loadProfile();
@@ -28,12 +41,16 @@ const DashboardSettings = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url, email")
+        .select("full_name, avatar_url, email, address, city, state, country, gps_location")
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
       setProfile(data);
       setFullName(data?.full_name || "");
+      setAddress(data?.address || "");
+      setCity(data?.city || "");
+      setState(data?.state || "");
+      setCountry(data?.country || "");
     } catch {
       toast({ title: "Error", description: "Failed to load profile", variant: "destructive" });
     } finally {
@@ -75,9 +92,22 @@ const DashboardSettings = () => {
     if (!user) return;
     setSaving(true);
     try {
-      const { error } = await supabase.from("profiles").update({ full_name: fullName || null }).eq("id", user.id);
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: fullName || null,
+          address: address || null,
+          city: city || null,
+          state: state || null,
+          country: country || null,
+        } as any)
+        .eq("id", user.id);
       if (error) throw error;
-      setProfile((prev) => (prev ? { ...prev, full_name: fullName || null } : null));
+      setProfile((prev) =>
+        prev
+          ? { ...prev, full_name: fullName || null, address: address || null, city: city || null, state: state || null, country: country || null }
+          : null
+      );
       toast({ title: "Success", description: "Profile updated" });
     } catch {
       toast({ title: "Error", description: "Failed to save profile", variant: "destructive" });
@@ -124,7 +154,7 @@ const DashboardSettings = () => {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Personal Info */}
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Email</label>
@@ -139,6 +169,52 @@ const DashboardSettings = () => {
                 placeholder="Enter your full name"
                 className="mt-1"
               />
+            </div>
+          </div>
+
+          {/* Delivery Address */}
+          <div className="pt-4 border-t border-border/50">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="w-4 h-4 text-primary" />
+              <h3 className="font-display font-semibold text-sm">Delivery Location</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="text-sm font-medium">Address</label>
+                <Input
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Street address"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">City</label>
+                <Input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="City"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">State</label>
+                <Input
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="State / Province"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Country</label>
+                <Input
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="Country"
+                  className="mt-1"
+                />
+              </div>
             </div>
           </div>
 
