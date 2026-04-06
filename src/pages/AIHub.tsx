@@ -137,30 +137,22 @@ const AIHub = () => {
           </div>
 
           {/* Feature Modules */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {/* Feature Modules */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {features.map((f) => (
               <button
                 key={f.label}
                 onClick={() => handleFeatureClick(f)}
-                className="text-center p-4 rounded-xl border border-border/50 bg-card hover:border-primary/40 hover:bg-primary/5 hover:shadow-glow transition-all duration-200 group"
+                className="text-center p-5 rounded-xl border border-border/50 bg-card hover:border-primary/40 hover:bg-primary/5 hover:shadow-glow transition-all duration-200 group"
               >
-                <div className={`w-10 h-10 rounded-xl mx-auto flex items-center justify-center mb-2 ${f.bg} group-hover:scale-105 transition-transform`}>
+                <div className={`w-11 h-11 rounded-xl mx-auto flex items-center justify-center mb-3 ${f.bg} group-hover:scale-110 transition-transform`}>
                   <f.icon className={`w-5 h-5 ${f.color}`} />
                 </div>
-                <span className="font-display font-semibold text-xs text-foreground group-hover:text-primary transition-colors">
+                <span className="font-display font-semibold text-xs text-foreground group-hover:text-primary transition-colors block">
                   {f.label}
                 </span>
-                <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{f.description}</p>
               </button>
             ))}
-          </div>
-
-          {/* Bottom hint */}
-          <div className="mt-8 p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
-            <p className="text-sm text-muted-foreground">
-              Click a feature to start a focused AI session, or type your question directly. Switch topics anytime.
-            </p>
           </div>
         </div>
       </div>
