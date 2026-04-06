@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import {
-  Bot, Lightbulb, Calculator, Wrench, BarChart3, Zap, Send, Sparkles,
+  Bot, Lightbulb, Calculator, Wrench, BarChart3, Zap, Send,
 } from "lucide-react";
 
 const features = [
