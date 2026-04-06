@@ -106,7 +106,7 @@ const AIHub = () => {
           </div>
 
           {/* Input */}
-          <div className="max-w-2xl mx-auto mb-10">
+          <div className="mx-auto mb-14">
             <div className="flex gap-2">
               <Input
                 ref={inputRef}
@@ -114,16 +114,16 @@ const AIHub = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything about clean energy..."
-                className="flex-1 h-12 text-base bg-secondary/50 border-border/50"
+                className="flex-1 h-12 text-base bg-secondary/50 border-border/50 rounded-xl"
               />
-              <Button onClick={() => handleChat()} variant="hero" className="h-12 px-5" disabled={!input.trim()}>
+              <Button onClick={() => handleChat()} variant="hero" className="h-12 px-5 rounded-xl" disabled={!input.trim()}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>
 
             {/* Quick Prompts */}
-            <div className="flex flex-wrap gap-2 mt-3 justify-center">
-              {quickPrompts.map((p) => (
+            <div className="flex flex-wrap gap-2 mt-4 justify-center">
+              {quickPrompts.slice(0, 4).map((p) => (
                 <button
                   key={p.text}
                   onClick={() => handleChat(p.text)}
