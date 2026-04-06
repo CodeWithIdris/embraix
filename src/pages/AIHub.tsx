@@ -90,20 +90,18 @@ const AIHub = () => {
         <meta name="description" content="Get personalised clean energy recommendations, run calculations, diagnose issues, and get actionable guidance with Embraix AI." />
       </Helmet>
       <Header />
-      <div className="min-h-screen pt-24 pb-16 bg-background">
-        <div className="container mx-auto px-4 max-w-3xl">
+      <div className="min-h-screen pt-28 pb-16 bg-background">
+        <div className="container mx-auto px-4 max-w-2xl">
           {/* Header */}
-          <div className="text-center mb-10">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                <Bot className="w-5 h-5 text-primary-foreground" />
-              </div>
+          <div className="text-center mb-12">
+            <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4">
+              <Bot className="w-6 h-6 text-primary-foreground" />
             </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">
+            <h1 className="font-display text-3xl md:text-4xl font-bold mb-3">
               Embraix <span className="text-gradient">AI</span>
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
-              Your smart energy companion — ask anything about clean energy, solar, EVs, and more.
+            <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
+              Ask anything about clean energy, solar, EVs, and smart technology.
             </p>
           </div>
 
