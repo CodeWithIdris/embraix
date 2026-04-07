@@ -84,6 +84,11 @@ const Admin = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<ConsultationTicket | null>(null);
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
+  const [editPostDialogOpen, setEditPostDialogOpen] = useState(false);
+  const [editPostForm, setEditPostForm] = useState({ title: "", content: "", excerpt: "", featured_image: "" });
+  const [postSortField, setPostSortField] = useState<string>("date");
+  const [postSortDir, setPostSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     if (!authLoading && (!user || !isWriter)) {
@@ -313,6 +318,45 @@ const Admin = () => {
       default: return <Badge variant="outline"><FileText className="w-3 h-3 mr-1" />Draft</Badge>;
     }
   };
+
+  const handleEditPost = (post: NewsPost) => {
+    setEditingPost(post);
+    setEditPostForm({
+      title: post.title,
+      content: post.content,
+      excerpt: post.excerpt || "",
+      featured_image: post.featured_image || "",
+    });
+    setEditPostDialogOpen(true);
+  };
+
+  const handleSavePost = async () => {
+    if (!editingPost) return;
+    const success = await updateNewsPost(editingPost.id, {
+      title: editPostForm.title,
+      content: editPostForm.content,
+      excerpt: editPostForm.excerpt || undefined,
+      featured_image: editPostForm.featured_image || undefined,
+    });
+    if (success) {
+      setEditPostDialogOpen(false);
+      setEditingPost(null);
+      loadAllPosts().then(setAllNewsPosts);
+      loadPendingPosts().then(setPendingPosts);
+    }
+  };
+
+  const sortedFilteredPosts = useMemo(() => {
+    let posts = newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter);
+    posts = [...posts].sort((a, b) => {
+      let cmp = 0;
+      if (postSortField === "date") cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      else if (postSortField === "title") cmp = a.title.localeCompare(b.title);
+      else if (postSortField === "status") cmp = a.status.localeCompare(b.status);
+      return postSortDir === "desc" ? -cmp : cmp;
+    });
+    return posts;
+  }, [allNewsPosts, newsFilter, postSortField, postSortDir]);
 
   const getTicketStatusBadge = (status: string) => {
     switch (status) {
