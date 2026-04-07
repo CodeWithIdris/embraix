@@ -518,41 +518,108 @@ const Admin = () => {
             {/* Pending Posts Tab (Admin Only) */}
             {isAdmin && (
               <TabsContent value="posts">
-                {pendingPosts.length === 0 ? (
+                {/* Stats Overview */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{allNewsPosts.length}</p><p className="text-xs text-muted-foreground">Total Posts</p></CardContent></Card>
+                  <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{allNewsPosts.filter(p => p.status === 'approved').length}</p><p className="text-xs text-muted-foreground">Published</p></CardContent></Card>
+                  <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-yellow-500">{allNewsPosts.filter(p => p.status === 'pending').length}</p><p className="text-xs text-muted-foreground">Pending</p></CardContent></Card>
+                  <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-destructive">{allNewsPosts.filter(p => p.status === 'rejected').length}</p><p className="text-xs text-muted-foreground">Rejected</p></CardContent></Card>
+                </div>
+
+                {/* Filter */}
+                <div className="flex items-center gap-3 mb-4">
+                  <Select value={newsFilter} onValueChange={setNewsFilter}>
+                    <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Posts</SelectItem>
+                      <SelectItem value="approved">Published</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">
+                    {(newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter)).length} posts
+                  </span>
+                </div>
+
+                {/* Posts Table */}
+                {allNewsPosts.length === 0 ? (
                   <Card className="text-center py-12">
                     <CardContent>
-                      <CheckCircle className="w-12 h-12 mx-auto text-primary mb-4" />
-                      <p className="text-muted-foreground">No pending posts to review!</p>
+                      <Newspaper className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No news posts yet</p>
                     </CardContent>
                   </Card>
                 ) : (
-                  <div className="grid gap-4">
-                    {pendingPosts.map(post => (
-                      <Card key={post.id} className="gradient-card border-border/50">
-                        <CardHeader>
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-lg font-display">{post.title}</CardTitle>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                By {post.author?.full_name || "Unknown"} • {new Date(post.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="hero" onClick={() => handleApprovePost(post.id)}>
-                                <CheckCircle className="w-4 h-4 mr-1" />Approve
-                              </Button>
-                              <Button size="sm" variant="destructive" onClick={() => { setSelectedPostId(post.id); setRejectDialogOpen(true); }}>
-                                <X className="w-4 h-4 mr-1" />Reject
-                              </Button>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          {post.excerpt && <p className="text-sm text-muted-foreground mb-2">{post.excerpt}</p>}
-                          <div className="text-sm text-foreground/80 line-clamp-4">{post.content}</div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-secondary/50">
+                          <tr>
+                            <th className="text-left p-3 font-medium">Title</th>
+                            <th className="text-left p-3 font-medium hidden md:table-cell">Author</th>
+                            <th className="text-left p-3 font-medium">Status</th>
+                            <th className="text-left p-3 font-medium hidden md:table-cell">Date</th>
+                            <th className="text-right p-3 font-medium">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {(newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter)).map(post => (
+                            <tr key={post.id} className="hover:bg-secondary/20 transition-colors">
+                              <td className="p-3">
+                                <button onClick={() => navigate(`/news/${post.id}`)} className="text-left hover:text-primary transition-colors font-medium line-clamp-1">
+                                  {post.title}
+                                </button>
+                              </td>
+                              <td className="p-3 hidden md:table-cell text-muted-foreground">
+                                {post.author?.full_name || "System"}
+                              </td>
+                              <td className="p-3">
+                                {post.status === "approved" && <Badge className="bg-primary/20 text-primary text-xs">Published</Badge>}
+                                {post.status === "pending" && <Badge variant="secondary" className="text-xs">Pending</Badge>}
+                                {post.status === "rejected" && <Badge variant="destructive" className="text-xs">Rejected</Badge>}
+                              </td>
+                              <td className="p-3 hidden md:table-cell text-muted-foreground text-xs">
+                                {new Date(post.created_at).toLocaleDateString()}
+                              </td>
+                              <td className="p-3 text-right">
+                                <div className="flex items-center justify-end gap-1">
+                                  {post.status === "pending" && (
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={() => handleApprovePost(post.id)}>
+                                      <CheckCircle className="w-3.5 h-3.5 mr-1" />Publish
+                                    </Button>
+                                  )}
+                                  {post.status !== "approved" && (
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={async () => {
+                                      const success = await approvePost(post.id);
+                                      if (success) { loadAllPosts().then(setAllNewsPosts); loadPendingPosts().then(setPendingPosts); }
+                                    }}>
+                                      <CheckCircle className="w-3.5 h-3.5 mr-1" />Publish
+                                    </Button>
+                                  )}
+                                  {post.status === "approved" && (
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={async () => {
+                                      const { error } = await supabase.from("news_posts").update({ status: "pending", published_at: null } as any).eq("id", post.id);
+                                      if (!error) { loadAllPosts().then(setAllNewsPosts); loadPendingPosts().then(setPendingPosts); }
+                                    }}>
+                                      Unpublish
+                                    </Button>
+                                  )}
+                                  <Button size="sm" variant="ghost" className="h-7 text-destructive" onClick={async () => {
+                                    if (confirm("Delete this post?")) {
+                                      const success = await deleteNewsPost(post.id);
+                                      if (success) { setAllNewsPosts(prev => prev.filter(p => p.id !== post.id)); setPendingPosts(prev => prev.filter(p => p.id !== post.id)); }
+                                    }
+                                  }}>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
 
