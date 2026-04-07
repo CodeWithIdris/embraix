@@ -699,6 +699,39 @@ const Admin = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+
+                {/* Edit Post Dialog */}
+                <Dialog open={editPostDialogOpen} onOpenChange={(open) => { setEditPostDialogOpen(open); if (!open) setEditingPost(null); }}>
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader><DialogTitle>Edit Post</DialogTitle></DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div>
+                        <label className="text-sm font-medium">Title</label>
+                        <Input value={editPostForm.title} onChange={(e) => setEditPostForm({ ...editPostForm, title: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Excerpt</label>
+                        <Textarea value={editPostForm.excerpt} onChange={(e) => setEditPostForm({ ...editPostForm, excerpt: e.target.value })} className="mt-1" rows={2} />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Featured Image URL</label>
+                        <Input value={editPostForm.featured_image} onChange={(e) => setEditPostForm({ ...editPostForm, featured_image: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Content</label>
+                        <div className="mt-1">
+                          <RichTextEditor value={editPostForm.content} onChange={(content) => setEditPostForm({ ...editPostForm, content })} placeholder="Edit post content..." />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-end pt-2">
+                        <Button variant="outline" onClick={() => setEditPostDialogOpen(false)}>Cancel</Button>
+                        <Button variant="hero" onClick={handleSavePost}>
+                          <CheckCircle className="w-4 h-4 mr-2" />Save Changes
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </TabsContent>
             )}
 
