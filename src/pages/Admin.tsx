@@ -72,6 +72,8 @@ const Admin = () => {
   
   const [articles, setArticles] = useState<Article[]>([]);
   const [pendingPosts, setPendingPosts] = useState<NewsPost[]>([]);
+  const [allNewsPosts, setAllNewsPosts] = useState<NewsPost[]>([]);
+  const [newsFilter, setNewsFilter] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [formData, setFormData] = useState<ArticleFormData>({
