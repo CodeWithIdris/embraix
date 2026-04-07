@@ -67,7 +67,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { categories, tags, loading, loadArticles, createArticle, updateArticle, deleteArticle, generateSlug } = useBlog();
-  const { loadPendingPosts, approvePost, rejectPost } = useNews();
+  const { loading, loadApprovedPosts, loadPendingPosts, loadAllPosts, approvePost, rejectPost, deletePost: deleteNewsPost, updatePost: updateNewsPost } = useNews();
   const { tickets, newTicketCount, loadTickets, updateTicketStatus, submitExpertReply, scheduleCall, subscribeToNewTickets } = useConsultationTickets();
   
   const [articles, setArticles] = useState<Article[]>([]);
