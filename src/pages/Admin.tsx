@@ -639,11 +639,9 @@ const Admin = () => {
                               </td>
                               <td className="p-3 text-right">
                                 <div className="flex items-center justify-end gap-1">
-                                  {post.status === "pending" && (
-                                    <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={() => handleApprovePost(post.id)}>
-                                      <CheckCircle className="w-3.5 h-3.5 mr-1" />Publish
-                                    </Button>
-                                  )}
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handleEditPost(post)}>
+                                    <Edit className="w-3.5 h-3.5 mr-1" />Edit
+                                  </Button>
                                   {post.status !== "approved" && (
                                     <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={async () => {
                                       const success = await approvePost(post.id);
