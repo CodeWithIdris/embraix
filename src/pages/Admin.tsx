@@ -97,6 +97,7 @@ const Admin = () => {
     }
     if (user && isAdmin) {
       loadPendingPosts().then(setPendingPosts);
+      loadAllPosts().then(setAllNewsPosts);
       loadTickets();
     }
   }, [user, isWriter, isAdmin]);
