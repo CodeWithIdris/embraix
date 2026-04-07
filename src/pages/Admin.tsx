@@ -570,8 +570,8 @@ const Admin = () => {
                   <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-destructive">{allNewsPosts.filter(p => p.status === 'rejected').length}</p><p className="text-xs text-muted-foreground">Rejected</p></CardContent></Card>
                 </div>
 
-                {/* Filter */}
-                <div className="flex items-center gap-3 mb-4">
+                {/* Filter & Sort */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <Select value={newsFilter} onValueChange={setNewsFilter}>
                     <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -581,8 +581,19 @@ const Admin = () => {
                       <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Select value={postSortField} onValueChange={setPostSortField}>
+                    <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="date">Sort by Date</SelectItem>
+                      <SelectItem value="title">Sort by Title</SelectItem>
+                      <SelectItem value="status">Sort by Status</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="sm" onClick={() => setPostSortDir(d => d === "asc" ? "desc" : "asc")}>
+                    {postSortDir === "desc" ? "↓ Newest" : "↑ Oldest"}
+                  </Button>
                   <span className="text-sm text-muted-foreground">
-                    {(newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter)).length} posts
+                    {sortedFilteredPosts.length} posts
                   </span>
                 </div>
 
@@ -608,7 +619,7 @@ const Admin = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                          {(newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter)).map(post => (
+                          {sortedFilteredPosts.map(post => (
                             <tr key={post.id} className="hover:bg-secondary/20 transition-colors">
                               <td className="p-3">
                                 <button onClick={() => navigate(`/news/${post.id}`)} className="text-left hover:text-primary transition-colors font-medium line-clamp-1">
