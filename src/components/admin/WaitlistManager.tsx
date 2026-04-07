@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Search, Mail, Download, TrendingUp, Calendar, Filter, Send, Loader2 } from "lucide-react";
+import { Users, Search, Mail, Download, TrendingUp, Calendar, Filter, Send, Loader2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface WaitlistUser {
@@ -201,6 +201,7 @@ const WaitlistManager = () => {
                 <TableHead>Country</TableHead>
                 <TableHead>Preferences</TableHead>
                 <TableHead>Joined</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -220,6 +221,19 @@ const WaitlistManager = () => {
                     </div>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{format(new Date(u.created_at), "MMM d, yyyy")}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" className="h-7 text-destructive" onClick={async () => {
+                      if (confirm(`Delete ${u.name} from waitlist?`)) {
+                        const { error } = await (supabase as any).from("waitlist_users").delete().eq("id", u.id);
+                        if (!error) {
+                          setUsers(prev => prev.filter(wu => wu.id !== u.id));
+                          toast({ title: "User removed from waitlist" });
+                        }
+                      }
+                    }}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

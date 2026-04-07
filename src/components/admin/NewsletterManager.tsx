@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface Subscriber {
@@ -17,6 +19,7 @@ interface Subscriber {
 const NewsletterManager = () => {
   const [subs, setSubs] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadSubs();
@@ -68,6 +71,7 @@ const NewsletterManager = () => {
                 <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Subscribed</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -81,6 +85,19 @@ const NewsletterManager = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{format(new Date(s.subscribed_at), "MMM d, yyyy")}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" className="h-7 text-destructive" onClick={async () => {
+                      if (confirm(`Remove ${s.email}?`)) {
+                        const { error } = await supabase.from("newsletter_subscriptions").delete().eq("id", s.id);
+                        if (!error) {
+                          setSubs(prev => prev.filter(sub => sub.id !== s.id));
+                          toast({ title: "Subscriber removed" });
+                        }
+                      }
+                    }}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

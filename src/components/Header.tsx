@@ -58,7 +58,7 @@ const Header = () => {
           <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Embraix" className="h-8 md:h-9 w-auto" />
+              <img src={logo} alt="Embraix" className="h-7 md:h-[34px] w-auto object-contain" />
             </Link>
 
             {/* Desktop Navigation - Centered */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,11 @@ const Admin = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<ConsultationTicket | null>(null);
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
+  const [editPostDialogOpen, setEditPostDialogOpen] = useState(false);
+  const [editPostForm, setEditPostForm] = useState({ title: "", content: "", excerpt: "", featured_image: "" });
+  const [postSortField, setPostSortField] = useState<string>("date");
+  const [postSortDir, setPostSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     if (!authLoading && (!user || !isWriter)) {
@@ -314,6 +319,45 @@ const Admin = () => {
     }
   };
 
+  const handleEditPost = (post: NewsPost) => {
+    setEditingPost(post);
+    setEditPostForm({
+      title: post.title,
+      content: post.content,
+      excerpt: post.excerpt || "",
+      featured_image: post.featured_image || "",
+    });
+    setEditPostDialogOpen(true);
+  };
+
+  const handleSavePost = async () => {
+    if (!editingPost) return;
+    const success = await updateNewsPost(editingPost.id, {
+      title: editPostForm.title,
+      content: editPostForm.content,
+      excerpt: editPostForm.excerpt || undefined,
+      featured_image: editPostForm.featured_image || undefined,
+    });
+    if (success) {
+      setEditPostDialogOpen(false);
+      setEditingPost(null);
+      loadAllPosts().then(setAllNewsPosts);
+      loadPendingPosts().then(setPendingPosts);
+    }
+  };
+
+  const sortedFilteredPosts = useMemo(() => {
+    let posts = newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter);
+    posts = [...posts].sort((a, b) => {
+      let cmp = 0;
+      if (postSortField === "date") cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      else if (postSortField === "title") cmp = a.title.localeCompare(b.title);
+      else if (postSortField === "status") cmp = a.status.localeCompare(b.status);
+      return postSortDir === "desc" ? -cmp : cmp;
+    });
+    return posts;
+  }, [allNewsPosts, newsFilter, postSortField, postSortDir]);
+
   const getTicketStatusBadge = (status: string) => {
     switch (status) {
       case "open": return <Badge className="bg-orange-500/20 text-orange-500"><AlertCircle className="w-3 h-3 mr-1" />Open</Badge>;
@@ -526,8 +570,8 @@ const Admin = () => {
                   <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-destructive">{allNewsPosts.filter(p => p.status === 'rejected').length}</p><p className="text-xs text-muted-foreground">Rejected</p></CardContent></Card>
                 </div>
 
-                {/* Filter */}
-                <div className="flex items-center gap-3 mb-4">
+                {/* Filter & Sort */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <Select value={newsFilter} onValueChange={setNewsFilter}>
                     <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -537,8 +581,19 @@ const Admin = () => {
                       <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Select value={postSortField} onValueChange={setPostSortField}>
+                    <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="date">Sort by Date</SelectItem>
+                      <SelectItem value="title">Sort by Title</SelectItem>
+                      <SelectItem value="status">Sort by Status</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="sm" onClick={() => setPostSortDir(d => d === "asc" ? "desc" : "asc")}>
+                    {postSortDir === "desc" ? "↓ Newest" : "↑ Oldest"}
+                  </Button>
                   <span className="text-sm text-muted-foreground">
-                    {(newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter)).length} posts
+                    {sortedFilteredPosts.length} posts
                   </span>
                 </div>
 
@@ -564,7 +619,7 @@ const Admin = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                          {(newsFilter === "all" ? allNewsPosts : allNewsPosts.filter(p => p.status === newsFilter)).map(post => (
+                          {sortedFilteredPosts.map(post => (
                             <tr key={post.id} className="hover:bg-secondary/20 transition-colors">
                               <td className="p-3">
                                 <button onClick={() => navigate(`/news/${post.id}`)} className="text-left hover:text-primary transition-colors font-medium line-clamp-1">
@@ -584,11 +639,9 @@ const Admin = () => {
                               </td>
                               <td className="p-3 text-right">
                                 <div className="flex items-center justify-end gap-1">
-                                  {post.status === "pending" && (
-                                    <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={() => handleApprovePost(post.id)}>
-                                      <CheckCircle className="w-3.5 h-3.5 mr-1" />Publish
-                                    </Button>
-                                  )}
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handleEditPost(post)}>
+                                    <Edit className="w-3.5 h-3.5 mr-1" />Edit
+                                  </Button>
                                   {post.status !== "approved" && (
                                     <Button size="sm" variant="ghost" className="h-7 text-xs text-primary" onClick={async () => {
                                       const success = await approvePost(post.id);
@@ -642,6 +695,39 @@ const Admin = () => {
                       <div className="flex gap-2 justify-end">
                         <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
                         <Button variant="destructive" onClick={handleRejectPost}>Reject Post</Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Edit Post Dialog */}
+                <Dialog open={editPostDialogOpen} onOpenChange={(open) => { setEditPostDialogOpen(open); if (!open) setEditingPost(null); }}>
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader><DialogTitle>Edit Post</DialogTitle></DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div>
+                        <label className="text-sm font-medium">Title</label>
+                        <Input value={editPostForm.title} onChange={(e) => setEditPostForm({ ...editPostForm, title: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Excerpt</label>
+                        <Textarea value={editPostForm.excerpt} onChange={(e) => setEditPostForm({ ...editPostForm, excerpt: e.target.value })} className="mt-1" rows={2} />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Featured Image URL</label>
+                        <Input value={editPostForm.featured_image} onChange={(e) => setEditPostForm({ ...editPostForm, featured_image: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Content</label>
+                        <div className="mt-1">
+                          <RichTextEditor value={editPostForm.content} onChange={(content) => setEditPostForm({ ...editPostForm, content })} placeholder="Edit post content..." />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-end pt-2">
+                        <Button variant="outline" onClick={() => setEditPostDialogOpen(false)}>Cancel</Button>
+                        <Button variant="hero" onClick={handleSavePost}>
+                          <CheckCircle className="w-4 h-4 mr-2" />Save Changes
+                        </Button>
                       </div>
                     </div>
                   </DialogContent>
