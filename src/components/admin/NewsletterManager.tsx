@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface Subscriber {
@@ -17,6 +17,12 @@ interface Subscriber {
 const NewsletterManager = () => {
   const [subs, setSubs] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const useToastHook = () => {
+    const { toast: t } = require("@/hooks/use-toast");
+    return t;
+  };
 
   useEffect(() => {
     loadSubs();
