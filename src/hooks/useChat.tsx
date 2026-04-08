@@ -26,6 +26,7 @@ export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [featureMode, setFeatureMode] = useState<string | null>(null);
 
   // Load conversations
   useEffect(() => {
@@ -133,6 +134,19 @@ export const useChat = () => {
     }
   };
 
+  const renameConversation = async (id: string, title: string) => {
+    try {
+      const { error } = await supabase
+        .from("chat_conversations")
+        .update({ title })
+        .eq("id", id);
+      if (error) throw error;
+      setConversations(prev => prev.map(c => c.id === id ? { ...c, title } : c));
+    } catch (err) {
+      console.error("Error renaming conversation:", err);
+    }
+  };
+
   const sendMessage = useCallback(async (content: string) => {
     if (!user || !content.trim()) return;
     
@@ -163,7 +177,7 @@ export const useChat = () => {
         content: content.trim()
       });
 
-      // Update conversation title if first message
+      // Auto-generate title from first message
       if (messages.length === 0) {
         const title = content.trim().slice(0, 50) + (content.length > 50 ? "..." : "");
         await supabase
@@ -188,7 +202,7 @@ export const useChat = () => {
         throw new Error("Authentication required");
       }
 
-      // Call AI endpoint with streaming and proper auth
+      // Call AI endpoint with streaming, pass featureMode for context
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`,
         {
@@ -197,7 +211,7 @@ export const useChat = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`
           },
-          body: JSON.stringify({ messages: aiMessages })
+          body: JSON.stringify({ messages: aiMessages, featureMode })
         }
       );
 
@@ -225,14 +239,12 @@ export const useChat = () => {
         while (!streamDone) {
           const { done, value } = await reader.read();
           if (done) {
-            // Flush the decoder to get any remaining bytes
             textBuffer += decoder.decode(new Uint8Array(), { stream: false });
             streamDone = true;
           } else {
             textBuffer += decoder.decode(value, { stream: true });
           }
           
-          // Process all complete lines in the buffer
           let newlineIndex: number;
           while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
             let line = textBuffer.slice(0, newlineIndex);
@@ -259,17 +271,14 @@ export const useChat = () => {
                 );
               }
             } catch {
-              // Incomplete JSON, put back and wait for more data
               if (!streamDone) {
                 textBuffer = line + "\n" + textBuffer;
                 break;
               }
-              // If stream is done, try to extract any remaining content
               console.warn("Unparseable SSE line at end of stream:", line);
             }
           }
 
-          // When stream is done, process any remaining data in buffer
           if (streamDone && textBuffer.trim()) {
             const remaining = textBuffer.trim();
             if (remaining.startsWith("data: ") && remaining.slice(6).trim() !== "[DONE]") {
@@ -303,6 +312,11 @@ export const useChat = () => {
         });
       }
 
+      // Clear feature mode after first exchange
+      if (featureMode) {
+        setFeatureMode(null);
+      }
+
     } catch (err) {
       console.error("Chat error:", err);
       toast({
@@ -310,12 +324,11 @@ export const useChat = () => {
         description: err instanceof Error ? err.message : "Failed to get response",
         variant: "destructive"
       });
-      // Remove the empty assistant message on error
       setMessages(prev => prev.filter(m => m.content !== ""));
     } finally {
       setIsStreaming(false);
     }
-  }, [user, currentConversation, messages, toast]);
+  }, [user, currentConversation, messages, toast, featureMode]);
 
   return {
     conversations,
@@ -327,6 +340,9 @@ export const useChat = () => {
     sendMessage,
     createConversation,
     deleteConversation,
-    loadConversations
+    renameConversation,
+    loadConversations,
+    featureMode,
+    setFeatureMode,
   };
 };

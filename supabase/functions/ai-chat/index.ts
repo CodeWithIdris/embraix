@@ -18,12 +18,13 @@ const buildSystemPrompt = (
     grid_reliability?: string;
     additional_notes?: string;
   },
-  productCatalog?: string
+  productCatalog?: string,
+  featureMode?: string
 ) => {
   let contextSection = "";
 
   if (userContext && Object.values(userContext).some(v => v !== null && v !== undefined)) {
-    contextSection = `\n\nUSER CONTEXT (Use this to personalize your responses):`;
+    contextSection = `\n\nUSER CONTEXT (reference this to personalize every response):`;
     if (userContext.location) contextSection += `\n- Location: ${userContext.location}`;
     if (userContext.property_type) contextSection += `\n- Property Type: ${userContext.property_type}`;
     if (userContext.home_size) contextSection += `\n- Home Size: ${userContext.home_size}`;
@@ -33,7 +34,6 @@ const buildSystemPrompt = (
     if (userContext.grid_reliability) contextSection += `\n- Grid Reliability: ${userContext.grid_reliability}`;
     if (userContext.energy_goals?.length) contextSection += `\n- Energy Goals: ${userContext.energy_goals.join(", ")}`;
     if (userContext.additional_notes) contextSection += `\n- Additional Notes: ${userContext.additional_notes}`;
-    contextSection += `\n\nALWAYS reference this context when giving recommendations. Tailor suggestions to their specific situation, budget, and goals.`;
   }
 
   let productSection = "";
@@ -42,47 +42,73 @@ const buildSystemPrompt = (
 ${productCatalog}
 
 PRODUCT RECOMMENDATION RULES:
-- When recommending products, ALWAYS include a product marker tag after your explanation.
-- Use this EXACT format: [PRODUCTS:slug1,slug2,slug3]
+- When recommending products, include a product marker: [PRODUCTS:slug1,slug2,slug3]
 - Only use slugs from the catalog above. Never invent slugs.
 - Recommend 2-4 products maximum per response.
-- First explain WHY these products fit, THEN place the [PRODUCTS:...] tag.
-- After showing products, ask a follow-up question like "Want a cheaper option?" or "Should I compare these?"
-- If the user asks to compare products, list key differences in bullet points AND include the [PRODUCTS:...] tag.
-- If no products match, say so honestly and ask clarifying questions.
-
-EXAMPLE RESPONSE FORMAT:
-"Based on your needs, a **3kW solar system** would work well for a small home. Here are some great options:
-
-[PRODUCTS:embraix-solar-3kw,embraix-solar-5kw]
-
-Would you like me to compare these in detail, or do you have a specific budget in mind?"`;
+- First explain WHY these products fit in 1-2 sentences, THEN place the [PRODUCTS:...] tag.
+- After showing products, offer ONE relevant follow-up like "Want a cheaper option?" or "Should I compare these?"
+- If no products match, say so honestly and ask a clarifying question.`;
   }
 
-  return `You are Embraix AI - a friendly clean energy expert and product advisor. 🌱⚡
-${contextSection}
-${productSection}
+  // Feature-specific opening guidance
+  let modeInstruction = "";
+  if (featureMode) {
+    const modeMap: Record<string, string> = {
+      "Recommendations": "The user selected 'Recommendations'. Start by asking about their home/business, location, and budget — ONE question at a time. Guide them to the best product.",
+      "Calculators": "The user selected 'Calculators'. Help them calculate energy costs, ROI, or system sizing. Ask what they want to calculate first.",
+      "Diagnostics": "The user selected 'Diagnostics'. Help troubleshoot their energy system. Ask what issue they're experiencing.",
+      "Insights": "The user selected 'Insights'. Share market trends, policy updates, or industry intelligence. Ask what topic interests them.",
+      "Assistance": "The user selected 'Assistance'. Help with installation planning, provider matching, or project scoping. Ask what action they want to take.",
+    };
+    modeInstruction = modeMap[featureMode] || "";
+    if (modeInstruction) {
+      modeInstruction = `\n\nCURRENT MODE:\n${modeInstruction}`;
+    }
+  }
 
-CRITICAL RULES:
-1. Be CONCISE. Max 3-4 short paragraphs per response. No walls of text.
+  return `You are Embraix AI — a smart energy decision engine and product advisor.
+
+YOUR ROLE:
+- Guide users to the best clean energy solutions
+- Simplify decision-making with step-by-step guidance
+- Recommend products and services from the Embraix platform
+- Provide clear, actionable insights
+
+CONVERSATION RULES:
+1. Be CONCISE. Max 3-4 short paragraphs. No walls of text.
 2. Lead with the direct answer in 1-2 sentences.
 3. Use bullet points (max 4-5) instead of long paragraphs.
-4. Only add detail if the user asks for more.
-5. Be warm and conversational, use 1-2 emojis max.
-6. When users ask about products, energy systems, or recommendations, ALWAYS try to match products from your catalog.
+4. Ask only ONE follow-up question at a time — never multiple.
+5. Never overwhelm the user. Build the conversation progressively.
+6. Reference previous user inputs — never re-ask what they already told you.
+7. Use 1-2 emojis max. Be warm but professional.
+
+STEP-BY-STEP GUIDANCE:
+- Step 1: Understand the user's situation (ask 1 question)
+- Step 2: Wait for response
+- Step 3: Provide tailored advice or ask a refining question
+- Step 4: Recommend specific products/services when ready
+- Never dump all questions at once.
 
 FORMATTING:
 - Short paragraphs (2-3 sentences max)
 - Bullet points for lists
 - Bold **key terms** for scannability
-- End with a brief follow-up question when relevant
+- End responses with a brief, relevant follow-up question
+
+CROSS-SOLUTION AWARENESS:
+- Products → recommend from Store with [PRODUCTS:slug] tags
+- Services → suggest Centre for installation/maintenance
+- Reports → point to Insight for market research and reports
 
 EXPERTISE: Solar, inverters, batteries, EVs, charging, smart home, energy efficiency — focused on African markets.
 
-EXPERT REFERRAL (use for site assessments, installations, quotes, legal):
+EXPERT REFERRAL (for site assessments, installations, quotes):
 Say: "This needs our expert team! Say 'connect me to an expert' and I'll arrange it. 👨‍🔧"
-
-If confirmed: "[EXPERT_REFERRAL] Connecting you now! Describe what you need and a specialist will reach out. 🤝"`;
+If confirmed: "[EXPERT_REFERRAL] Connecting you now! Describe what you need and a specialist will reach out. 🤝"
+${contextSection}
+${productSection}
+${modeInstruction}`;
 };
 
 serve(async (req) => {
@@ -142,7 +168,7 @@ serve(async (req) => {
       endpoint: "ai-chat",
     });
 
-    const { messages } = await req.json();
+    const { messages, featureMode } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("AI service is not properly configured");
 
@@ -179,7 +205,11 @@ serve(async (req) => {
         .join("\n");
     }
 
-    const systemPrompt = buildSystemPrompt(prefsResult.data || undefined, productCatalog || undefined);
+    const systemPrompt = buildSystemPrompt(
+      prefsResult.data || undefined,
+      productCatalog || undefined,
+      featureMode || undefined
+    );
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
