@@ -11,12 +11,38 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate: require admin or service-role
+    const authHeader = req.headers.get("authorization") || "";
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !LOVABLE_API_KEY) {
       throw new Error("Missing required environment variables");
+    }
+
+    // If not service-role, verify the caller is admin
+    if (!authHeader.includes(SUPABASE_SERVICE_ROLE_KEY)) {
+      const token = authHeader.replace("Bearer ", "");
+      const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_SERVICE_ROLE_KEY },
+      });
+      if (!userRes.ok) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const userData = await userRes.json();
+      const roleRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/user_roles?user_id=eq.${userData.id}&role=eq.admin&select=id&limit=1`,
+        { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
+      );
+      const roles = await roleRes.json();
+      if (!roles || roles.length === 0) {
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // RSS feeds for clean energy news
@@ -28,14 +54,11 @@ serve(async (req) => {
 
     const allItems: Array<{ title: string; link: string; description: string; pubDate: string; source: string }> = [];
 
-    // Fetch and parse RSS feeds
     for (const feedUrl of rssFeeds) {
       try {
         const res = await fetch(feedUrl);
         if (!res.ok) continue;
         const xml = await res.text();
-
-        // Simple XML parsing for RSS items
         const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
         for (const item of items.slice(0, 5)) {
           const title = item.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.replace(/<!\[CDATA\[|\]\]>/g, "").trim() || "";
@@ -59,23 +82,21 @@ serve(async (req) => {
       });
     }
 
-    // Check existing posts to avoid duplicates (by title similarity)
+    // Duplicate check
     const existingRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/news_posts?select=title&order=created_at.desc&limit=50`,
-      {
-        headers: {
-          apikey: SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-      }
+      `${SUPABASE_URL}/rest/v1/news_posts?select=title&order=created_at.desc&limit=100`,
+      { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
     );
     const existingPosts = await existingRes.json();
     const existingTitles = new Set((existingPosts || []).map((p: any) => p.title?.toLowerCase().trim()));
 
-    // Filter out duplicates
-    const newItems = allItems.filter(
-      (item) => !existingTitles.has(item.title.toLowerCase().trim())
-    ).slice(0, 5); // Process max 5 new articles per run
+    // Also check similarity (first 40 chars match = duplicate)
+    const existingPrefixes = new Set((existingPosts || []).map((p: any) => p.title?.toLowerCase().trim().slice(0, 40)));
+
+    const newItems = allItems.filter((item) => {
+      const lower = item.title.toLowerCase().trim();
+      return !existingTitles.has(lower) && !existingPrefixes.has(lower.slice(0, 40));
+    }).slice(0, 5);
 
     if (newItems.length === 0) {
       return new Response(JSON.stringify({ message: "No new unique articles found" }), {
@@ -83,15 +104,10 @@ serve(async (req) => {
       });
     }
 
-    // Get or create a system author (use service role to find admin)
+    // Get admin author
     const adminRes = await fetch(
       `${SUPABASE_URL}/rest/v1/user_roles?role=eq.admin&select=user_id&limit=1`,
-      {
-        headers: {
-          apikey: SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-      }
+      { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
     );
     const admins = await adminRes.json();
     const authorId = admins?.[0]?.user_id;
@@ -105,7 +121,6 @@ serve(async (req) => {
 
     for (const item of newItems) {
       try {
-        // Use AI to rewrite the article
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -113,23 +128,42 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash-lite",
+            model: "google/gemini-2.5-flash",
             messages: [
               {
                 role: "system",
-                content: `You are a professional clean energy journalist writing for Embraix, Africa's leading clean energy platform. Rewrite news articles in an engaging, original style. Never copy text verbatim. Always attribute the original source.
+                content: `You are a senior editorial writer for Embraix, Africa's leading clean energy platform.
 
-Return a JSON object with these fields:
-- title: A rewritten, engaging headline (max 120 chars)
-- excerpt: A 1-2 sentence summary (max 200 chars)  
-- content: The full rewritten article in HTML format (3-5 paragraphs). Include source attribution at the end as: <p><em>Source: [Original Source Name]</em></p>
-- category: One of: "clean_energy", "solar", "ev", "storage", "climate_tech", "policy", "innovation"
+REWRITE RULES:
+- Write in a clear, diplomatic, professional tone
+- DO NOT copy original wording — rewrite everything
+- Preserve the core meaning but improve clarity
+- Make it readable for general users, not just experts
+- Remove unnecessary technical clutter
 
-IMPORTANT: Return ONLY valid JSON, no markdown code blocks.`,
+STRUCTURE:
+- Title: Engaging, clear headline (max 120 chars). Do NOT include source names.
+- Excerpt: 1-2 sentence summary (max 200 chars)
+- Content: Full article in clean HTML with:
+  - Opening paragraph (2-3 lines, hook the reader)
+  - 2-3 body paragraphs with <h3> subheadings where appropriate
+  - Proper <p> tags for each paragraph
+  - Clean spacing and structure
+  - NO "Source:" attribution at the end
+  - NO excerpt repeated at the end
+  - NO raw HTML artifacts
+  - NO duplicate text blocks
+
+IMAGE RULES:
+- Include 1-2 relevant Unsplash image URLs using format: <img src="https://images.unsplash.com/photo-XXXX?w=800&auto=format" alt="descriptive alt text" class="rounded-lg w-full my-4" />
+- Place images naturally within the article (after first or second paragraph)
+- Use real Unsplash photo IDs related to the topic (solar, energy, electric vehicles, batteries, Africa)
+
+Return ONLY valid JSON.`,
               },
               {
                 role: "user",
-                content: `Rewrite this news article:\n\nTitle: ${item.title}\nDescription: ${item.description}\nSource: ${item.source}\nOriginal URL: ${item.link}`,
+                content: `Rewrite this news article professionally:\n\nTitle: ${item.title}\nDescription: ${item.description}\nSource: ${item.source}`,
               },
             ],
             tools: [
@@ -141,9 +175,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks.`,
                   parameters: {
                     type: "object",
                     properties: {
-                      title: { type: "string", description: "Rewritten headline" },
-                      excerpt: { type: "string", description: "Brief summary" },
-                      content: { type: "string", description: "Full HTML article content" },
+                      title: { type: "string", description: "Rewritten headline, max 120 chars" },
+                      excerpt: { type: "string", description: "Brief summary, max 200 chars" },
+                      content: { type: "string", description: "Full HTML article with images embedded" },
                       category: { type: "string", enum: ["clean_energy", "solar", "ev", "storage", "climate_tech", "policy", "innovation"] },
                     },
                     required: ["title", "excerpt", "content", "category"],
@@ -165,7 +199,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks.`,
 
         const aiData = await aiResponse.json();
         const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-        
+
         if (!toolCall?.function?.arguments) {
           console.error("No tool call in AI response");
           errors++;
@@ -174,7 +208,13 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks.`,
 
         const article = JSON.parse(toolCall.function.arguments);
 
-        // Insert the rewritten article as an approved news post
+        // Clean up content: remove any trailing source attributions, duplicate excerpts
+        let cleanedContent = article.content
+          .replace(/<p>\s*<em>Source:.*?<\/em>\s*<\/p>/gi, "")
+          .replace(/<p>\s*Source:.*?<\/p>/gi, "")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
+
         const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/news_posts`, {
           method: "POST",
           headers: {
@@ -185,11 +225,12 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks.`,
           },
           body: JSON.stringify({
             title: article.title,
-            content: article.content,
+            content: cleanedContent,
             excerpt: article.excerpt,
             author_id: authorId,
             status: "approved",
             published_at: new Date().toISOString(),
+            keywords: [article.category],
           }),
         });
 
@@ -201,8 +242,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks.`,
           errors++;
         }
 
-        // Small delay between AI calls to avoid rate limiting
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 1500));
       } catch (e) {
         console.error(`Error processing article "${item.title}":`, e);
         errors++;

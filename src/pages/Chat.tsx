@@ -17,6 +17,7 @@ import StreamingText from "@/components/chat/StreamingText";
 import VoiceInput from "@/components/chat/VoiceInput";
 import UserPreferencesDialog from "@/components/chat/UserPreferencesDialog";
 import ChatProductCards from "@/components/chat/ChatProductCards";
+import AIWizard from "@/components/chat/AIWizard";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -105,6 +106,10 @@ const Chat = () => {
   const [hasTrackedFirstMessage, setHasTrackedFirstMessage] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [showWizard, setShowWizard] = useState(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    return mode === "Recommendations" || mode === "wizard";
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -314,6 +319,16 @@ const Chat = () => {
           {/* Messages — scrollable area */}
           <div className="flex-1 overflow-y-auto p-4 min-h-0">
             {messages.length === 0 && !isLoading ? (
+              showWizard ? (
+                <AIWizard
+                  onComplete={(wizardData) => {
+                    setShowWizard(false);
+                    const contextMsg = `Based on my needs: I want to ${wizardData.intent === "home" ? "power my home" : wizardData.intent === "business" ? "power my business" : wizardData.intent === "savings" ? "reduce electricity bills" : wizardData.intent === "buy" ? "buy a product" : "explore options"}. My setup is ${wizardData.size}. I need to power: ${wizardData.appliances.join(", ")}. Budget: ${wizardData.budget}. Location: ${wizardData.location}. Please recommend the best solution and show me relevant products.`;
+                    handleSend(contextMsg);
+                  }}
+                  onSkip={() => setShowWizard(false)}
+                />
+              ) : (
               <div className="h-full flex flex-col items-center justify-center text-center px-4">
                 <div className="w-14 h-14 rounded-full gradient-primary flex items-center justify-center mb-5">
                   <Bot className="w-7 h-7 text-primary-foreground" />
@@ -326,7 +341,7 @@ const Chat = () => {
                     ? modeConfig.welcome
                     : "Ask about clean energy, EVs, solar, or smart tech. I'll keep it short and useful."}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-lg mb-4">
                   {(modeConfig ? modeConfig.prompts : DEFAULT_PROMPTS).map((prompt, i) => (
                     <button
                       key={prompt.text}
@@ -338,7 +353,16 @@ const Chat = () => {
                     </button>
                   ))}
                 </div>
+                {!modeConfig && (
+                  <button
+                    onClick={() => setShowWizard(true)}
+                    className="text-sm text-primary hover:underline transition-all"
+                  >
+                    ✨ Take the guided quiz for personalized recommendations
+                  </button>
+                )}
               </div>
+              )
             ) : (
               <div className="max-w-3xl mx-auto space-y-4">
                 {messages.map((message, index) => {
