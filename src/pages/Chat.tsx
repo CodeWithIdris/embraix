@@ -106,6 +106,10 @@ const Chat = () => {
   const [hasTrackedFirstMessage, setHasTrackedFirstMessage] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [showWizard, setShowWizard] = useState(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    return mode === "Recommendations" || mode === "wizard";
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
