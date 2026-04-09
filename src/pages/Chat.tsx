@@ -360,8 +360,8 @@ const Chat = () => {
                   >
                     ✨ Take the guided quiz for personalized recommendations
                   </button>
-                )}
               </div>
+              )
             ) : (
               <div className="max-w-3xl mx-auto space-y-4">
                 {messages.map((message, index) => {
