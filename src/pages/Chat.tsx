@@ -17,6 +17,7 @@ import StreamingText from "@/components/chat/StreamingText";
 import VoiceInput from "@/components/chat/VoiceInput";
 import UserPreferencesDialog from "@/components/chat/UserPreferencesDialog";
 import ChatProductCards from "@/components/chat/ChatProductCards";
+import AIWizard from "@/components/chat/AIWizard";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import {
