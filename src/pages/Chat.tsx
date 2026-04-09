@@ -360,6 +360,7 @@ const Chat = () => {
                   >
                     ✨ Take the guided quiz for personalized recommendations
                   </button>
+                )}
               </div>
               )
             ) : (
