@@ -42,6 +42,7 @@ export const useStoreProducts = (filters?: {
         .from("store_products" as any)
         .select("*")
         .eq("is_active", true)
+        .eq("status", "published")
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false });
 
