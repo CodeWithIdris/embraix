@@ -1772,15 +1772,23 @@ export type Database = {
           installation_required: boolean | null
           is_active: boolean | null
           is_featured: boolean | null
+          manufacturer_price: number | null
+          markup_percent: number
+          model: string | null
           name: string
           power_capacity: string | null
           price: number
           recommended_usage: string | null
+          short_description: string | null
           sku: string | null
           slug: string
+          source: string | null
+          source_url: string | null
           specifications: Json | null
+          status: string
           stock_quantity: number | null
           system_type: string | null
+          tags: string[]
           updated_at: string
           warranty_years: number | null
         }
@@ -1798,15 +1806,23 @@ export type Database = {
           installation_required?: boolean | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          manufacturer_price?: number | null
+          markup_percent?: number
+          model?: string | null
           name: string
           power_capacity?: string | null
           price?: number
           recommended_usage?: string | null
+          short_description?: string | null
           sku?: string | null
           slug: string
+          source?: string | null
+          source_url?: string | null
           specifications?: Json | null
+          status?: string
           stock_quantity?: number | null
           system_type?: string | null
+          tags?: string[]
           updated_at?: string
           warranty_years?: number | null
         }
@@ -1824,15 +1840,23 @@ export type Database = {
           installation_required?: boolean | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          manufacturer_price?: number | null
+          markup_percent?: number
+          model?: string | null
           name?: string
           power_capacity?: string | null
           price?: number
           recommended_usage?: string | null
+          short_description?: string | null
           sku?: string | null
           slug?: string
+          source?: string | null
+          source_url?: string | null
           specifications?: Json | null
+          status?: string
           stock_quantity?: number | null
           system_type?: string | null
+          tags?: string[]
           updated_at?: string
           warranty_years?: number | null
         }
@@ -2029,6 +2053,7 @@ export type Database = {
         | "smart_devices"
         | "accessories"
         | "bundles"
+        | "clean_cooking"
       story_type:
         | "community_story"
         | "case_study"
@@ -2181,6 +2206,7 @@ export const Constants = {
         "smart_devices",
         "accessories",
         "bundles",
+        "clean_cooking",
       ],
       story_type: [
         "community_story",
