@@ -1,0 +1,40 @@
+# Embraix
+
+> Africa's platform for clean energy, electric vehicles, and smart technology — guides, products, expert services, and free AI consultations.
+
+Embraix helps consumers, professionals, and installers across Africa adopt clean energy and sustainable technology through editorial content, a curated product store, an expert marketplace, and an AI consultation assistant.
+
+## Pages
+
+- [Home](/): Overview of the Embraix platform.
+- [Explore](/explore): Discover featured content, products, and services.
+- [AI Consult](/chat): Free AI-powered consultations on clean energy and EVs.
+- [Newsletter](/newsletter): Weekly updates on clean energy and sustainability.
+- [Promotions](/promotions): Current deals on clean energy products.
+
+## Media
+
+- [Media Hub](/media): Articles, stories, guides, and reviews.
+- [Blog](/blog): Editorial articles on clean energy and smart tech.
+- [News](/news): Community news and discussions.
+- [Stories & Voices](/media/stories): Real-world case studies and project impact stories.
+- [DIY Guides](/media/diy-guides): Practical do-it-yourself guides.
+
+## Store
+
+- [Store Hub](/store): Catalog of solar, batteries, EVs, and smart tech.
+- [All Products](/store/products): Browse the full product catalog.
+- [Compare](/store/compare): Side-by-side product comparison.
+
+## Centre
+
+- [Centre Hub](/centre): Service marketplace for installers and providers.
+- [Browse Services](/centre/browse): Find local certified providers.
+- [Expert Marketplace](/centre/experts): Directory of energy experts.
+
+## Insight
+
+- [Insight Hub](/insight): Research, reports, and intelligence.
+- [Industry Reports](/insight/reports): Market analysis and trends.
+- [Whitepapers](/insight/whitepapers): Technical research documents.
+- [Research Publications](/insight/research): Community research library.
