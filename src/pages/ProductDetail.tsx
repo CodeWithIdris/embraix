@@ -145,7 +145,30 @@ const ProductDetail = () => {
     <>
       <Helmet>
         <title>{product.name} | Embraix Store</title>
-        <meta name="description" content={product.description || `${product.name} - ${categoryLabels[product.category]}`} />
+        <meta name="description" content={product.description?.slice(0, 160) || `${product.name} - ${categoryLabels[product.category]} on Embraix Store.`} />
+        <meta property="og:title" content={`${product.name} | Embraix Store`} />
+        <meta property="og:description" content={product.description?.slice(0, 160) || `${product.name} on Embraix Store.`} />
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={`https://embraix.lovable.app/store/product/${product.slug}`} />
+        {product.images?.[0] && <meta property="og:image" content={product.images[0]} />}
+        <link rel="canonical" href={`https://embraix.lovable.app/store/product/${product.slug}`} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.name,
+          description: product.description || undefined,
+          image: product.images || undefined,
+          brand: (product as any).brand ? { "@type": "Brand", name: (product as any).brand } : undefined,
+          sku: (product as any).model || product.id,
+          category: categoryLabels[product.category],
+          offers: (product as any).price ? {
+            "@type": "Offer",
+            price: (product as any).price,
+            priceCurrency: (product as any).currency || "USD",
+            availability: "https://schema.org/InStock",
+            url: `https://embraix.lovable.app/store/product/${product.slug}`,
+          } : undefined,
+        })}</script>
       </Helmet>
       <Header />
 
