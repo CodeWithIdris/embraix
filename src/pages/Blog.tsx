@@ -55,6 +55,11 @@ const Blog = () => {
           name="description"
           content="Explore articles about clean energy, EVs, solar power, and sustainable technology from Embraix experts."
         />
+        <meta property="og:title" content="Embraix Blog — Clean Energy Insights" />
+        <meta property="og:description" content="Articles on clean energy, EVs, solar, and sustainable technology from Embraix experts." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://embraix.lovable.app/blog" />
+        <link rel="canonical" href="https://embraix.lovable.app/blog" />
       </Helmet>
 
       <Header />
