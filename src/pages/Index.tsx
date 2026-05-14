@@ -21,16 +21,17 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Embraix - Clean Energy, Electric Vehicles & Smart Technologies for Africa</title>
-        <meta 
-          name="description" 
-          content="Embraix is Africa's leading platform for clean energy, electric vehicles, and smart technology knowledge, innovation, and collaboration. Get free AI-powered consultations." 
+        <title>Embraix — Clean Energy, EVs & Smart Tech for Africa</title>
+        <meta
+          name="description"
+          content="Africa's platform for clean energy, electric vehicles, and smart technology — guides, products, and free AI-powered consultations."
         />
         <meta name="keywords" content="clean energy, electric vehicles, solar power, sustainable technology, Africa, EV charging, smart technology" />
-        <meta property="og:title" content="Embraix - Sustainable Technology Platform for Africa" />
-        <meta property="og:description" content="Your comprehensive platform for clean energy, EVs, and smart technologies. Empowering Africa and the world." />
+        <meta property="og:title" content="Embraix — Clean Energy, EVs & Smart Tech for Africa" />
+        <meta property="og:description" content="Africa's platform for clean energy, EVs, and smart technology — guides, products, and free AI consultations." />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://embraix.com" />
+        <meta property="og:url" content="https://embraix.lovable.app/" />
+        <link rel="canonical" href="https://embraix.lovable.app/" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
