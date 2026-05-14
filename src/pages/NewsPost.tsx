@@ -114,7 +114,18 @@ const NewsPost = () => {
         <meta property="og:description" content={seoDescription} />
         {post.featured_image && <meta property="og:image" content={post.featured_image} />}
         <meta property="og:type" content="article" />
-        <link rel="canonical" href={`${window.location.origin}/news/${post.id}`} />
+        <meta property="og:url" content={`https://embraix.lovable.app/news/${post.id}`} />
+        <link rel="canonical" href={`https://embraix.lovable.app/news/${post.id}`} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: seoDescription,
+          image: post.featured_image || undefined,
+          datePublished: post.published_at || post.created_at,
+          author: { "@type": "Person", name: post.author?.full_name || "Embraix Editorial" },
+          mainEntityOfPage: `https://embraix.lovable.app/news/${post.id}`,
+        })}</script>
       </Helmet>
       <Header />
       <div className="min-h-screen pt-20 pb-12 bg-background">
