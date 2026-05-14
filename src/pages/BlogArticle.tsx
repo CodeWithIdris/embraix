@@ -74,9 +74,22 @@ const BlogArticle = () => {
         />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.excerpt || ""} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://embraix.lovable.app/blog/${article.slug}`} />
+        <link rel="canonical" href={`https://embraix.lovable.app/blog/${article.slug}`} />
         {article.featured_image && (
           <meta property="og:image" content={article.featured_image} />
         )}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.excerpt || undefined,
+          image: article.featured_image || undefined,
+          datePublished: (article as any).published_at || (article as any).created_at,
+          author: { "@type": "Person", name: (article as any).author?.full_name || "Embraix Editorial" },
+          mainEntityOfPage: `https://embraix.lovable.app/blog/${article.slug}`,
+        })}</script>
       </Helmet>
 
       <Header />
