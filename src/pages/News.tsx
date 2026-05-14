@@ -232,6 +232,11 @@ const News = () => {
       <Helmet>
         <title>News | Embraix - Community Clean Energy News</title>
         <meta name="description" content="Latest community news and discussions on clean energy, EVs, and sustainable technology in Africa." />
+        <meta property="og:title" content="Embraix News — Community Clean Energy News" />
+        <meta property="og:description" content="Community news and discussions on clean energy, EVs, and sustainable technology in Africa." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://embraix.lovable.app/news" />
+        <link rel="canonical" href="https://embraix.lovable.app/news" />
       </Helmet>
       <Header />
       <div className="min-h-screen pt-20 pb-12 bg-background">
