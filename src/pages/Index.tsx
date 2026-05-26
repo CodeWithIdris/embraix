@@ -30,8 +30,8 @@ const Index = () => {
         <meta property="og:title" content="Embraix — Clean Energy, EVs & Smart Tech for Africa" />
         <meta property="og:description" content="Africa's platform for clean energy, EVs, and smart technology — guides, products, and free AI consultations." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://embraix.lovable.app/" />
-        <link rel="canonical" href="https://embraix.lovable.app/" />
+        <meta property="og:url" content="https://embraix.com/" />
+        <link rel="canonical" href="https://embraix.com/" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

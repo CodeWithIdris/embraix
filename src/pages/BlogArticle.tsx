@@ -75,8 +75,8 @@ const BlogArticle = () => {
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.excerpt || ""} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://embraix.lovable.app/blog/${article.slug}`} />
-        <link rel="canonical" href={`https://embraix.lovable.app/blog/${article.slug}`} />
+        <meta property="og:url" content={`https://embraix.com/blog/${article.slug}`} />
+        <link rel="canonical" href={`https://embraix.com/blog/${article.slug}`} />
         {article.featured_image && (
           <meta property="og:image" content={article.featured_image} />
         )}
@@ -88,7 +88,7 @@ const BlogArticle = () => {
           image: article.featured_image || undefined,
           datePublished: (article as any).published_at || (article as any).created_at,
           author: { "@type": "Person", name: (article as any).author?.full_name || "Embraix Editorial" },
-          mainEntityOfPage: `https://embraix.lovable.app/blog/${article.slug}`,
+          mainEntityOfPage: `https://embraix.com/blog/${article.slug}`,
         })}</script>
       </Helmet>
 

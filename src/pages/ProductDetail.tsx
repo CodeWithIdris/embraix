@@ -149,9 +149,9 @@ const ProductDetail = () => {
         <meta property="og:title" content={`${product.name} | Embraix Store`} />
         <meta property="og:description" content={product.description?.slice(0, 160) || `${product.name} on Embraix Store.`} />
         <meta property="og:type" content="product" />
-        <meta property="og:url" content={`https://embraix.lovable.app/store/product/${product.slug}`} />
+        <meta property="og:url" content={`https://embraix.com/store/product/${product.slug}`} />
         {product.images?.[0] && <meta property="og:image" content={product.images[0]} />}
-        <link rel="canonical" href={`https://embraix.lovable.app/store/product/${product.slug}`} />
+        <link rel="canonical" href={`https://embraix.com/store/product/${product.slug}`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
@@ -166,7 +166,7 @@ const ProductDetail = () => {
             price: (product as any).price,
             priceCurrency: (product as any).currency || "USD",
             availability: "https://schema.org/InStock",
-            url: `https://embraix.lovable.app/store/product/${product.slug}`,
+            url: `https://embraix.com/store/product/${product.slug}`,
           } : undefined,
         })}</script>
       </Helmet>
