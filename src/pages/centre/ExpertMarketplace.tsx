@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PUBLIC_EXPERT_FIELDS } from "@/hooks/useExperts";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";

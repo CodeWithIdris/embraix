@@ -32,17 +32,9 @@ export const AdminNotificationBell = () => {
     if (!isAdmin) return;
     loadNotifications();
 
-    const ticketChannel = supabase
-      .channel("admin-tickets")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "consultation_tickets" }, (payload) => {
-        const ticket = payload.new as any;
-        setNotifications((prev) => [{
-          id: `ticket-${ticket.id}`, type: "ticket", title: "New Consultation Request",
-          description: `${ticket.user_name || ticket.user_email} needs expert help`,
-          created_at: ticket.created_at, read: false,
-        }, ...prev.slice(0, 14)]);
-      })
-      .subscribe();
+    // Tickets and expert applications are no longer broadcast over realtime
+    // (they contain private contact data), so poll for them instead.
+    const interval = setInterval(loadNotifications, 30000);
 
     const postChannel = supabase
       .channel("admin-posts")
@@ -55,22 +47,9 @@ export const AdminNotificationBell = () => {
       })
       .subscribe();
 
-    const expertChannel = supabase
-      .channel("admin-experts")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "expert_applications", filter: "status=eq.pending" }, (payload) => {
-        const app = payload.new as any;
-        setNotifications((prev) => [{
-          id: `expert-${app.id}`, type: "expert_application", title: "New Expert Application",
-          description: `${app.full_name} wants to become an expert`,
-          created_at: app.created_at, read: false,
-        }, ...prev.slice(0, 14)]);
-      })
-      .subscribe();
-
     return () => {
-      supabase.removeChannel(ticketChannel);
+      clearInterval(interval);
       supabase.removeChannel(postChannel);
-      supabase.removeChannel(expertChannel);
     };
   }, [isAdmin]);
 
