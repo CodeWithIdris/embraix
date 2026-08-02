@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PUBLIC_EXPERT_FIELDS } from "@/hooks/useExperts";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -112,12 +113,12 @@ const ExpertProfilePage = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("expert_profiles")
-        .select("*")
+        .select(PUBLIC_EXPERT_FIELDS)
         .eq("id", id)
         .single();
 
       if (error) throw error;
-      return data as ExpertProfile;
+      return data as unknown as ExpertProfile;
     },
     enabled: !!id,
   });

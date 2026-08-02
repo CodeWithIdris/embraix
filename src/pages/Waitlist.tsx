@@ -50,12 +50,8 @@ const Waitlist = () => {
     try {
       let referredBy: string | null = null;
       if (refCode) {
-        const { data: referrer } = await (supabase as any)
-          .from("waitlist_users")
-          .select("id")
-          .eq("referral_code", refCode)
-          .maybeSingle();
-        if (referrer) referredBy = referrer.id;
+        const { data: referrerId } = await (supabase as any).rpc("lookup_referrer", { _code: refCode });
+        if (referrerId) referredBy = referrerId as string;
       }
 
       const { data, error } = await (supabase as any)

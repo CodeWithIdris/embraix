@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PUBLIC_EXPERT_FIELDS } from "@/hooks/useExperts";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -82,7 +83,7 @@ const ExpertMarketplace = () => {
     queryFn: async () => {
       let query = supabase
         .from("expert_profiles")
-        .select("*")
+        .select(PUBLIC_EXPERT_FIELDS)
         .eq("status", "active")
         .eq("is_available", true)
         .order("rating", { ascending: false });

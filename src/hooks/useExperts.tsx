@@ -3,6 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
+export const PUBLIC_EXPERT_FIELDS =
+  "id, user_id, application_id, full_name, professional_title, expertise_areas, experience_years, bio, location, city, country, languages, linkedin, portfolio, avatar_url, hourly_rate, is_available, badges, certifications, rating, review_count, consultation_count, status, created_at, updated_at";
+
 export interface ExpertProfile {
   id: string;
   user_id: string;
@@ -61,13 +64,13 @@ export const useExperts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("expert_profiles")
-        .select("*")
+        .select(PUBLIC_EXPERT_FIELDS)
         .eq("status", "active")
         .eq("is_available", true)
         .order("rating", { ascending: false });
 
       if (error) throw error;
-      return data as ExpertProfile[];
+      return data as unknown as ExpertProfile[];
     },
   });
 
