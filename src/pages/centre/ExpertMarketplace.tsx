@@ -82,7 +82,7 @@ const ExpertMarketplace = () => {
     queryFn: async () => {
       let query = supabase
         .from("expert_profiles")
-        .select("*")
+        .select(PUBLIC_EXPERT_FIELDS)
         .eq("status", "active")
         .eq("is_available", true)
         .order("rating", { ascending: false });
